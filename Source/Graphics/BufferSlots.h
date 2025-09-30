@@ -1,0 +1,4 @@
+#define CBS_SCENE_CONSTANTS 1
+#define CBS_SKY_MAP 2
+#define CBS_PBR_PRM 3
+#define CBS_POSTEFFECT 4
