@@ -24,6 +24,7 @@ public:
 	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource);
 	~Audio();
 
+	std::string getName() { return resource->getName(); }
 	/// <summary>
 	/// オーディオの再生
 	/// </summary>

@@ -1,6 +1,7 @@
 #pragma once
 #include"Audio/Audio.h"
-#include<unordered_map>
+#include<string>
+#include<map>
 
 class AudioResourceList
 {
@@ -8,8 +9,24 @@ public:
 	AudioResourceList();
 	~AudioResourceList();
 
-	void loadResource(char* path);
-	Audio* getAudio(char* name);
+	static AudioResourceList* instance()
+	{
+		static AudioResourceList inst;
+		return &inst;
+	}
+
+	void loadResource(const char* path);
+	Audio* getAudio(std::string name);
+	void allClear();
+
+	void onGui();
 private:
-	std::unordered_map<char*,Audio*>audioList;
+	struct AudioInfo
+	{
+		std::unique_ptr<Audio>source;
+		float volum;
+		float pan;
+	};
+private:
+	std::map <std::string, AudioInfo> audioList;
 };

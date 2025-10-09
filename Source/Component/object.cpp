@@ -150,6 +150,9 @@ void ObjectManager::update(float elapsedTime)
 		selectionObject.erase(obj); // std::set に対しては std::erase で十分
 	}
 	removeObject.clear();
+
+	//行列更新
+	updateTransform();
 }
 
 //行列更新

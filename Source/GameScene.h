@@ -9,6 +9,7 @@
 #include"UIManager.h"
 #include"Graphics/Skymap.h"
 #include"system/PostprocessingRenderer.h"
+#include"system/CollisionSystem.h"
 
 #include"particle/ParticleManager.h"
 
@@ -40,12 +41,7 @@ private:
 	std::unique_ptr<EnemyManager>enemyManager;
 	std::unique_ptr<UIManager>uiManager;
 	std::unique_ptr<ParticleManager>particleMgr;
+	std::unique_ptr<CollisionSystem>collisionSystem;
 
 	std::unique_ptr<Skymap>skymap;
-
-	std::unique_ptr<Audio3D>sample;
-	std::unique_ptr<Audio>bgm;
-	std::unique_ptr<SubMixVoice>submixVoice;
-	float pan = 0.0f;
-	float volume = 1.0f;
 };

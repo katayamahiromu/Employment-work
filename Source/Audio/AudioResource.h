@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <Windows.h>
+#include <string>
 
 // オーディオリソース
 class AudioResource
@@ -19,6 +20,7 @@ public:
 	// WAVEフォーマット取得
 	const WAVEFORMATEX& getWaveFormat() const { return wfx; }
 
+	std::string getName() { return name; }
 private:
 	// RIFFヘッダ
 	struct Riff
@@ -50,5 +52,5 @@ private:
 	Fmt						fmt;
 	std::vector<UINT8>		data;
 	WAVEFORMATEX			wfx;
-
+	std::string				name;
 };

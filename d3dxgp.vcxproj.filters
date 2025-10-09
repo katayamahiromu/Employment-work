@@ -219,7 +219,7 @@
     <ClCompile Include="Source\particle\ParticleManager.cpp">
       <Filter>Source\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Source\system\CollisionManager.cpp">
+    <ClCompile Include="Source\system\CollisionSystem.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\FrameBuffers.cpp">
@@ -263,6 +263,9 @@
     </ClCompile>
     <ClCompile Include="Source\ResourceList\AuidoResourceList.cpp">
       <Filter>Source\ResourceList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\CollisionConponent.cpp">
+      <Filter>Source\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -461,7 +464,7 @@
     <ClInclude Include="Source\Graphics\FrameBuffers.h">
       <Filter>Source\Graphics\Post Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\system\CollisionManager.h">
+    <ClInclude Include="Source\system\CollisionSystem.h">
       <Filter>Source\System</Filter>
     </ClInclude>
     <ClInclude Include="Source\Graphics\FullScreenQuad.h">
@@ -502,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="Source\ResourceList\ResourceList.h">
       <Filter>Source\ResourceList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Component\CollisionConponent.h">
+      <Filter>Source\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

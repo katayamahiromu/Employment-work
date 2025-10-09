@@ -5,7 +5,7 @@
 #define MAKE_WAVE_TAG_VALUE(c1, c2, c3, c4)  ( c1 | (c2<<8) | (c3<<16) | (c4<<24) )
 
 // コンストラクタ
-AudioResource::AudioResource(const char* filename)
+AudioResource::AudioResource(const char* filename):name(filename)
 {
 	// WAVファイル読み込み
 	{

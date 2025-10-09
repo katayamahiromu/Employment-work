@@ -1,6 +1,5 @@
 #include"Collision.h"
 #include"Graphics/SkinnedMesh.h"
-#include<SimpleMath.h>
 
 	/// <summary>
 	/// 球と球の交差判定
@@ -19,37 +18,24 @@ bool Collision::intersectSphereAndSphere(
 	DirectX::XMFLOAT3& outVec
 )
 {
-	//DirectX::XMVECTOR posA = DirectX::XMLoadFloat3(&positionA);
-	//DirectX::XMVECTOR posB = DirectX::XMLoadFloat3(&positionB);
+	DirectX::XMVECTOR posA = DirectX::XMLoadFloat3(&positionA);
+	DirectX::XMVECTOR posB = DirectX::XMLoadFloat3(&positionB);
 	////二点間の位置ベクトルを引く
-	//DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(posB, posA);
-
-	DirectX::SimpleMath::Vector3 vec =
-	{
-		positionA.x - positionB.x,
-		positionA.y - positionB.y,
-		positionA.z - positionB.z
-	};
-
+	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(posB, posA);
 
 	//単一の長さを計算
-	//DirectX::XMVECTOR length = DirectX::XMVector3Length(vec);
-	vec.Length();
-
-	//float型に変換
-	float len = vec.x;
-	//DirectX::XMStoreFloat(&len, length);
+	float len;
+	DirectX::XMVECTOR length = DirectX::XMVector3Length(vec);
+	DirectX::XMStoreFloat(&len, length);
 
 	//距離判定
 	float range = radiusA + radiusB;
 	if (len > range)return false;
 
 	//衝突していたら衝突方向のベクトルを設定
-	/*vec = DirectX::XMVector3Normalize(vec);
-	DirectX::XMStoreFloat3(&outVec, vec);*/
+	vec = DirectX::XMVector3Normalize(vec);
+	DirectX::XMStoreFloat3(&outVec, vec);
 
-	vec.Normalize();
-	outVec = vec;
 	return true;
 }
 

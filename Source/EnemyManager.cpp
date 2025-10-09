@@ -20,11 +20,13 @@ void EnemyManager::enemyCreate(Object*o)
 	obj->setName("test enemy");
 	obj->setScale(scale);
 	obj->setPosition({ 0.0f,0.0f,10.0f });
+
 	obj->AddComponent<Enemy>(*o);
 	obj->AddComponent<Movement>();
 	obj->AddComponent<Animation>();
 	obj->AddComponent<TimeLapse>();
 	obj->AddComponent<Audio3DEmitter>(3.0f, 10.0f);
+	obj->AddComponent<CollisionComponent>(CollisionType::Mesh);
 
 	enemyArray.emplace_back(obj);
 }

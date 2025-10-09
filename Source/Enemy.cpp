@@ -29,6 +29,11 @@ void Enemy::prepare()
 	timeLaps = getObject()->GetComponent<TimeLapse>();
 	emitter = getObject()->GetComponent<Audio3DEmitter>();
 	emitter->loadFile("Resources\\Audio\\グレート.wav");
+
+	collision = getObject()->GetComponent<CollisionComponent>();
+	collision->setMeshName("PLT:PLT_mesh");
+	collision->setBoneName("PLT:Knee_L_BK");
+	collision->setBoneName("PLT:Knee_R_BK");
 	
 	//待機
 	stateMachine->registerState(CAST_INT(Action::Idle),
@@ -49,6 +54,8 @@ void Enemy::prepare()
 
 void Enemy::update(float elapsedTime)
 {
+	receiveCollision.clear();
+
 	stateMachine->update(elapsedTime);
 
 	//エミターの更新

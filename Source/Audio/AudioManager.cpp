@@ -53,6 +53,12 @@ std::unique_ptr<Audio> AudioManager::loadAudioSource(const char* filename)
 	return std::make_unique<Audio>(xaudio, resource);
 }
 
+Audio*AudioManager::AllLoadAudioSource(const char* filename)
+{
+	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);
+	return new Audio(xaudio, resource);
+}
+
 
 std::unique_ptr<Audio3D> AudioManager::loadAudioSource3D(const char* filename, SoundEmitter* emitter)
 {

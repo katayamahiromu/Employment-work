@@ -175,6 +175,7 @@
     <ClCompile Include="Source\Component\Animation.cpp" />
     <ClCompile Include="Source\Component\Audio3DEmitter.cpp" />
     <ClCompile Include="Source\Component\Audio3DListener.cpp" />
+    <ClCompile Include="Source\Component\CollisionConponent.cpp" />
     <ClCompile Include="Source\Component\Movement.cpp" />
     <ClCompile Include="Source\Component\object.cpp" />
     <ClCompile Include="Source\Component\PlayerController.cpp" />
@@ -217,7 +218,7 @@
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\stage.cpp" />
     <ClCompile Include="Source\StageManager.cpp" />
-    <ClCompile Include="Source\system\CollisionManager.cpp" />
+    <ClCompile Include="Source\system\CollisionSystem.cpp" />
     <ClCompile Include="Source\system\Messenger.cpp" />
     <ClCompile Include="Source\system\PostprocessingRenderer.cpp" />
     <ClCompile Include="Source\system\StateMachine.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="Source\Component\Animation.h" />
     <ClInclude Include="Source\Component\Audio3DEmitter.h" />
     <ClInclude Include="Source\Component\Audio3DListener.h" />
+    <ClInclude Include="Source\Component\CollisionConponent.h" />
     <ClInclude Include="Source\Component\Component.h" />
     <ClInclude Include="Source\Component\Movement.h" />
     <ClInclude Include="Source\Component\object.h" />
@@ -291,7 +293,7 @@
     <ClInclude Include="Source\SceneManager.h" />
     <ClInclude Include="Source\stage.h" />
     <ClInclude Include="Source\StageManager.h" />
-    <ClInclude Include="Source\system\CollisionManager.h" />
+    <ClInclude Include="Source\system\CollisionSystem.h" />
     <ClInclude Include="Source\system\MessageData.h" />
     <ClInclude Include="Source\system\Messenger.h" />
     <ClInclude Include="Source\system\PostprocessingRenderer.h" />

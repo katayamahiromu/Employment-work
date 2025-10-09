@@ -37,7 +37,7 @@ public:
 	const char* getName() const { return name.c_str(); }
 
 	//ˆÊ’uŽæ“¾
-	const DirectX::XMFLOAT3* getPosition()const { return &position; }
+	const DirectX::XMFLOAT3* getPosition() const { return &position; }
 	//ˆÊ’uÝ’è
 	void setPosition(const DirectX::XMFLOAT3& p) { this->position = p; }
 

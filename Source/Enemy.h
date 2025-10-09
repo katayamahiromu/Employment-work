@@ -4,6 +4,7 @@
 #include"Component/Movement.h"
 #include"Component/TimeLapse.h"
 #include"Component/Audio3DEmitter.h"
+#include"Component/CollisionConponent.h"
 
 #include"system/StateMachine.h"
 
@@ -47,8 +48,10 @@ private:
 	std::shared_ptr<Animation>animation;
 	std::shared_ptr<TimeLapse>timeLaps;
 	std::shared_ptr<Audio3DEmitter>emitter;
+	std::shared_ptr<CollisionComponent>collision;
 	std::unique_ptr<StateMachine>stateMachine;
 
+	std::vector<DirectX::XMFLOAT3>receiveCollision;
 	//アニメーション用
 	enum class Anime
 	{

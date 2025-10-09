@@ -28,4 +28,6 @@ namespace MessageData
 		float range;
 		float height;
 	};
+
+	static constexpr const char* REGISTER_COLLISIO_COMPONENT = "register_collision_component";
 }

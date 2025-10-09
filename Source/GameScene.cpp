@@ -14,11 +14,14 @@
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/RewidLine.h"
-
+#include"ResourceList/AuidoResourceList.h"
+#include"math/Collision.h"
 #include"imgui.h"
 // 初期化
 void GameScene::initialize()
 {
+	collisionSystem = std::make_unique<CollisionSystem>();
+
 	DeviceManager* deviceMgr = DeviceManager::instance();
 	objManager = std::make_unique<ObjectManager>();
 
@@ -50,15 +53,16 @@ void GameScene::initialize()
 	//処理の最後の記録に弊害が出るため全てのトランスフォームの更新
 	objManager->updateTransform();
 
-	bgm = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
-	submixVoice = AudioManager::instance()->createSubMixVoice();
-	bgm->setSubmixVoice(submixVoice.get());
+	AudioResourceList* list = AudioResourceList::instance();
+	list->loadResource("Resources\\data\\SceneGameAudioData.csv");
+	list->getAudio("bgm")->play(true);
 }
 
 // 終了処理
 void GameScene::finalize()
 {
 	objManager->clear();
+	//AudioResourceList::instance()->allClear();
 }
 
 // 更新処理
@@ -75,16 +79,16 @@ void GameScene::update(float elapsedTime)
 	cameraCtrl->update(elapsedTime);
 
 	objManager->update(elapsedTime);
-	objManager->updateTransform();
 
 	uiManager->update(elapsedTime);
 
-	////	パーティクルシステム更新
-	//	爆発演出
+	//パーティクルシステム更新
 	particleMgr->update(elapsedTime);
 
 	//ポストエフェクトの更新
 	PostprocessingRenderer::instance()->update(elapsedTime);
+
+	collisionSystem->update();
 }
 
 
@@ -116,6 +120,9 @@ void GameScene::render()
 			}
 		);
 
+		//デバック用のレンダラー表示
+		collisionSystem->debugRender();
+
 		// ラインレンダラ描画実行
 		graphics->getLineRenderer()->render(dc, *view, *proj);
 
@@ -142,6 +149,7 @@ void GameScene::render()
 	// 2DデバッグGUI描画
 	{
 		cameraCtrl->OnGui();
+		//AudioResourceList::instance()->onGui();
 	}
 
 	PostEffects->getPostProcess()->clean(dc);
