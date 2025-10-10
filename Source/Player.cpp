@@ -42,6 +42,10 @@ void Player::prepare()
     timeLapse = getObject()->GetComponent<TimeLapse>();
     playerController = getObject()->GetComponent<PlayerController>();
     lister = getObject()->GetComponent<Audio3DListener>();
+    collision = getObject()->GetComponent<CollisionComponent>();
+
+    collision->setMeshName("NIC:magic_wand");
+    collision->setBoneName("NIC:wand2_BK");
    
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
@@ -74,6 +78,8 @@ void Player::update(float elapsedTime)
 
     //ボタンが押されているかの状態を送信
     TimeLapseManager::instance().setIsRecord(playerController->isButton(GamePad::BTN_A));
+    TimeLapseManager::instance().setIsPushButton(playerController->isButtonDown(GamePad::BTN_A));
+    TimeLapseManager::instance().setIsRelease(playerController->isButtonRelease(GamePad::BTN_A));
 
     //カメラに情報を送る
     sendCameraData();

@@ -14,7 +14,7 @@ AudioResourceList::~AudioResourceList()
 
 }
 
-void AudioResourceList::loadResource(const char* path)
+void AudioResourceList::loadResource(const char* path, bool revers)
 {
 	rapidcsv::Document doc(path, rapidcsv::LabelParams(0, -1));
 
@@ -31,6 +31,17 @@ void AudioResourceList::loadResource(const char* path)
 		AudioInfo info;
 		info.source = AudioManager::instance()->loadAudioSource(audioPath.c_str());
 		audioList.emplace(name,std::move(info));
+
+
+		//‹tÄ¶‚à¶¬‚·‚é‚È‚ç
+		if (revers)
+		{
+			AudioInfo info;
+			std::string revers = "r";
+			info.source = AudioManager::instance()->loadAudioSource(audioPath.c_str());
+			info.source->createReversWav();
+			audioList.emplace(revers + name, std::move(info));
+		}
 	}
 }
 

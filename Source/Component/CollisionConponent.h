@@ -16,6 +16,7 @@ public:
 	const char* getName() const override { return "Collision Component"; }
 	void prepare()override;
 	void update(float elapsedTime)override;
+	void OnGUI() override;
 
 	void setMeshName(std::string name);
 	void setBoneName(std::string name);

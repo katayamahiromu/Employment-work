@@ -37,6 +37,10 @@ public:
 
 	//キーが押されている
 	bool isButtonDown(GamePadButton button) { return (gamePad->getButtonDown() & (button)); }
+
+	//キーが離された
+	bool isButtonRelease(GamePadButton button) { return (gamePad->getButtonUp() & (button)); }
+	
 	//左スティックの入力値を入手
 	const DirectX::XMFLOAT2& getLeftStick()const { return DirectX::XMFLOAT2(gamePad->getAxisLX(), gamePad->getAxisLY()); }
 

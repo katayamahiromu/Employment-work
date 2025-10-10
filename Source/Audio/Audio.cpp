@@ -97,6 +97,18 @@ void Audio::sustainLoop(float loop_start, float loop_end)
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 }
 
+//逆再生
+void Audio::reversPlay(Audio*audio)
+{
+	if (!audio)return;
+
+	//音が二重に聞こえる為元になる音源を止める
+	audio->stop();
+
+	//最大再生時間 - 元の再生時間
+	middlePlay(resource->getMaxPlayTime() - audio->getPlayTime());
+}
+
 //ボリュームの変更
 void Audio::setVolume(float volume)
 {
@@ -230,6 +242,20 @@ bool Audio::isPlay()
 	//BuffersQueued が 0 でない、または SamplesPlayed が 0 でない場合、再生中とみなす
 	if (state.BuffersQueued > 0 || state.SamplesPlayed > 0)return true;
 	return false;
+}
+
+UINT32 Audio::getPlaySamplingPosition()
+{
+	XAUDIO2_VOICE_STATE state;
+	sourceVoice->GetState(&state);
+	return static_cast<UINT32>(state.SamplesPlayed);
+}
+
+float Audio::getPlayTime()
+{
+	XAUDIO2_VOICE_STATE state;
+	sourceVoice->GetState(&state);
+	return static_cast<float>(state.SamplesPlayed / resource->getWaveFormat().nSamplesPerSec);
 }
 
 void Audio::setSubmixVoice(SubMixVoice* sv)

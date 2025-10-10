@@ -22,7 +22,13 @@ public:
 	bool getIsRecord() { return isRecord; }
 	void setIsRecord(bool setting) { isRecord = setting; }
 
+	void setIsPushButton(bool setting) { isPushButton = setting; }
+	void setIsRelease(bool setting) { isReleaseButton = setting; }
+	void update();
 private:
 	bool isRecord = false;
+	bool isPushButton = false;
+	bool isReleaseButton = false;
+	bool reverse = true;
 	std::list<TimeLapse*>timeLapsArray;
 };

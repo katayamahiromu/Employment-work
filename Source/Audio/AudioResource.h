@@ -11,6 +11,9 @@ public:
 	AudioResource(const char* filename);
 	~AudioResource();
 
+	//データを逆にして逆再生に対応させる
+	void reversData();
+
 	// データ取得
 	UINT8* getAudioData() { return data.data(); }
 
@@ -21,6 +24,8 @@ public:
 	const WAVEFORMATEX& getWaveFormat() const { return wfx; }
 
 	std::string getName() { return name; }
+
+	float getMaxPlayTime() { return maxPlaySec; }
 private:
 	// RIFFヘッダ
 	struct Riff
@@ -53,4 +58,6 @@ private:
 	std::vector<UINT8>		data;
 	WAVEFORMATEX			wfx;
 	std::string				name;
+
+	float maxPlaySec;
 };

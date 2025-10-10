@@ -31,6 +31,7 @@ void PlayerManager::playerCreate()
 	player->AddComponent<Animation>();
 	player->AddComponent<TimeLapse>();
 	player->AddComponent<Audio3DListener>(static_cast<int>(Lisner::PLAYER));
+	player->AddComponent<CollisionComponent>(CollisionType::Mesh);
 }
 
 void PlayerManager::attachmentCreate()

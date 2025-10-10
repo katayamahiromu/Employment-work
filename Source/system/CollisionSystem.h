@@ -12,6 +12,7 @@ public:
 	~CollisionSystem();
 
 	void update();
+	void onGui();
 	void debugRender();
 private:
 	void registerCollisionComponent(void*data);

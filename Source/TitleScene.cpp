@@ -45,6 +45,12 @@ void TitleScene::initialize()
 	//	0.1f,		// カメラが映し出すの最近距離
 	//	1000.0f		// カメラが映し出すの最遠距離
 	//);
+
+	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	sample->play(true);
+
+	sampleRevers = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	sampleRevers->createReversWav();
 }
 
 //終了化
@@ -102,6 +108,13 @@ void TitleScene::Gui()
 	{
 		count--;
 		test.backAndPop();
+	}
+
+
+	if (ImGui::Button("revers"))
+	{
+		flag = !flag;
+		flag ? sample->reversPlay(sampleRevers.get()) :sampleRevers->reversPlay(sample.get());
 	}
 	ImGui::End();
 }

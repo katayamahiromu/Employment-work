@@ -15,7 +15,7 @@ public:
 		return &inst;
 	}
 
-	void loadResource(const char* path);
+	void loadResource(const char* path,bool revers = false);
 	Audio* getAudio(std::string name);
 	void allClear();
 

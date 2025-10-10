@@ -5,6 +5,7 @@
 #include"Component/TimeLapse.h"
 #include"Component/PlayerController.h"
 #include"Component/Audio3DListener.h"
+#include"Component/CollisionConponent.h"
 
 #include"system/StateMachine.h"
 #include"Graphics/RewidLine.h"
@@ -90,6 +91,7 @@ private:
 	std::shared_ptr<TimeLapse>timeLapse;
 	std::shared_ptr<PlayerController>playerController;
 	std::shared_ptr<Audio3DListener>lister;
+	std::shared_ptr<CollisionComponent>collision;
 
 	std::unique_ptr<StateMachine>stateMachine;
 };

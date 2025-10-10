@@ -15,7 +15,9 @@
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/RewidLine.h"
 #include"ResourceList/AuidoResourceList.h"
-#include"math/Collision.h"
+
+#include"system/TimeLapseManager.h"
+
 #include"imgui.h"
 // 初期化
 void GameScene::initialize()
@@ -54,7 +56,7 @@ void GameScene::initialize()
 	objManager->updateTransform();
 
 	AudioResourceList* list = AudioResourceList::instance();
-	list->loadResource("Resources\\data\\SceneGameAudioData.csv");
+	list->loadResource("Resources\\data\\SceneGameAudioData.csv",true);
 	list->getAudio("bgm")->play(true);
 }
 
@@ -78,8 +80,10 @@ void GameScene::update(float elapsedTime)
 	cameraCtrl->setFrontY(yaw);
 	cameraCtrl->update(elapsedTime);
 
+	//オブジェクト更新
 	objManager->update(elapsedTime);
 
+	//UI更新
 	uiManager->update(elapsedTime);
 
 	//パーティクルシステム更新
@@ -88,7 +92,11 @@ void GameScene::update(float elapsedTime)
 	//ポストエフェクトの更新
 	PostprocessingRenderer::instance()->update(elapsedTime);
 
+	//コリジョンシステムの更新
 	collisionSystem->update();
+
+	//タイムラプスの更新
+	TimeLapseManager::instance().update();
 }
 
 

@@ -1,5 +1,6 @@
 #include "../misc.h"
 #include "AudioResource.h"
+#include <algorithm>
 
 // WAVEタグ作成マクロ
 #define MAKE_WAVE_TAG_VALUE(c1, c2, c3, c4)  ( c1 | (c2<<8) | (c3<<16) | (c4<<24) )
@@ -98,10 +99,29 @@ AudioResource::AudioResource(const char* filename):name(filename)
 		wfx.nAvgBytesPerSec = wfx.nBlockAlign * wfx.nSamplesPerSec;
 		wfx.cbSize = sizeof(WAVEFORMATEX);
 	}
+
+	maxPlaySec = static_cast<float>(data.size() / wfx.nAvgBytesPerSec);
 }
 
 // デストラクタ
 AudioResource::~AudioResource()
 {
 
+}
+
+void AudioResource::reversData()
+{
+	const size_t sampleCount = data.size() / fmt.blockSize;
+
+	//サンプル単位で入れ替え
+	for (size_t i = 0;i < sampleCount / 2;++i)
+	{
+		for (int b = 0;b < fmt.blockSize;++b)
+		{
+			std::swap(
+				data[i * fmt.blockSize + b],
+				data[(sampleCount - 1 - i) * fmt.blockSize + b]
+			);
+		}
+	}
 }

@@ -25,6 +25,10 @@ public:
 	~Audio();
 
 	std::string getName() { return resource->getName(); }
+
+	//逆再生用にデータの変形
+	void createReversWav() { resource->reversData(); }
+
 	/// <summary>
 	/// オーディオの再生
 	/// </summary>
@@ -50,6 +54,12 @@ public:
 	/// 指定した所をループ
 	/// </summary>
 	void sustainLoop(float loop_start, float loop_end);
+
+	/// <summary>
+	/// 逆再生　
+	/// 通常再生と同じデータからもらわなければ可笑しくなるので注意
+	/// </summary>
+	void reversPlay(Audio*audio);
 
 	/// <summary>
 	/// ボリュームの変更
@@ -90,9 +100,22 @@ public:
 	bool isPlay();
 
 	/// <summary>
+	/// 現在の再生位置を取得（ループに対応してないので注意）
+	/// </summary>
+	UINT32 getPlaySamplingPosition();
+
+	/// <summary>
+	/// 現在までの再生時間を取得
+	/// </summary>
+	float getPlayTime();
+
+
+	/// <summary>
 	/// 出力先をサブミックスボイスに設定する
 	/// </summary>
 	void setSubmixVoice(SubMixVoice*sv);
+
+	AudioResource* getResource() { return resource.get(); }
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;

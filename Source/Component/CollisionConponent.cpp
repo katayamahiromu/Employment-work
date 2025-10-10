@@ -2,6 +2,7 @@
 #include"math/Mathf.h"
 #include"system/Messenger.h"
 #include"system/MessageData.h"
+#include"../Utils/imgui/imgui.h"
 
 CollisionComponent::CollisionComponent(CollisionType type):type(type)
 {
@@ -30,6 +31,14 @@ void CollisionComponent::update(float elapsedTime)
 	}
 }
 
+void CollisionComponent::OnGUI()
+{
+	for (auto pos : collisionPos)
+	{
+		ImGui::InputFloat3("Collision Pos", &pos.x);
+	}
+}
+
 void CollisionComponent::setMeshName(std::string name)
 {
 	meshIndexArray.emplace_back(getObject()->getModel()->findMeshIndex(name.c_str()));
@@ -47,20 +56,23 @@ void CollisionComponent::meshCollisionSetting()
 	animation::keyframe key = model->getKeyFrame();
 	if (key.nodes.size() == 0)return;
 
+	//モデルのワールド行列
+	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(getObject()->getTransform());
 	for (auto mesh : meshIndexArray)
 	{
 		for (auto bone : boneIndexArray)
 		{
+			//モデルのローカル行列
 			DirectX::XMFLOAT4X4 m = model->boneMatrix(mesh, bone, key);
+			DirectX::XMMATRIX M = DirectX::XMLoadFloat4x4(&m);
 
-			DirectX::XMFLOAT3 pos;
+			//ボーンの位置のワールド行列を算出
+			DirectX::XMMATRIX WM = M * world;
+			DirectX::XMFLOAT4X4 worldMatrix;
+			DirectX::XMStoreFloat4x4(&worldMatrix, WM);
 
-			//この二つの使用してない
-			DirectX::XMFLOAT3 scale;
-			DirectX::XMFLOAT4 rotation;
-
-			Mathf::transformDecomposition(m, pos, scale, rotation);
-			collisionPos.emplace_back(pos);
+			//位置の保存
+			collisionPos.emplace_back(DirectX::XMFLOAT3(worldMatrix._41, worldMatrix._42, worldMatrix._43));
 		}
 	}
 }
