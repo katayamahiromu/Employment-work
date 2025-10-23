@@ -62,22 +62,22 @@ dcl_thread_group 512, 1, 1
 // Initial variable locations:
 //   vThreadID.x <- DTid.x; vThreadID.y <- DTid.y; vThreadID.z <- DTid.z
 //
-#line 11 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\BitReverseCS.hlsl"
+#line 12 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\BitReverseCS.hlsl"
 mov r0.x, vThreadID.x  // r0.x <- i
 
-#line 12
+#line 13
 uge r0.y, r0.x, cb10[0].x
 if_nz r0.y
   ret 
 endif 
 
-#line 15
+#line 16
 mov r0.y, l(0)  // r0.y <- j
 
-#line 16
+#line 17
 mov r0.x, r0.x  // r0.x <- x
 
-#line 17
+#line 18
 mov r0.z, l(0)  // r0.z <- k
 mov r0.w, r0.y  // r0.w <- j
 mov r1.x, r0.x  // r1.x <- x
@@ -86,27 +86,27 @@ loop
   ult r1.z, r1.y, cb10[0].y
   breakc_z r1.z
 
-#line 19
+#line 20
   mov r1.z, l(1)
   ishl r1.z, r0.w, r1.z
   mov r1.w, l(1)
   and r1.w, r1.w, r1.x
   iadd r0.w, r1.w, r1.z
 
-#line 20
+#line 21
   mov r1.z, l(1)
   ushr r1.x, r1.x, r1.z
 
-#line 21
+#line 22
   iadd r1.y, r1.y, l(1)
 endloop 
 
-#line 22
+#line 23
 ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.y, r0.x, l(0), t0.xxxx
 ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.x, r0.x, l(4), t0.xxxx
 store_structured u0.x, r0.w, l(0), r0.y
 store_structured u0.x, r0.w, l(4), r0.x
 
-#line 23
+#line 24
 ret 
 // Approximately 28 instruction slots used

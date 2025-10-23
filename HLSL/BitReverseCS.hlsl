@@ -1,9 +1,10 @@
 #include"FFT.hlsli"
+
 //情報入力バッファ
-StructuredBuffer<float2> data_input;
+StructuredBuffer<float2> data_input : register(t0);
 
 //情報書き込みバッファ
-RWStructuredBuffer<float2> data_output;
+RWStructuredBuffer<float2> data_output : register(u0);
 
 [numthreads(512, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )

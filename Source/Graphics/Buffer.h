@@ -29,17 +29,14 @@ inline HRESULT createBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
 /// </summary>
 /// <param name="buffer"></param>
 template<typename Ty>
-inline HRESULT createInputBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+inline HRESULT createInputBuffer(ID3D11Device* device, ID3D11Buffer** buffer, size_t elementCount)
 {
-	D3D11_BUFFER_DESC desc;
-	::memset(&desc, 0, sizeof(desc));
-
+	D3D11_BUFFER_DESC desc = {};
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.ByteWidth = sizeof(Ty);
+	desc.ByteWidth = static_cast<UINT>(sizeof(Ty) * elementCount);
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.StructureByteStride = sizeof(Ty);
-	
 	return device->CreateBuffer(&desc, nullptr, buffer);
 }
 
@@ -47,13 +44,11 @@ inline HRESULT createInputBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
 /// 計算した結果を書き込むためのバッファを生成
 /// </summary>
 template<typename Ty>
-inline HRESULT createOutputBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+inline HRESULT createOutputBuffer(ID3D11Device* device, ID3D11Buffer** buffer, size_t elementCount)
 {
-	D3D11_BUFFER_DESC desc;
-	::memset(&desc, 0, sizeof(desc));
-
+	D3D11_BUFFER_DESC desc = {};
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	desc.ByteWidth = sizeof(Ty);
+	desc.ByteWidth = static_cast<UINT>(sizeof(Ty) * elementCount);
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = sizeof(Ty);
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -74,15 +69,14 @@ inline HRESULT createUnorderedAccessView(ID3D11Device* device, ID3D11Buffer* buf
 /// 出力結果をコピーするバッファを生成
 /// </summary>
 template<typename Ty>
-inline HRESULT createCopyBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+inline HRESULT createCopyBuffer(ID3D11Device* device, ID3D11Buffer** buffer, size_t elementCount)
 {
-	D3D11_BUFFER_DESC desc;
-	::memset(&desc, 0, sizeof(desc));
-
-	desc.ByteWidth = sizeof(Ty);
+	D3D11_BUFFER_DESC desc = {};
+	desc.ByteWidth = static_cast<UINT>(sizeof(Ty) * elementCount);
 	desc.StructureByteStride = sizeof(Ty);
 	desc.Usage = D3D11_USAGE_STAGING;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	return device->CreateBuffer(&desc, nullptr, buffer);
 }
 

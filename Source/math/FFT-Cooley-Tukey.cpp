@@ -10,21 +10,21 @@ void FFT::initialize(ID3D11Device* device)
 	HRESULT hr{ S_OK };
 	//ビット反転のコンピュートシェーダー準備
 	{
-		createInputBuffer<Complex>(device,reversBit.input_structured_buffer.GetAddressOf());
+		createInputBuffer<Complex>(device,reversBit.input_structured_buffer.GetAddressOf(),1024);
 		createOutputSRV(device,reversBit.input_structured_buffer.Get(), reversBit.input_shader_resource_view.GetAddressOf());
-		createOutputBuffer<Complex>(device, reversBit.output_structured_buffer.GetAddressOf());
+		createOutputBuffer<Complex>(device, reversBit.output_structured_buffer.GetAddressOf(),1024);
 		createUnorderedAccessView(device, reversBit.output_structured_buffer.Get(), reversBit.output_unordered_access_view.GetAddressOf());
-		createCopyBuffer<Complex>(device, reversBit.output_copy_buffer.GetAddressOf());
+		createCopyBuffer<Complex>(device, reversBit.output_copy_buffer.GetAddressOf(),1024);
 		ShaderManager::instance()->createCsFromCso(device, "Shader//BitReverseCS.cso", reversBit.basic_compute_shader.GetAddressOf());
 	}
 
 	//バタフライ関数用のコンピュートシェーダー準備
 	{
-		createInputBuffer<Complex>(device, butterfly.input_structured_buffer.GetAddressOf());
+		createInputBuffer<Complex>(device, butterfly.input_structured_buffer.GetAddressOf(),1024);
 		createOutputSRV(device, butterfly.input_structured_buffer.Get(), butterfly.input_shader_resource_view.GetAddressOf());
-		createOutputBuffer<Complex>(device, butterfly.output_structured_buffer.GetAddressOf());
+		createOutputBuffer<Complex>(device, butterfly.output_structured_buffer.GetAddressOf(),1024);
 		createUnorderedAccessView(device, butterfly.output_structured_buffer.Get(), butterfly.output_unordered_access_view.GetAddressOf());
-		createCopyBuffer<Complex>(device, butterfly.output_copy_buffer.GetAddressOf());
+		createCopyBuffer<Complex>(device, butterfly.output_copy_buffer.GetAddressOf(),1024);
 		ShaderManager::instance()->createCsFromCso(device, "Shader//ButterflyCS.cso", butterfly.basic_compute_shader.GetAddressOf());
 	}
 
@@ -79,25 +79,6 @@ void FFT::fft(std::vector<Complex>& data)
 	}
 }
 
-std::vector<Complex>FFT::ConvertBufferUint8(std::vector<UINT8>data)
-{
-	if (data.empty())return {};
-
-	size_t n_in = data.size();
-	size_t n = nextPow2(n_in);
-
-	// 準備：複素配列に変換（中心化して正規化）
-	std::vector<Complex>buf(n, Complex(0.0f, 0.0f));
-	for (size_t i = 0;i < n_in;++i)
-	{
-		// 8bit unsigned PCM -> 中心を 128 にして [-1, 1] に正規化
-		float sample = (static_cast<int>(data[i] - 128)) / 128.0f;
-		buf[i] = Complex(sample, 0.0f);
-	}
-
-	return buf;
-}
-
 std::vector<Complex> FFT::window(const std::vector<Complex>& src)
 {
 	std::vector<Complex> dst = src;
@@ -113,10 +94,10 @@ std::vector<Complex> FFT::window(const std::vector<Complex>& src)
 
 std::vector<Complex> FFT::fft_from_uint8(const std::vector<UINT8>& input, bool applyWindow)
 {
-	std::vector<Complex>buf = ConvertBufferUint8(input);
+	std::vector<Complex> buf = ConvertBuffer<UINT8>(input);
 
 	//窓を適用
-	if (applyWindow) window(buf);
+	if (applyWindow) buf = window(buf);
 
 	fft(buf);
 
@@ -125,26 +106,27 @@ std::vector<Complex> FFT::fft_from_uint8(const std::vector<UINT8>& input, bool a
 
 std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vector<UINT8>& input, bool applyWindow)
 {
-	std::vector<Complex> buf = ConvertBufferUint8(input);
+	std::vector<Complex> buf = ConvertBuffer<UINT8>(input);
 
 	//窓を適用
-	if (applyWindow) window(buf);
+	if (applyWindow) buf = window(buf);
 
 	//バッファーの更新
 	FFTBuffer param;
 	param.N = static_cast<unsigned int>(buf.size());
 	param.log2N = static_cast<UINT>(std::log2(static_cast<float>(param.N)));
-
 	dc->UpdateSubresource(fftBuffer.Get(), 0, 0, &param, 0, 0);
 
 	//ビット反転をGPU側で計算
 	{
 		//GPUへのデータの転送と関数の実行
-		dc->UpdateSubresource(reversBit.input_structured_buffer.Get(), 0, nullptr, &buf, 0, 0);
+		dc->UpdateSubresource(reversBit.input_structured_buffer.Get(), 0, nullptr, buf.data(), 0, 0);
+		dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
 		dc->CSSetShaderResources(0, 1, reversBit.input_shader_resource_view.GetAddressOf());
 		dc->CSSetUnorderedAccessViews(0, 1, reversBit.output_unordered_access_view.GetAddressOf(), nullptr);
 		dc->CSSetShader(reversBit.basic_compute_shader.Get(), nullptr, 0);
-		dc->Dispatch(2, 1, 1);
+		UINT groupCount = (UINT)ceil(buf.size() / 512);
+		dc->Dispatch(groupCount, 1, 1);
 
 		//計算受け取り
 		dc->CopyResource(reversBit.output_copy_buffer.Get(), reversBit.output_structured_buffer.Get());
@@ -152,7 +134,8 @@ std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vec
 		HRESULT hr = dc->Map(reversBit.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
 		if (SUCCEEDED(hr))
 		{
-			buf = *reinterpret_cast<std::vector<Complex>*>(sub_resource.pData);
+			size_t dataSize = buf.size() * sizeof(Complex);
+			memcpy(buf.data(), sub_resource.pData, dataSize);
 			dc->Unmap(reversBit.output_copy_buffer.Get(), 0);
 		}
 	}
@@ -164,11 +147,13 @@ std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vec
 			//GPUへのデータの転送と関数の実行
 			param.stage = stage;
 			dc->UpdateSubresource(fftBuffer.Get(), 0, nullptr, &param, 0, 0);
-			dc->UpdateSubresource(butterfly.input_structured_buffer.Get(), 0, nullptr, & buf, 0, 0);
+			dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
+			dc->UpdateSubresource(butterfly.input_structured_buffer.Get(), 0, nullptr, buf.data(), 0, 0);
 			dc->CSSetShaderResources(0, 1, butterfly.input_shader_resource_view.GetAddressOf());
 			dc->CSSetUnorderedAccessViews(0, 1, butterfly.output_unordered_access_view.GetAddressOf(), nullptr);
 			dc->CSSetShader(butterfly.basic_compute_shader.Get(), nullptr, 0);
-			dc->Dispatch(2, 1, 1);
+			UINT groupCount = (UINT)ceil(buf.size() / 512);
+			dc->Dispatch(groupCount, 1, 1);
 
 			//計算の受け取り
 			dc->CopyResource(butterfly.output_copy_buffer.Get(), butterfly.output_structured_buffer.Get());
@@ -176,7 +161,8 @@ std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vec
 			HRESULT hr = dc->Map(butterfly.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
 			if (SUCCEEDED(hr))
 			{
-				buf = *reinterpret_cast<std::vector<Complex>*>(sub_resource.pData);
+				size_t dataSize = buf.size() * sizeof(Complex);
+				memcpy(buf.data(), sub_resource.pData, dataSize);
 				dc->Unmap(butterfly.output_copy_buffer.Get(), 0);
 			}
 		}

@@ -49,6 +49,7 @@ Spectrum::~Spectrum()
 void Spectrum::update(Audio* audio)
 {
 	const int FFT_SIZE = 1024; //解析サイズ
+
 	size_t startPosition = audio->getSamplePlay(); //再生中のサンプル位置
 	AudioResource* resource = audio->getResource(); //WAVデータ
 

@@ -50,8 +50,27 @@ private:
 	//窓関数
 	std::vector<Complex>window(const std::vector<Complex>& src);
 
-	//UINT8型のデータをFFTを出来る形に直す
-	std::vector<Complex>ConvertBufferUint8(std::vector<UINT8>data);
+	//データをFFTを出来る形に直す
+	template<typename T>
+	std::vector<Complex>ConvertBuffer(std::vector<T>data)
+	{
+		if (data.empty())return {};
+
+		size_t n_in = data.size();
+		size_t n = nextPow2(n_in);
+
+		// 準備：複素配列に変換（中心化して正規化）
+		std::vector<Complex>buf(n, Complex(0.0f, 0.0f));
+		for (size_t i = 0;i < n_in;++i)
+		{
+			// 8bit unsigned PCM -> 中心を 128 にして [-1, 1] に正規化
+			float sample = (static_cast<int>(data[i] - 128)) / 128.0f;
+			buf[i] = Complex(sample, 0.0f);
+		}
+
+		return buf;
+	};
+
 private:
 	struct GPCPU
 	{
