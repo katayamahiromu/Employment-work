@@ -19,4 +19,6 @@ public:
 	HRESULT createPsFromCso(ID3D11Device* device, const char* cso_name, ID3D11PixelShader** pixel_shader);
 
 	HRESULT createGsFromCso(ID3D11Device* device, const char* cso_name, ID3D11GeometryShader** gemetory_shader);
+
+	HRESULT createCsFromCso(ID3D11Device* device, const char* cso_name, ID3D11ComputeShader** compute_shader);
 };

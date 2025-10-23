@@ -9,6 +9,8 @@ CollisionSystem::CollisionSystem()
 		MessageData::REGISTER_COLLISIO_COMPONENT, [&](void* data)
 		{ registerCollisionComponent(data); });
 }
+
+
 CollisionSystem::~CollisionSystem()
 {
 	componentArray.clear();
@@ -25,9 +27,9 @@ void CollisionSystem::debugRender()
 	DebugRenderer* dr = GraphicsManager::instance()->getDebugRenderer();
 	for (auto component : componentArray)
 	{
-		for (auto p : component->getPositionArray())
+		for (auto info : component->getSphereInfo())
 		{
-			dr->drawSphere(p, 0.5f, DirectX::XMFLOAT4(1, 1, 1, 1));
+			dr->drawSphere(info.pos, info.size, DirectX::XMFLOAT4(1, 1, 1, 1));
 		}
 	}
 }

@@ -9,8 +9,15 @@ Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource)
 {
 	HRESULT hr;
 
+	callback = std::make_unique<AudioCallback>();
+
 	// ソースボイスを生成
-	hr = xaudio->CreateSourceVoice(&sourceVoice, &resource->getWaveFormat());
+	hr = xaudio->CreateSourceVoice(
+		&sourceVoice,
+		&resource->getWaveFormat(),
+		0,
+		XAUDIO2_DEFAULT_FREQ_RATIO,
+		callback.get());
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 }
 
@@ -35,7 +42,8 @@ void Audio::play(bool loop)
 	buffer.pAudioData = resource->getAudioData();
 	buffer.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	
+	buffer.pContext = this;
+
 	sourceVoice->SubmitSourceBuffer(&buffer);
 
 	HRESULT hr = sourceVoice->Start();
@@ -60,6 +68,7 @@ void Audio::DCPlay()
 	buffer.pAudioData = resource->getAudioData();
 	buffer.LoopCount = 0;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.pContext = this;
 
 	sourceVoice->SubmitSourceBuffer(&buffer);
 
@@ -76,6 +85,7 @@ void Audio::middlePlay(float time)
 	buffer.LoopCount = 0;
 	buffer.PlayBegin = static_cast<UINT32>(resource->getWaveFormat().nSamplesPerSec * time);
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.pContext = this;
 
 	sourceVoice->SubmitSourceBuffer(&buffer);
 	HRESULT hr = sourceVoice->Start();
@@ -251,11 +261,13 @@ UINT32 Audio::getPlaySamplingPosition()
 	return static_cast<UINT32>(state.SamplesPlayed);
 }
 
+
 float Audio::getPlayTime()
 {
 	XAUDIO2_VOICE_STATE state;
 	sourceVoice->GetState(&state);
-	return static_cast<float>(state.SamplesPlayed / resource->getWaveFormat().nSamplesPerSec);
+	float totalTime = static_cast<float>(state.SamplesPlayed) / static_cast<float>(resource->getWaveFormat().nSamplesPerSec);
+	return fmodf(totalTime, resource->getDuration());
 }
 
 void Audio::setSubmixVoice(SubMixVoice* sv)
@@ -265,4 +277,11 @@ void Audio::setSubmixVoice(SubMixVoice* sv)
 	XAUDIO2_SEND_DESCRIPTOR send = { 0,sv->getSubMiXVoice()};
 	XAUDIO2_VOICE_SENDS sendlist = { 1,&send };
 	hr = sourceVoice->SetOutputVoices(&sendlist);
+}
+
+size_t Audio::getSamplePlay()
+{
+	XAUDIO2_VOICE_STATE state;
+	sourceVoice->GetState(&state);
+	return state.SamplesPlayed;
 }

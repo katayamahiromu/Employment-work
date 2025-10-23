@@ -45,7 +45,7 @@ void Player::prepare()
     collision = getObject()->GetComponent<CollisionComponent>();
 
     collision->setMeshName("NIC:magic_wand");
-    collision->setBoneName("NIC:wand2_BK");
+    collision->setBoneInfo("NIC:wand2_BK",0.5f);
    
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);

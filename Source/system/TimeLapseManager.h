@@ -31,4 +31,5 @@ private:
 	bool isReleaseButton = false;
 	bool reverse = true;
 	std::list<TimeLapse*>timeLapsArray;
+	uint64_t frameCount = 0;
 };

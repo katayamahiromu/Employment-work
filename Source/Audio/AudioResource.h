@@ -26,6 +26,11 @@ public:
 	std::string getName() { return name; }
 
 	float getMaxPlayTime() { return maxPlaySec; }
+
+	float getDuration()const;
+
+	//
+	std::vector<UINT8> allData() { return data; }
 private:
 	// RIFFƒwƒbƒ_
 	struct Riff

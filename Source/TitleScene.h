@@ -8,6 +8,8 @@
 #include<string>
 #include<memory>
 
+#include"Graphics/Specturm.h"
+
 //タイトルシーン
 class TitleScene :public Scene
 {
@@ -36,6 +38,8 @@ private:
 
 	std::unique_ptr<Audio>sample;
 	std::unique_ptr<Audio>sampleRevers;
+
+	std::unique_ptr<Spectrum>spectrum;
 
 	bool flag = true;
 	int count = 5;

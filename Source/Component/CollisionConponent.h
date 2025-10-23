@@ -7,6 +7,12 @@ enum CollisionType
 	None,
 };
 
+struct collisionSphereInfo
+{
+	DirectX::XMFLOAT3 pos;
+	float size;
+};
+
 class CollisionComponent : public Component
 {
 public:
@@ -19,15 +25,15 @@ public:
 	void OnGUI() override;
 
 	void setMeshName(std::string name);
-	void setBoneName(std::string name);
+	void setBoneInfo(std::string name,float size);
 
-	std::vector<DirectX::XMFLOAT3>getPositionArray() { return collisionPos; }
+	std::vector<collisionSphereInfo> &getSphereInfo() { return collisionSphereInfoArray; }
 private:
 
 	void meshCollisionSetting();
 	void noneCollisionSetting();
 	CollisionType type;
-	std::vector<DirectX::XMFLOAT3>collisionPos;
+	std::vector<collisionSphereInfo>collisionSphereInfoArray;
 	std::vector<int> meshIndexArray;
-	std::vector<int> boneIndexArray;
+	std::vector<int>boneIndexArray;
 };

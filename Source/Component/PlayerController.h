@@ -16,7 +16,7 @@ public:
 	void update(float elapsedTime)override;
 
 	//ƒL[‚ÌŠ„‚è“–‚Ä
-	enum class keyAllocation :int
+	enum class keyAllocation : int
 	{
 		key_Y,
 		key_X,

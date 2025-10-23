@@ -5,6 +5,7 @@
 #include "Audio3DSystem.h"
 #include "SubMixVoice.h"
 #include <unordered_map>
+#include"../Utils/RingBuffer.h"
 
 // オーディオ管理
 class AudioManager
@@ -48,7 +49,6 @@ public:
 
 	void registerAudio(SoundListner* source, int slot) { listenerArray.insert({ slot,source }); }
 	SoundListner* findAudio(int slot) { return listenerArray.at(slot); }
-
 private:
 	IXAudio2*				xaudio = nullptr;
 	IXAudio2MasteringVoice* masteringVoice = nullptr;

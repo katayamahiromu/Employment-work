@@ -125,3 +125,9 @@ void AudioResource::reversData()
 		}
 	}
 }
+
+float AudioResource::getDuration()const
+{
+	return static_cast<float>(data.size()) /
+		static_cast<float>(fmt.transRate);
+}

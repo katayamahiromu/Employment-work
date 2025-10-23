@@ -1,4 +1,4 @@
-#include"TitleScene.h"
+ï»¿#include"TitleScene.h"
 #include"DeviceManager.h"
 #include"Graphics/GraphicsManager.h"
 #include"Input/InputManager.h"
@@ -8,10 +8,10 @@
 #include"imgui.h"
 
 
-//‰Šú‰»ˆ—
+//åˆæœŸåŒ–å‡¦ç†
 void TitleScene::initialize()
 {
-	//ƒ^ƒCƒgƒ‹‰æ‘œ“Ç‚İ‚İ
+	//ã‚¿ã‚¤ãƒˆãƒ«ç”»åƒèª­ã¿è¾¼ã¿
 	titleImage = std::make_unique<Sprite>(DeviceManager::instance()->getDevice(), L"Resources\\Image\\Title.png");
 	test.push("aaa");
 	test.push("bbb");
@@ -23,7 +23,7 @@ void TitleScene::initialize()
 	//cmrController = std::make_unique<CameraController>();
 
 	//DeviceManager* deviceMgr = DeviceManager::instance();
-	//const float scale_fcator = 0.1f;	// ƒ‚ƒfƒ‹‚ª‘å‚«‚¢‚Ì‚ÅƒXƒP[ƒ‹’²®
+	//const float scale_fcator = 0.1f;	// ãƒ¢ãƒ‡ãƒ«ãŒå¤§ãã„ã®ã§ã‚¹ã‚±ãƒ¼ãƒ«èª¿æ•´
 	//DirectX::XMFLOAT3 scale = { scale_fcator, scale_fcator, scale_fcator };
 	//std::shared_ptr<Object>obj = objManager->create();
 	//obj->loadModel("Resources\\Model\\player\\Chiyo School Dress.fbx");
@@ -31,44 +31,46 @@ void TitleScene::initialize()
 	//obj->setScale(scale);
 	//obj->setPosition({ 0.0f,0.0f,0.0f });
 
-	////ƒJƒƒ‰‰Šúİ’è
+	////ã‚«ãƒ¡ãƒ©åˆæœŸè¨­å®š
 	//Camera* camera = Camera::instance();
 	//camera->setLookAt(
-	//	DirectX::XMFLOAT3(0, 10, -10),// ƒJƒƒ‰‚Ì‹“_iˆÊ’uj
-	//	DirectX::XMFLOAT3(0, 0, 0),	  // ƒJƒƒ‰‚Ì’‹“_iƒ^[ƒQƒbƒgj
-	//	DirectX::XMFLOAT3(0, 1, 0)    // ƒJƒƒ‰‚Ìã•ûŒü
+	//	DirectX::XMFLOAT3(0, 10, -10),// ã‚«ãƒ¡ãƒ©ã®è¦–ç‚¹ï¼ˆä½ç½®ï¼‰
+	//	DirectX::XMFLOAT3(0, 0, 0),	  // ã‚«ãƒ¡ãƒ©ã®æ³¨è¦–ç‚¹ï¼ˆã‚¿ãƒ¼ã‚²ãƒƒãƒˆï¼‰
+	//	DirectX::XMFLOAT3(0, 1, 0)    // ã‚«ãƒ¡ãƒ©ã®ä¸Šæ–¹å‘
 	//);
 
 	//camera->setPerspectiveFov(
-	//	DirectX::XMConvertToRadians(45),	// ‹–ìŠp
-	//	deviceMgr->getScreenWidth() / deviceMgr->getScreenHeight(),	// ‰æ–Êc‰¡”ä—¦
-	//	0.1f,		// ƒJƒƒ‰‚ª‰f‚µo‚·‚ÌÅ‹ß‹——£
-	//	1000.0f		// ƒJƒƒ‰‚ª‰f‚µo‚·‚ÌÅ‰“‹——£
+	//	DirectX::XMConvertToRadians(45),	// è¦–é‡è§’
+	//	deviceMgr->getScreenWidth() / deviceMgr->getScreenHeight(),	// ç”»é¢ç¸¦æ¨ªæ¯”ç‡
+	//	0.1f,		// ã‚«ãƒ¡ãƒ©ãŒæ˜ ã—å‡ºã™ã®æœ€è¿‘è·é›¢
+	//	1000.0f		// ã‚«ãƒ¡ãƒ©ãŒæ˜ ã—å‡ºã™ã®æœ€é è·é›¢
 	//);
 
+	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\ã‚°ãƒ¬ãƒ¼ãƒˆ.wav");
 	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
 	sample->play(true);
 
-	sampleRevers = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
-	sampleRevers->createReversWav();
+	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
 }
 
-//I—¹‰»
+//çµ‚äº†åŒ–
 void TitleScene::finalize()
 {
 	//objManager->clear();
 }
 
-//XVˆ—
+//æ›´æ–°å‡¦ç†
 void TitleScene::update(float elapsedTime)
 {
 	GamePad* gamePad = InputManager::instance()->getGamePad();
 
-	//ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚çƒQ[ƒ€ƒV[ƒ“‚É‘JˆÚ
+	//ãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ãŸã‚‰ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ã«é·ç§»
 	if (gamePad->getButtonDown() & GamePad::BTN_A)
 	{
 		SceneManager::instance()->changeScene(new LoadingScene(new GameScene));
 	}
+
+	spectrum->update(sample.get());
 
 	/*objManager->update(elapsedTime);
 	objManager->updateTransform();
@@ -86,9 +88,9 @@ void TitleScene::Gui()
 
 	ImGui::InputText("", text, sizeof(text));
 	ImGui::SameLine();
-	if (ImGui::Button("Push"))		//sendƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚ç
+	if (ImGui::Button("Push"))		//sendãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã‚‰
 	{
-		if (strcmp(text, "") != 0)//“ü—ÍƒEƒBƒ“ƒhƒE‚É“ü—Í‚ª‚ ‚é
+		if (strcmp(text, "") != 0)//å…¥åŠ›ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«å…¥åŠ›ãŒã‚ã‚‹
 		{
 			test.pushFront(text);
 		}
@@ -110,16 +112,17 @@ void TitleScene::Gui()
 		test.backAndPop();
 	}
 
+	float playTime = sample->getPlayTime();
+	ImGui::InputFloat("play time", &playTime);
+	ImGui::End();
 
-	if (ImGui::Button("revers"))
-	{
-		flag = !flag;
-		flag ? sample->reversPlay(sampleRevers.get()) :sampleRevers->reversPlay(sample.get());
-	}
+	ImGui::Begin("Spectrum");
+	std::vector<float>data = *spectrum->getSpectrumData();
+	ImGui::PlotLines("FFT",data.data(), (int)data.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(0, 150));
 	ImGui::End();
 }
 
-//•`‰æˆ—
+//æç”»å‡¦ç†
 void TitleScene::render()
 {
 	DeviceManager* mgr = DeviceManager::instance();
@@ -129,25 +132,25 @@ void TitleScene::render()
 	ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
 	ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
 
-	//‰æ–ÊƒNƒŠƒA•ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒgƒrƒ…[İ’è
+	//ç”»é¢ã‚¯ãƒªã‚¢ï¼†ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãƒ“ãƒ¥ãƒ¼è¨­å®š
 	FLOAT color[] = { 0.0f,0.0f,0.5f,1.0f };//RGBA(0.0f~1.0f)
 	dc->ClearRenderTargetView(rtv, color);
 	dc->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	dc->OMSetRenderTargets(1, &rtv, dsv);
 	
-	// 2D •`‰æİ’è
+	// 2D æç”»è¨­å®š
 	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
-		// ƒTƒ“ƒvƒ‰[ƒXƒe[ƒg‚Ìİ’èiƒŠƒjƒAj
+		// ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆãƒªãƒ‹ã‚¢ï¼‰
 		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
-		// ƒuƒŒƒ“ƒhƒXƒe[ƒg‚Ìİ’èiƒAƒ‹ƒtƒ@j
+		// ãƒ–ãƒ¬ãƒ³ãƒ‰ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚¢ãƒ«ãƒ•ã‚¡ï¼‰
 		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
-		// [“xƒXƒeƒ“ƒVƒ‹ƒXƒe[ƒg‚Ìİ’èi[“xƒeƒXƒgƒIƒtA[“x‘‚«‚İƒIƒtj
+		// æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆæ·±åº¦ãƒ†ã‚¹ãƒˆã‚ªãƒ•ã€æ·±åº¦æ›¸ãè¾¼ã¿ã‚ªãƒ•ï¼‰
 		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
-		// ƒ‰ƒXƒ^ƒ‰ƒCƒUƒXƒe[ƒg‚Ìİ’èiƒ\ƒŠƒbƒhA— –Ê•\¦ƒIƒtj
+		// ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚¶ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚½ãƒªãƒƒãƒ‰ã€è£é¢è¡¨ç¤ºã‚ªãƒ•ï¼‰
 		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
 	});
 
-	// 2D •`‰æ
+	// 2D æç”»
 	{
 		titleImage->render(dc,
 			0, 0, mgr->getScreenWidth(), mgr->getScreenHeight(),
@@ -157,26 +160,40 @@ void TitleScene::render()
 		);
 	}
 
+
+	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
+		// ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆãƒªãƒ‹ã‚¢ï¼‰
+		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
+		// ãƒ–ãƒ¬ãƒ³ãƒ‰ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚¢ãƒ«ãƒ•ã‚¡ï¼‰
+		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::NONE)].Get(), nullptr, 0xFFFFFFFF);
+		// æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆæ·±åº¦ãƒ†ã‚¹ãƒˆã‚ªãƒ•ã€æ·±åº¦æ›¸ãè¾¼ã¿ã‚ªãƒ•ï¼‰
+		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
+		// ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚¶ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚½ãƒªãƒƒãƒ‰ã€è£é¢è¡¨ç¤ºã‚ªãƒ•ï¼‰
+		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
+		});
+	
+	spectrum->draw(dc);
+
 	//Camera* camera = Camera::instance();
 	//const DirectX::XMFLOAT4X4* view = camera->getView();
 	//const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 	//{
 	//	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
-	//		// ƒTƒ“ƒvƒ‰[ƒXƒe[ƒg‚Ìİ’èiƒAƒjƒ\ƒgƒƒsƒbƒNj
+	//		// ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚¢ãƒ‹ã‚½ãƒˆãƒ­ãƒ”ãƒƒã‚¯ï¼‰
 	//		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::ANISOTROPIC)].GetAddressOf());
-	//		// ƒuƒŒƒ“ƒhƒXƒe[ƒg‚Ìİ’èiƒAƒ‹ƒtƒ@j
+	//		// ãƒ–ãƒ¬ãƒ³ãƒ‰ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚¢ãƒ«ãƒ•ã‚¡ï¼‰
 	//		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
-	//		// [“xƒXƒeƒ“ƒVƒ‹ƒXƒe[ƒg‚Ìİ’èi[“xƒeƒXƒgƒIƒ“A[“x‘‚«‚İƒIƒ“j
+	//		// æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆæ·±åº¦ãƒ†ã‚¹ãƒˆã‚ªãƒ³ã€æ·±åº¦æ›¸ãè¾¼ã¿ã‚ªãƒ³ï¼‰
 	//		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::ON_ON)].Get(), 0);
-	//		// ƒ‰ƒXƒ^ƒ‰ƒCƒUƒXƒe[ƒg‚Ìİ’èiƒ\ƒŠƒbƒhA— –Ê•\¦ƒIƒtj
+	//		// ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚¶ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®šï¼ˆã‚½ãƒªãƒƒãƒ‰ã€è£é¢è¡¨ç¤ºã‚ªãƒ•ï¼‰
 	//		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::MODEL)].Get());
 	//		}
 	//	);
 
-	//	// ƒ‰ƒCƒ“ƒŒƒ“ƒ_ƒ‰•`‰æÀs
+	//	// ãƒ©ã‚¤ãƒ³ãƒ¬ãƒ³ãƒ€ãƒ©æç”»å®Ÿè¡Œ
 	//	graphics->getLineRenderer()->render(dc, *view, *proj);
 
-	//	// ƒfƒoƒbƒOƒŒƒ“ƒ_ƒ‰•`‰æÀs
+	//	// ãƒ‡ãƒãƒƒã‚°ãƒ¬ãƒ³ãƒ€ãƒ©æç”»å®Ÿè¡Œ
 	//	graphics->getDebugRenderer()->render(dc, *view, *proj);
 	//}
 

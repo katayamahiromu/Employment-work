@@ -5,7 +5,8 @@
 #include <xaudio2.h>
 #include <x3daudio.h>
 #include "AudioResource.h"
-#include"SubMixVoice.h"
+#include "SubMixVoice.h"
+#include "AudioCallback.h"
 
 enum Fliter_Type
 {
@@ -114,10 +115,23 @@ public:
 	/// 出力先をサブミックスボイスに設定する
 	/// </summary>
 	void setSubmixVoice(SubMixVoice*sv);
+	
+	/// <summary>
+	/// 現在のバッファのスタート位置を取得
+	/// </summary>
+	size_t getSamplePlay();
 
 	AudioResource* getResource() { return resource.get(); }
+
+	/// <summary>
+	/// コールバック側で呼び出す関数
+	/// ループのカウント
+	/// </summary>
+	void loopCountUp() { loopCount++; }
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;
+	std::unique_ptr<AudioCallback>callback;
 	float volume = 1.0f;
+	int loopCount = 0;
 };

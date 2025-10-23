@@ -25,6 +25,69 @@ inline HRESULT createBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
 }
 
 /// <summary>
+/// /計算用の情報を受け渡すためのバッファ作成
+/// </summary>
+/// <param name="buffer"></param>
+template<typename Ty>
+inline HRESULT createInputBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+{
+	D3D11_BUFFER_DESC desc;
+	::memset(&desc, 0, sizeof(desc));
+
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.ByteWidth = sizeof(Ty);
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.StructureByteStride = sizeof(Ty);
+	
+	return device->CreateBuffer(&desc, nullptr, buffer);
+}
+
+/// <summary>
+/// 計算した結果を書き込むためのバッファを生成
+/// </summary>
+template<typename Ty>
+inline HRESULT createOutputBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+{
+	D3D11_BUFFER_DESC desc;
+	::memset(&desc, 0, sizeof(desc));
+
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.ByteWidth = sizeof(Ty);
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(Ty);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	return device->CreateBuffer(&desc, nullptr, buffer);
+}
+
+inline HRESULT createOutputSRV(ID3D11Device*device,ID3D11Buffer*buffer,ID3D11ShaderResourceView**srv)
+{
+	return device->CreateShaderResourceView(buffer, nullptr, srv);
+}
+
+inline HRESULT createUnorderedAccessView(ID3D11Device* device, ID3D11Buffer* buffer, ID3D11UnorderedAccessView** srv)
+{
+	return device->CreateUnorderedAccessView(buffer, nullptr, srv);
+}
+
+/// <summary>
+/// 出力結果をコピーするバッファを生成
+/// </summary>
+template<typename Ty>
+inline HRESULT createCopyBuffer(ID3D11Device* device, ID3D11Buffer** buffer)
+{
+	D3D11_BUFFER_DESC desc;
+	::memset(&desc, 0, sizeof(desc));
+
+	desc.ByteWidth = sizeof(Ty);
+	desc.StructureByteStride = sizeof(Ty);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	return device->CreateBuffer(&desc, nullptr, buffer);
+}
+
+
+/// <summary>
 /// 定数バッファの更新と設定
 /// </summary>
 /// <param name="dc">デバイスコンテキスト</param>

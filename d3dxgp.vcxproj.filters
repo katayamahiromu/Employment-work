@@ -64,6 +64,9 @@
     <Filter Include="Source\ResourceList">
       <UniqueIdentifier>{c7de073a-e626-4434-ba14-2fa0065517d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HLSL\math">
+      <UniqueIdentifier>{757d848a-ea3a-452c-8582-86c971bad5f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework.cpp">
@@ -266,6 +269,15 @@
     </ClCompile>
     <ClCompile Include="Source\Component\CollisionConponent.cpp">
       <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\AudioCallback.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\math\FFT-Cooley-Tukey.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Specturm.cpp">
+      <Filter>Source\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -509,6 +521,15 @@
     <ClInclude Include="Source\Component\CollisionConponent.h">
       <Filter>Source\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Audio\AudioCallback.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\math\FFT-Cooley-Tukey.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Specturm.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -540,6 +561,12 @@
     </None>
     <None Include="HLSL\FullScreenQuad.hlsli">
       <Filter>HLSL\Post Effect</Filter>
+    </None>
+    <None Include="HLSL\Spectrum.hlsli">
+      <Filter>HLSL</Filter>
+    </None>
+    <None Include="HLSL\FFT.hlsli">
+      <Filter>HLSL\math</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -608,6 +635,18 @@
     </FxCompile>
     <FxCompile Include="HLSL\RewindLinePS.hlsl">
       <Filter>HLSL\Post Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\SpectrumVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\SpectrumPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\ButterflyCS.hlsl">
+      <Filter>HLSL\math</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\BitReverseCS.hlsl">
+      <Filter>HLSL\math</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

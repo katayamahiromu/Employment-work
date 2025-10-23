@@ -32,8 +32,8 @@ void Enemy::prepare()
 
 	collision = getObject()->GetComponent<CollisionComponent>();
 	collision->setMeshName("PLT:PLT_mesh");
-	collision->setBoneName("PLT:Knee_L_BK");
-	collision->setBoneName("PLT:Knee_R_BK");
+	collision->setBoneInfo("PLT:Knee_L_BK",1.0f);
+	collision->setBoneInfo("PLT:Knee_R_BK",1.0f);
 	
 	//‘Ò‹@
 	stateMachine->registerState(CAST_INT(Action::Idle),

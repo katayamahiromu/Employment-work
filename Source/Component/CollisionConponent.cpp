@@ -21,8 +21,6 @@ void CollisionComponent::prepare()
 
 void CollisionComponent::update(float elapsedTime)
 {
-	collisionPos.clear();
-
 	switch (type)
 	{
 	case Mesh:meshCollisionSetting();break;
@@ -33,9 +31,10 @@ void CollisionComponent::update(float elapsedTime)
 
 void CollisionComponent::OnGUI()
 {
-	for (auto pos : collisionPos)
+	for (auto info : collisionSphereInfoArray)
 	{
-		ImGui::InputFloat3("Collision Pos", &pos.x);
+		ImGui::InputFloat3("Collision Pos", &info.pos.x);
+		ImGui::InputFloat("size", &info.size);
 	}
 }
 
@@ -44,9 +43,15 @@ void CollisionComponent::setMeshName(std::string name)
 	meshIndexArray.emplace_back(getObject()->getModel()->findMeshIndex(name.c_str()));
 }
 
-void CollisionComponent::setBoneName(std::string name)
+void CollisionComponent::setBoneInfo(std::string name, float size)
 {
+
 	boneIndexArray.emplace_back(getObject()->getModel()->findBoneIndex(name.c_str()));
+	collisionSphereInfo info;
+	info.pos = { 0.0f,0.0f,0.0f };
+	info.size = size;
+	collisionSphereInfoArray.emplace_back(info);
+	
 }
 
 void CollisionComponent::meshCollisionSetting()
@@ -57,6 +62,10 @@ void CollisionComponent::meshCollisionSetting()
 	if (key.nodes.size() == 0)return;
 
 	//モデルのワールド行列
+
+	//コリジョン情報にアクセスするインデックス
+	int index = 0;
+
 	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(getObject()->getTransform());
 	for (auto mesh : meshIndexArray)
 	{
@@ -72,12 +81,14 @@ void CollisionComponent::meshCollisionSetting()
 			DirectX::XMStoreFloat4x4(&worldMatrix, WM);
 
 			//位置の保存
-			collisionPos.emplace_back(DirectX::XMFLOAT3(worldMatrix._41, worldMatrix._42, worldMatrix._43));
+			collisionSphereInfoArray.at(index).pos = 
+			DirectX::XMFLOAT3(worldMatrix._41, worldMatrix._42, worldMatrix._43);
+			index++;
 		}
 	}
 }
 
 void CollisionComponent::noneCollisionSetting()
 {
-	collisionPos.emplace_back(*getObject()->getPosition());
+	collisionSphereInfoArray.at(0).pos = *getObject()->getPosition();
 }
