@@ -3,12 +3,12 @@
 Texture2D texture0 : register(t0);
 SamplerState sampler0 : register(s0);
 
-cbuffer RewindLine:register(b2)
+cbuffer RewindLine : register(b2)
 {
-	float time;
-	float2 screenSize;
-	float dummy;
-}
+    float time;
+    float2 screenSize;
+    float dummy;
+};
 
 float4 main(VS_OUT pin) : SV_TARGET
 {

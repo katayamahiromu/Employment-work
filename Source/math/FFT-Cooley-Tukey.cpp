@@ -7,26 +7,26 @@
 
 void FFT::initialize(ID3D11Device* device)
 {
-	HRESULT hr{ S_OK };
-	//ビット反転のコンピュートシェーダー準備
-	{
-		createInputBuffer<Complex>(device,reversBit.input_structured_buffer.GetAddressOf(),1024);
-		createOutputSRV(device,reversBit.input_structured_buffer.Get(), reversBit.input_shader_resource_view.GetAddressOf());
-		createOutputBuffer<Complex>(device, reversBit.output_structured_buffer.GetAddressOf(),1024);
-		createUnorderedAccessView(device, reversBit.output_structured_buffer.Get(), reversBit.output_unordered_access_view.GetAddressOf());
-		createCopyBuffer<Complex>(device, reversBit.output_copy_buffer.GetAddressOf(),1024);
-		ShaderManager::instance()->createCsFromCso(device, "Shader//BitReverseCS.cso", reversBit.basic_compute_shader.GetAddressOf());
-	}
+	//HRESULT hr{ S_OK };
+	////ビット反転のコンピュートシェーダー準備
+	//{
+	//	createInputBuffer<Complex>(device, reversBit.input_structured_buffer.GetAddressOf(), 1024);
+	//	createOutputSRV(device,reversBit.input_structured_buffer.Get(), reversBit.input_shader_resource_view.GetAddressOf());
+	//	createOutputBuffer<Complex>(device, reversBit.output_structured_buffer.GetAddressOf(),1024);
+	//	createUnorderedAccessView(device, reversBit.output_structured_buffer.Get(), reversBit.output_unordered_access_view.GetAddressOf());
+	//	createCopyBuffer<Complex>(device, reversBit.output_copy_buffer.GetAddressOf(),1024);
+	//	ShaderManager::instance()->createCsFromCso(device, "Shader//BitReverseCS.cso", reversBit.basic_compute_shader.GetAddressOf());
+	//}
 
-	//バタフライ関数用のコンピュートシェーダー準備
-	{
-		createInputBuffer<Complex>(device, butterfly.input_structured_buffer.GetAddressOf(),1024);
-		createOutputSRV(device, butterfly.input_structured_buffer.Get(), butterfly.input_shader_resource_view.GetAddressOf());
-		createOutputBuffer<Complex>(device, butterfly.output_structured_buffer.GetAddressOf(),1024);
-		createUnorderedAccessView(device, butterfly.output_structured_buffer.Get(), butterfly.output_unordered_access_view.GetAddressOf());
-		createCopyBuffer<Complex>(device, butterfly.output_copy_buffer.GetAddressOf(),1024);
-		ShaderManager::instance()->createCsFromCso(device, "Shader//ButterflyCS.cso", butterfly.basic_compute_shader.GetAddressOf());
-	}
+	////バタフライ関数用のコンピュートシェーダー準備
+	//{
+	//	createInputBuffer<Complex>(device, butterfly.input_structured_buffer.GetAddressOf(),1024);
+	//	createOutputSRV(device, butterfly.input_structured_buffer.Get(), butterfly.input_shader_resource_view.GetAddressOf());
+	//	createOutputBuffer<Complex>(device, butterfly.output_structured_buffer.GetAddressOf(),1024);
+	//	createUnorderedAccessView(device, butterfly.output_structured_buffer.Get(), butterfly.output_unordered_access_view.GetAddressOf());
+	//	createCopyBuffer<Complex>(device, butterfly.output_copy_buffer.GetAddressOf(),1024);
+	//	ShaderManager::instance()->createCsFromCso(device, "Shader//ButterflyCS.cso", butterfly.basic_compute_shader.GetAddressOf());
+	//}
 
 	//共通のバッファを作成
 	createBuffer<FFTBuffer>(device, fftBuffer.GetAddressOf());
@@ -79,6 +79,26 @@ void FFT::fft(std::vector<Complex>& data)
 	}
 }
 
+void FFT::ifft(std::vector<Complex>& data)
+{
+	size_t n = data.size();
+
+	//入力を複素共役に
+	for (auto& i : data)
+		i = std::conj(i);
+
+	//FFTを実行（通常の正方向）
+	fft(data);
+
+	//出力を再び複素共役に
+	for (auto& i : data)
+		i = std::conj(i);
+
+	//正規化
+	for (auto& i : data)
+		i /= static_cast<float>(n);
+}
+
 std::vector<Complex> FFT::window(const std::vector<Complex>& src)
 {
 	std::vector<Complex> dst = src;
@@ -117,56 +137,56 @@ std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vec
 	param.log2N = static_cast<UINT>(std::log2(static_cast<float>(param.N)));
 	dc->UpdateSubresource(fftBuffer.Get(), 0, 0, &param, 0, 0);
 
-	//ビット反転をGPU側で計算
-	{
-		//GPUへのデータの転送と関数の実行
-		dc->UpdateSubresource(reversBit.input_structured_buffer.Get(), 0, nullptr, buf.data(), 0, 0);
-		dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
-		dc->CSSetShaderResources(0, 1, reversBit.input_shader_resource_view.GetAddressOf());
-		dc->CSSetUnorderedAccessViews(0, 1, reversBit.output_unordered_access_view.GetAddressOf(), nullptr);
-		dc->CSSetShader(reversBit.basic_compute_shader.Get(), nullptr, 0);
-		UINT groupCount = (UINT)ceil(buf.size() / 512);
-		dc->Dispatch(groupCount, 1, 1);
+	////ビット反転をGPU側で計算
+	//{
+	//	//GPUへのデータの転送と関数の実行
+	//	dc->UpdateSubresource(reversBit.input_structured_buffer.Get(), 0, nullptr, buf.data(), 0, 0);
+	//	dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
+	//	dc->CSSetShaderResources(0, 1, reversBit.input_shader_resource_view.GetAddressOf());
+	//	dc->CSSetUnorderedAccessViews(0, 1, reversBit.output_unordered_access_view.GetAddressOf(), nullptr);
+	//	dc->CSSetShader(reversBit.basic_compute_shader.Get(), nullptr, 0);
+	//	UINT groupCount = (UINT)ceil(buf.size() / 512);
+	//	dc->Dispatch(groupCount, 1, 1);
 
-		//計算受け取り
-		dc->CopyResource(reversBit.output_copy_buffer.Get(), reversBit.output_structured_buffer.Get());
-		D3D11_MAPPED_SUBRESOURCE sub_resource;
-		HRESULT hr = dc->Map(reversBit.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
-		if (SUCCEEDED(hr))
-		{
-			size_t dataSize = buf.size() * sizeof(Complex);
-			memcpy(buf.data(), sub_resource.pData, dataSize);
-			dc->Unmap(reversBit.output_copy_buffer.Get(), 0);
-		}
-	}
+	//	//計算受け取り
+	//	dc->CopyResource(reversBit.output_copy_buffer.Get(), reversBit.output_structured_buffer.Get());
+	//	D3D11_MAPPED_SUBRESOURCE sub_resource;
+	//	HRESULT hr = dc->Map(reversBit.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
+	//	if (SUCCEEDED(hr))
+	//	{
+	//		size_t dataSize = buf.size() * sizeof(Complex);
+	//		memcpy(buf.data(), sub_resource.pData, dataSize);
+	//		dc->Unmap(reversBit.output_copy_buffer.Get(), 0);
+	//	}
+	//}
 
-	//バタフライ関数を実行
-	{
-		for (unsigned int stage = 0;stage < param.log2N;++stage)
-		{
-			//GPUへのデータの転送と関数の実行
-			param.stage = stage;
-			dc->UpdateSubresource(fftBuffer.Get(), 0, nullptr, &param, 0, 0);
-			dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
-			dc->UpdateSubresource(butterfly.input_structured_buffer.Get(), 0, nullptr, buf.data(), 0, 0);
-			dc->CSSetShaderResources(0, 1, butterfly.input_shader_resource_view.GetAddressOf());
-			dc->CSSetUnorderedAccessViews(0, 1, butterfly.output_unordered_access_view.GetAddressOf(), nullptr);
-			dc->CSSetShader(butterfly.basic_compute_shader.Get(), nullptr, 0);
-			UINT groupCount = (UINT)ceil(buf.size() / 512);
-			dc->Dispatch(groupCount, 1, 1);
+	////バタフライ関数を実行
+	//{
+	//	dc->UpdateSubresource(butterfly.structured_buffer[0].Get(), 0, nullptr, buf.data(), 0, 0);
+	//	for (unsigned int stage = 0;stage < param.log2N;++stage)
+	//	{
+	//		//GPUへのデータの転送と関数の実行
+	//		param.stage = stage;
+	//		dc->UpdateSubresource(fftBuffer.Get(), 0, nullptr, &param, 0, 0);
+	//		dc->CSSetConstantBuffers(10, 1, fftBuffer.GetAddressOf());
+	//		dc->CSSetShaderResources(0, 1, butterfly.shader_resource_view[stage % 2].GetAddressOf());
+	//		dc->CSSetUnorderedAccessViews(0, 1, butterfly.unordered_access_view[(stage + 1) % 2].GetAddressOf(), nullptr);
+	//		dc->CSSetShader(butterfly.basic_compute_shader.Get(), nullptr, 0);
+	//		UINT groupCount = (UINT)ceil(buf.size() / 512);
+	//		dc->Dispatch(groupCount, 1, 1);
+	//	}
 
-			//計算の受け取り
-			dc->CopyResource(butterfly.output_copy_buffer.Get(), butterfly.output_structured_buffer.Get());
-			D3D11_MAPPED_SUBRESOURCE sub_resource;
-			HRESULT hr = dc->Map(butterfly.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
-			if (SUCCEEDED(hr))
-			{
-				size_t dataSize = buf.size() * sizeof(Complex);
-				memcpy(buf.data(), sub_resource.pData, dataSize);
-				dc->Unmap(butterfly.output_copy_buffer.Get(), 0);
-			}
-		}
-	}
+	//	//計算の受け取り
+	//	dc->CopyResource(butterfly.output_copy_buffer.Get(), butterfly.structured_buffer[param.log2N % 2].Get());
+	//	D3D11_MAPPED_SUBRESOURCE sub_resource;
+	//	HRESULT hr = dc->Map(butterfly.output_copy_buffer.Get(), 0, D3D11_MAP_READ, 0, &sub_resource);
+	//	if (SUCCEEDED(hr))
+	//	{
+	//		size_t dataSize = buf.size() * sizeof(Complex);
+	//		memcpy(buf.data(), sub_resource.pData, dataSize);
+	//		dc->Unmap(butterfly.output_copy_buffer.Get(), 0);
+	//	}
+	//}
 
 	return buf;
 }

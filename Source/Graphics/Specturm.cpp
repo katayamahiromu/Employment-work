@@ -4,18 +4,13 @@
 #include"Buffer.h"
 #include"math/FFT-Cooley-Tukey.h"
 #include"DeviceManager.h"
+#include"imgui.h"
 
 Spectrum::Spectrum(ID3D11Device* device,int numBins):bin_count(numBins)
 {
 	//シェーダーの読み込み
 	ShaderManager::instance()->createVsFromCso(device, ".\\Shader\\SpectrumVS.cso", vertex_shader.GetAddressOf(), nullptr, {}, 0);
 	ShaderManager::instance()->createPsFromCso(device, ".\\Shader\\SpectrumPS.cso", pixel_shader.GetAddressOf());
-
-	//サンプラーの生成
-	D3D11_SAMPLER_DESC samp = {};
-	samp.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samp.AddressU = samp.AddressV = samp.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	device->CreateSamplerState(&samp, &sampler);
 
 	//テクスチャの生成
 	D3D11_TEXTURE1D_DESC desc = {};
@@ -64,8 +59,10 @@ void Spectrum::update(Audio* audio)
 		data[i] = audioData[startPosition + i];
 	}
 
-	//auto complex = FFT::instance()->fft_from_uint8(data);
-	auto complex = FFT::instance()->fft_from_uint8(DeviceManager::instance()->getDeviceContext(), data);
+	auto complex = gpCpu ?
+		FFT::instance()->fft_from_uint8(DeviceManager::instance()->getDeviceContext(), data):
+		FFT::instance()->exitFFT<UINT8>(data);
+
 	auto mag = FFT::instance()->magnitude_spectrum(complex);
 	std::vector<float> half(mag.begin(), mag.begin() + FFT_SIZE / 2);
 	auto db = FFT::instance()->magnitude_db(half, 1.0f);
@@ -83,6 +80,11 @@ void Spectrum::update(Audio* audio)
 	spectrums = normalized;
 }
 
+void Spectrum::OnGUi()
+{
+	ImGui::Checkbox("Change GPU or CPU", &gpCpu);
+	ImGui::Text("Current Mode: %s", gpCpu ? "GPU" : "CPU");
+}
 void Spectrum::draw(ID3D11DeviceContext* context)
 {
 	HRESULT hr{ S_OK };
@@ -117,15 +119,10 @@ void Spectrum::draw(ID3D11DeviceContext* context)
     context->VSSetShaderResources(0, 1, srvs);
     context->PSSetShaderResources(0, 1, srvs);
 
-    ID3D11SamplerState* samps[] = { sampler.Get() };
-    context->PSSetSamplers(0, 1, samps);
-
     //描画実行 (bin_count * 6 は全ビンの全頂点を生成)
     context->Draw(bin_count * 6, 0);
 
     //描画後のリソースのアンバインド
     ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
     context->PSSetShaderResources(0, 1, nullSRV);
-    ID3D11SamplerState* nullSamps[1] = { nullptr };
-    context->PSSetSamplers(0, 1, nullSamps);
 }

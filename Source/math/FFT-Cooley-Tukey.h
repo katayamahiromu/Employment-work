@@ -30,7 +30,21 @@ public:
 	// output: 複素スペクトル（0..N-1）を返す。出力長は input を次の2^kにゼロパディングした長さ。
 	// applyWindow: ハミング窓を掛けるかどうか（デフォルト true）
 	std::vector<Complex> fft_from_uint8(const std::vector<UINT8>& input, bool applyWindow = true);
-	std::vector<Complex> fft_from_uint8(ID3D11DeviceContext*dc,const std::vector<UINT8>& input, bool applyWindow = true);
+	std::vector<Complex> fft_from_uint8(ID3D11DeviceContext* dc, const std::vector<UINT8>& input, bool applyWindow = true);
+
+
+	template<typename Ty>
+	std::vector<Complex> exitFFT(const std::vector<Ty>& input, bool applyWindow = true)
+	{
+		std::vector<Complex> buf = ConvertBuffer<Ty>(input);
+
+		//窓を適用
+		if (applyWindow) buf = window(buf);
+
+		fft(buf);
+
+		return buf; //複素スペクタル（長さ　n）
+	}
 
 	//ユーティリティ: 複素スペクトルから振幅スペクトル（線形）を計算
 	std::vector<float> magnitude_spectrum(const std::vector<Complex>& spectrum);
@@ -47,6 +61,8 @@ private:
 	//高速フーリエ変換
 	void fft(std::vector<Complex>& data);
 
+	//逆フーリエ変換
+	void ifft(std::vector<Complex>& data);
 	//窓関数
 	std::vector<Complex>window(const std::vector<Complex>& src);
 
@@ -76,12 +92,10 @@ private:
 	{
 		//	計算用シェーダー
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> basic_compute_shader;
-		//	計算用の情報を受け渡すためのバッファ
-		Microsoft::WRL::ComPtr<ID3D11Buffer> input_structured_buffer;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> input_shader_resource_view;
-		//	計算した結果を書き込むためのバッファ
-		Microsoft::WRL::ComPtr<ID3D11Buffer> output_structured_buffer;
-		Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> output_unordered_access_view;
+
+		Microsoft::WRL::ComPtr<ID3D11Buffer> structured_buffer[2];
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shader_resource_view[2];
+		Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> unordered_access_view[2];
 		//	出力結果をCPU側で受け取るためのコピーバッファ
 		Microsoft::WRL::ComPtr<ID3D11Buffer> output_copy_buffer;
 	};

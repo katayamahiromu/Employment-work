@@ -15,6 +15,8 @@ public:
 	void draw(ID3D11DeviceContext* context);
 
     std::vector<float>* getSpectrumData() { return &spectrums; }
+
+    void OnGUi();
 private:
 
     struct spectrumInfo
@@ -31,8 +33,9 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D11Texture1D> spectrum_texture;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shader_resource_view;
-    Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 
     std::vector<float>spectrums;
     int bin_count;
+
+    bool gpCpu = false;
 };

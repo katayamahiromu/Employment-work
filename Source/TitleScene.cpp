@@ -119,6 +119,7 @@ void TitleScene::Gui()
 	ImGui::Begin("Spectrum");
 	std::vector<float>data = *spectrum->getSpectrumData();
 	ImGui::PlotLines("FFT",data.data(), (int)data.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(0, 150));
+	spectrum->OnGUi();
 	ImGui::End();
 }
 
