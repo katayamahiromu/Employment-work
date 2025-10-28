@@ -33,6 +33,12 @@ void Audio3D::update(float volume)
 	{
 		setPan();
 		filter(LowPassOnePoleFilter);
+
+		//ドップラー効果の適用
+		if (dspSetting.dopplerScale)
+		{
+			sourceVoice->SetFrequencyRatio(dspSetting.dopplerScale);
+		}
 	}
 }
 
