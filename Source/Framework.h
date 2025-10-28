@@ -40,5 +40,5 @@ private:
 
 	std::unique_ptr<ImGuiRenderer>	imguiRenderer;
 
-	const int						syncInterval = 0;		// ‚’¼“¯ŠúŠÔŠuİ’è
+	const int						syncInterval = 1;		// ‚’¼“¯ŠúŠÔŠuİ’è
 };
