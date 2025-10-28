@@ -82,8 +82,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Utils\DirectXTK-main\lib\Desktop_2022\x64\Debug;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;dxgi.lib;DirectXTK.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;dxgi.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,8 +102,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Utils\DirectXTK-main\lib\Desktop_2022\x64\Release;\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;DirectXTK.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -119,8 +119,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Utils\DirectXTK-main\lib\Desktop_2022\x64\Debug;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;dxgi.lib;DirectXTK.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;dxgi.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>Shader\%(Filename).cso</ObjectFileOutput>
@@ -150,8 +150,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;DirectXTK.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\Utils\DirectXTK-main\lib\Desktop_2022\x64\Release;\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ObjectFileOutput>Shader\%(Filename).cso</ObjectFileOutput>
@@ -230,6 +230,8 @@
     <ClCompile Include="Source\UIManager.cpp" />
     <ClCompile Include="Source\Weapon.cpp" />
     <ClCompile Include="Source\WeaponManager.cpp" />
+    <ClCompile Include="Utils\DirectXTK-main\Src\DDSTextureLoader.cpp" />
+    <ClCompile Include="Utils\DirectXTK-main\Src\WICTextureLoader.cpp" />
     <ClCompile Include="Utils\imgui\imgui.cpp" />
     <ClCompile Include="Utils\imgui\imgui_demo.cpp" />
     <ClCompile Include="Utils\imgui\imgui_draw.cpp" />
@@ -311,6 +313,8 @@
     <ClInclude Include="Source\UIManager.h" />
     <ClInclude Include="Source\Weapon.h" />
     <ClInclude Include="Source\WeaponManager.h" />
+    <ClInclude Include="Utils\DirectXTK-main\Inc\DDSTextureLoader.h" />
+    <ClInclude Include="Utils\DirectXTK-main\Inc\WICTextureLoader.h" />
     <ClInclude Include="Utils\imgui\imconfig.h" />
     <ClInclude Include="Utils\imgui\imgui.h" />
     <ClInclude Include="Utils\imgui\imgui_internal.h" />

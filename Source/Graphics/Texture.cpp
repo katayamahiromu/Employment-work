@@ -1,13 +1,13 @@
 #include "Texture.h"
 #include "misc.h"
 
-#include <WICTextureLoader.h>
+#include "../Utils/DirectXTK-main/Inc/WICTextureLoader.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
 #include <memory>
 #include <filesystem>
-#include <DDSTextureLoader.h>
+#include "../Utils/DirectXTK-main/Inc/DDSTextureLoader.h"
 using namespace std;
 
 TextureManager::~TextureManager()

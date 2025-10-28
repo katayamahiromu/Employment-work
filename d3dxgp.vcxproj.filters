@@ -67,6 +67,9 @@
     <Filter Include="HLSL\math">
       <UniqueIdentifier>{757d848a-ea3a-452c-8582-86c971bad5f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\DirectXTex">
+      <UniqueIdentifier>{565107bd-20cc-462c-8949-593e577ca6af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework.cpp">
@@ -278,6 +281,12 @@
     </ClCompile>
     <ClCompile Include="Source\Graphics\Specturm.cpp">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\DirectXTK-main\Src\DDSTextureLoader.cpp">
+      <Filter>Utils\DirectXTex</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\DirectXTK-main\Src\WICTextureLoader.cpp">
+      <Filter>Utils\DirectXTex</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -529,6 +538,12 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\Specturm.h">
       <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\DirectXTK-main\Inc\DDSTextureLoader.h">
+      <Filter>Utils\DirectXTex</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\DirectXTK-main\Inc\WICTextureLoader.h">
+      <Filter>Utils\DirectXTex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
