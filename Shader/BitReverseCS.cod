@@ -51,27 +51,62 @@
 // -------------------- ----- ------ -------- -------- ------- ------
 // no Output
 cs_5_0
-dcl_globalFlags refactoringAllowed
+dcl_globalFlags refactoringAllowed | skipOptimization
 dcl_constantbuffer CB10[1], immediateIndexed
 dcl_resource_structured t0, 8
 dcl_uav_structured u0, 8
 dcl_input vThreadID.x
-dcl_temps 1
+dcl_temps 2
 dcl_thread_group 512, 1, 1
-uge r0.x, vThreadID.x, cb10[0].x
-if_nz r0.x
+//
+// Initial variable locations:
+//   vThreadID.x <- DTid.x; vThreadID.y <- DTid.y; vThreadID.z <- DTid.z
+//
+#line 12 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\BitReverseCS.hlsl"
+mov r0.x, vThreadID.x  // r0.x <- i
+
+#line 13
+uge r0.y, r0.x, cb10[0].x
+if_nz r0.y
   ret 
 endif 
-mov r0.y, vThreadID.x
-mov r0.xz, l(0,0,0,0)
+
+#line 16
+mov r0.y, l(0)  // r0.y <- j
+
+#line 17
+mov r0.x, r0.x  // r0.x <- x
+
+#line 18
+mov r0.z, l(0)  // r0.z <- k
+mov r0.w, r0.y  // r0.w <- j
+mov r1.x, r0.x  // r1.x <- x
+mov r1.y, r0.z  // r1.y <- k
 loop 
-  uge r0.w, r0.z, cb10[0].y
-  breakc_nz r0.w
-  bfi r0.x, l(31), l(1), r0.x, r0.y
-  ushr r0.y, r0.y, l(1)
-  iadd r0.z, r0.z, l(1)
+  ult r1.z, r1.y, cb10[0].y
+  breakc_z r1.z
+
+#line 20
+  mov r1.z, l(1)
+  ishl r1.z, r0.w, r1.z
+  mov r1.w, l(1)
+  and r1.w, r1.w, r1.x
+  iadd r0.w, r1.w, r1.z
+
+#line 21
+  mov r1.z, l(1)
+  ushr r1.x, r1.x, r1.z
+
+#line 22
+  iadd r1.y, r1.y, l(1)
 endloop 
-ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.yz, vThreadID.x, l(0), t0.xxyx
-store_structured u0.xy, r0.x, l(0), r0.yzyy
+
+#line 23
+ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.y, r0.x, l(0), t0.xxxx
+ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.x, r0.x, l(4), t0.xxxx
+store_structured u0.x, r0.w, l(0), r0.y
+store_structured u0.x, r0.w, l(4), r0.x
+
+#line 24
 ret 
-// Approximately 16 instruction slots used
+// Approximately 28 instruction slots used

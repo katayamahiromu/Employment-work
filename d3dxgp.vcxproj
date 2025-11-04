@@ -189,12 +189,15 @@
     <ClCompile Include="Source\Graphics\ACES_Filmic.cpp" />
     <ClCompile Include="Source\Graphics\ColorGrading.cpp" />
     <ClCompile Include="Source\Graphics\DebugRenderer.cpp" />
+    <ClCompile Include="Source\Graphics\depthStencilTex.cpp" />
     <ClCompile Include="Source\Graphics\FrameBuffers.cpp" />
     <ClCompile Include="Source\Graphics\FullScreenQuad.cpp" />
+    <ClCompile Include="Source\Graphics\DepthNormalTex.cpp" />
     <ClCompile Include="Source\Graphics\GraphicsManager.cpp" />
     <ClCompile Include="Source\Graphics\ImGuiRenderer.cpp" />
     <ClCompile Include="Source\Graphics\LineRenderer.cpp" />
     <ClCompile Include="Source\Graphics\LuminanceExtract.cpp" />
+    <ClCompile Include="Source\Graphics\MrtAttachment.cpp" />
     <ClCompile Include="Source\Graphics\PostProcessing.cpp" />
     <ClCompile Include="Source\Graphics\RewidLine.cpp" />
     <ClCompile Include="Source\Graphics\SkinnedMesh.cpp" />
@@ -211,6 +214,7 @@
     <ClCompile Include="Source\math\Collision.cpp" />
     <ClCompile Include="Source\math\FFT-Cooley-Tukey.cpp" />
     <ClCompile Include="Source\math\Mathf.cpp" />
+    <ClCompile Include="Source\modelScene.cpp" />
     <ClCompile Include="Source\particle\Particle.cpp" />
     <ClCompile Include="Source\particle\ParticleManager.cpp" />
     <ClCompile Include="Source\particle\particle_system.cpp" />
@@ -266,12 +270,15 @@
     <ClInclude Include="Source\Graphics\BufferSlots.h" />
     <ClInclude Include="Source\Graphics\ColorGrading.h" />
     <ClInclude Include="Source\Graphics\DebugRenderer.h" />
+    <ClInclude Include="Source\Graphics\depthStencilTex.h" />
     <ClInclude Include="Source\Graphics\FrameBuffers.h" />
     <ClInclude Include="Source\Graphics\FullScreenQuad.h" />
+    <ClInclude Include="Source\Graphics\DepthNormalTex.h" />
     <ClInclude Include="Source\Graphics\GraphicsManager.h" />
     <ClInclude Include="Source\Graphics\ImGuiRenderer.h" />
     <ClInclude Include="Source\Graphics\LineRenderer.h" />
     <ClInclude Include="Source\Graphics\LuminanceExtract.h" />
+    <ClInclude Include="Source\Graphics\MrtAttachment.h" />
     <ClInclude Include="Source\Graphics\PostProcessing.h" />
     <ClInclude Include="Source\Graphics\RewidLine.h" />
     <ClInclude Include="Source\Graphics\SkinnedMesh.h" />
@@ -289,6 +296,7 @@
     <ClInclude Include="Source\math\FFT-Cooley-Tukey.h" />
     <ClInclude Include="Source\math\Mathf.h" />
     <ClInclude Include="Source\misc.h" />
+    <ClInclude Include="Source\modelScene.h" />
     <ClInclude Include="Source\particle\Particle.h" />
     <ClInclude Include="Source\particle\ParticleManager.h" />
     <ClInclude Include="Source\particle\particle_system.h" />
@@ -330,6 +338,7 @@
     <None Include="HLSL\Debug.hlsli" />
     <None Include="HLSL\FFT.hlsli" />
     <None Include="HLSL\FullScreenQuad.hlsli" />
+    <None Include="HLSL\GBuffer.hlsli" />
     <None Include="HLSL\geometry_particle.hlsli" />
     <None Include="HLSL\ImGui.hlsli" />
     <None Include="HLSL\Line.hlsli" />
@@ -383,6 +392,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="HLSL\DepthPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\FullScreenQuadVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

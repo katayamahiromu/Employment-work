@@ -70,6 +70,9 @@
     <Filter Include="Utils\DirectXTex">
       <UniqueIdentifier>{565107bd-20cc-462c-8949-593e577ca6af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HLSL\GBuffer">
+      <UniqueIdentifier>{5f2cafc6-ed27-4ccb-b355-6aad3703fd38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework.cpp">
@@ -287,6 +290,18 @@
     </ClCompile>
     <ClCompile Include="Utils\DirectXTK-main\Src\WICTextureLoader.cpp">
       <Filter>Utils\DirectXTex</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\modelScene.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\depthStencilTex.cpp">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\DepthNormalTex.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\MrtAttachment.cpp">
+      <Filter>Source\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -545,6 +560,18 @@
     <ClInclude Include="Utils\DirectXTK-main\Inc\WICTextureLoader.h">
       <Filter>Utils\DirectXTex</Filter>
     </ClInclude>
+    <ClInclude Include="Source\modelScene.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\depthStencilTex.h">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\DepthNormalTex.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\MrtAttachment.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -582,6 +609,9 @@
     </None>
     <None Include="HLSL\FFT.hlsli">
       <Filter>HLSL\math</Filter>
+    </None>
+    <None Include="HLSL\GBuffer.hlsli">
+      <Filter>HLSL\GBuffer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -662,6 +692,9 @@
     </FxCompile>
     <FxCompile Include="HLSL\BitReverseCS.hlsl">
       <Filter>HLSL\math</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\DepthPS.hlsl">
+      <Filter>HLSL\Post Effect</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

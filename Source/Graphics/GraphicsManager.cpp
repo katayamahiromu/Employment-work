@@ -132,8 +132,6 @@ bool GraphicsManager::initialize(ID3D11Device* device, ID3D11DeviceContext* dc)
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 
 
-
-
 	// ラスタライザステートの作成
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FrontCounterClockwise = TRUE;	// false...時計回りをおもて面とする

@@ -14,6 +14,8 @@
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/RewidLine.h"
+#include"Graphics/depthStencilTex.h"
+
 #include"ResourceList/AuidoResourceList.h"
 
 #include"system/TimeLapseManager.h"
@@ -58,6 +60,9 @@ void GameScene::initialize()
 	AudioResourceList* list = AudioResourceList::instance();
 	list->loadResource("Resources\\data\\SceneGameAudioData.csv",true);
 	list->getAudio("bgm")->play(true);
+
+	//別のレンダーターゲット
+	depthNormalTex = std::make_unique<DepthNormalTex>();
 }
 
 // 終了処理
@@ -89,14 +94,14 @@ void GameScene::update(float elapsedTime)
 	//パーティクルシステム更新
 	particleMgr->update(elapsedTime);
 
-	//ポストエフェクトの更新
-	PostprocessingRenderer::instance()->update(elapsedTime);
-
 	//コリジョンシステムの更新
 	collisionSystem->update();
 
 	//タイムラプスの更新
 	TimeLapseManager::instance().update();
+
+	//ポストエフェクトの更新
+	PostprocessingRenderer::instance()->update(elapsedTime);
 }
 
 
@@ -110,7 +115,11 @@ void GameScene::render()
 	const DirectX::XMFLOAT4X4* view = camera->getView();
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
-	PostEffects->getPostProcess()->prepare(dc);
+
+	std::vector<ID3D11RenderTargetView*>rtvs;
+	rtvs.emplace_back(depthNormalTex->getRtv());
+
+	PostEffects->getPostProcess()->prepare(dc,rtvs);
 	//スカイマップ
 	skymap->Render(dc, *camera);
 
@@ -166,4 +175,6 @@ void GameScene::render()
 	// 2D 描画
 	uiManager->render(dc);
 	PostEffects->debugGui();
+
+	depthNormalTex->Gui();
 }

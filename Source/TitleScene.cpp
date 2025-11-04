@@ -6,6 +6,7 @@
 #include"GameScene.h"
 #include"LoadingScene.h"
 #include"imgui.h"
+#include"modelScene.h"
 
 
 //初期化処理
@@ -112,6 +113,12 @@ void TitleScene::Gui()
 		test.backAndPop();
 	}
 
+
+	if (ImGui::Button("model scene"))
+	{
+		SceneManager::instance()->changeScene(new ModelScene);
+	}
+
 	float playTime = sample->getPlayTime();
 	ImGui::InputFloat("play time", &playTime);
 	ImGui::End();
@@ -174,37 +181,6 @@ void TitleScene::render()
 		});
 	
 	spectrum->draw(dc);
-
-	//Camera* camera = Camera::instance();
-	//const DirectX::XMFLOAT4X4* view = camera->getView();
-	//const DirectX::XMFLOAT4X4* proj = camera->getProjection();
-	//{
-	//	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
-	//		// サンプラーステートの設定（アニソトロピック）
-	//		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::ANISOTROPIC)].GetAddressOf());
-	//		// ブレンドステートの設定（アルファ）
-	//		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
-	//		// 深度ステンシルステートの設定（深度テストオン、深度書き込みオン）
-	//		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::ON_ON)].Get(), 0);
-	//		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
-	//		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::MODEL)].Get());
-	//		}
-	//	);
-
-	//	// ラインレンダラ描画実行
-	//	graphics->getLineRenderer()->render(dc, *view, *proj);
-
-	//	// デバッグレンダラ描画実行
-	//	graphics->getDebugRenderer()->render(dc, *view, *proj);
-	//}
-
-	//DirectX::XMFLOAT4 cameraPos;
-	//cameraPos.x = camera->getEye()->x;
-	//cameraPos.y = camera->getEye()->y;
-	//cameraPos.z = camera->getEye()->z;
-	//cameraPos.w = 0.0f;
-
-	//objManager->render(*view, *proj, cameraPos);
 
 	Gui();
 }

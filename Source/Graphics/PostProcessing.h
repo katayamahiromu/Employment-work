@@ -9,7 +9,9 @@ public:
 	~PostProcess() {};
 	virtual void debugGui() {};
 	virtual void update(float elapsedTime) {};
+
 	void prepare(ID3D11DeviceContext* dc);
+	void prepare(ID3D11DeviceContext* dc,std::vector<ID3D11RenderTargetView*>rtvs);
 	void clean(ID3D11DeviceContext* dc);
 
 	ID3D11ShaderResourceView* getSrvP() { return framebuffer.get()->getSrvP(); }

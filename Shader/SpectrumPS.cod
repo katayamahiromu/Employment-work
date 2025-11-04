@@ -25,21 +25,49 @@
 // SV_TARGET                0   xyzw        0   TARGET   float   xyzw
 //
 ps_5_0
-dcl_globalFlags refactoringAllowed
+dcl_globalFlags refactoringAllowed | skipOptimization
 dcl_resource_texture1d (float,float,float,float) t0
 dcl_input_ps linear v1.xy
 dcl_output o0.xyzw
-dcl_temps 1
-resinfo_indexable(texture1d)(float,float,float,float) r0.x, l(0), t0.xyzw
+dcl_temps 2
+//
+// Initial variable locations:
+//   v0.x <- pin.pos.x; v0.y <- pin.pos.y; v0.z <- pin.pos.z; v0.w <- pin.pos.w; 
+//   v1.x <- pin.uv.x; v1.y <- pin.uv.y; 
+//   o0.x <- <main return value>.x; o0.y <- <main return value>.y; o0.z <- <main return value>.z; o0.w <- <main return value>.w
+//
+#line 8 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\SpectrumPS.hlsl"
+mov r0.xy, v1.xyxx  // r0.x <- uv.x; r0.y <- uv.y
+
+#line 10
+resinfo_indexable(texture1d)(float,float,float,float) r0.z, l(0), t0.yzxw
+ftou r0.z, r0.z  // r0.z <- dim
+
+#line 11
+add r0.x, r0.x, l(0.100000)
 ftou r0.x, r0.x
-iadd r0.x, r0.x, l(-1)
-add r0.y, v1.x, l(0.100000)
-ftou r0.y, r0.y
-umin r0.x, r0.x, r0.y
-mov r0.yzw, l(0,0,0,0)
-ld_indexable(texture1d)(float,float,float,float) r0.x, r0.xyzw, t0.xyzw
-ge r0.y, r0.x, v1.y
-mad o0.xyz, r0.xxxx, l(1.000000, 0.000000, -1.000000, 0.000000), l(0.000000, 0.200000, 1.000000, 0.000000)
-movc o0.w, r0.y, l(1.000000), l(0.050000)
+mov r0.w, l(1)
+ineg r0.w, r0.w
+iadd r0.z, r0.w, r0.z
+umin r1.x, r0.z, r0.x  // r1.x <- idx.x
+mov r1.yzw, l(0,0,0,0)  // r1.w <- idx.y
+
+#line 12
+ld_indexable(texture1d)(float,float,float,float) r0.x, r1.xyzw, t0.xyzw
+mov r0.x, r0.x  // r0.x <- amp
+
+#line 14
+ge r0.y, r0.x, r0.y
+movc r0.y, r0.y, l(1.000000), l(0.050000)  // r0.y <- alpha
+
+#line 15
+mov r1.xyz, l(-0.000000,-0.200000,-1.000000,-0.000000)
+add r1.xyz, r1.xyzx, l(1.000000, 0.200000, 0.000000, 0.000000)
+mul r0.xzw, r0.xxxx, r1.xxyz
+add r0.xzw, r0.xxzw, l(0.000000, 0.000000, 0.200000, 1.000000)  // r0.x <- col.x; r0.z <- col.y; r0.w <- col.z
+
+#line 16
+mov o0.xyz, r0.xzwx
+mov o0.w, r0.y
 ret 
-// Approximately 12 instruction slots used
+// Approximately 21 instruction slots used

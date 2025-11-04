@@ -45,6 +45,8 @@ private:
 
 	//ポストエフェクトにリワインドするか送る
 	void createRewindTime();
+
+	void timeLapsNotice();
 private:
 	//待機ステート
 	void enterIdle();

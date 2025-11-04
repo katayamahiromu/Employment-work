@@ -70,6 +70,17 @@ void FrameBuffer::clear(ID3D11DeviceContext* dc,float r,float g, float b, float 
 	dc->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH, depth, 0);
 }
 
+void FrameBuffer::clear(ID3D11DeviceContext* dc,
+	std::vector<ID3D11RenderTargetView*>rtv, float r, float g, float b, float a, float depth)
+{
+	clear(dc, r, g, b, a, depth);
+	float color[4]{ r,g,b,a };
+	for (auto r : rtv)
+	{
+		dc->ClearRenderTargetView(r, color);
+	}
+}
+
 void FrameBuffer::activate(ID3D11DeviceContext* dc)
 {
 	viewportCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
@@ -79,8 +90,38 @@ void FrameBuffer::activate(ID3D11DeviceContext* dc)
 	dc->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 }
 
+void FrameBuffer::activate(ID3D11DeviceContext* dc, std::vector<ID3D11RenderTargetView*>rtv)
+{
+	//ビューポートを保存
+	viewportCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+	dc->RSGetViewports(&viewportCount, cachedViewports);
+	dc->OMGetRenderTargets(1, cachedRenderTargetView.ReleaseAndGetAddressOf(), cachedDepthStencilView.ReleaseAndGetAddressOf());
+	dc->RSSetViewports(1, &viewPort);
+
+	//一番始めにシーンがくるように保存
+	rtv.insert(rtv.begin(), renderTargetView.Get());
+	dc->OMSetRenderTargets(static_cast<UINT>(rtv.size()),rtv.data(), depthStencilView.Get());
+	Mrt = rtv;
+}
+
 void FrameBuffer::deactivate(ID3D11DeviceContext* dc)
 {
 	dc->RSSetViewports(viewportCount, cachedViewports);
-	dc->OMSetRenderTargets(1, cachedRenderTargetView.GetAddressOf(), cachedDepthStencilView.Get());
+
+
+	if (Mrt.size() > 1)
+	{
+		//MRTの設定
+		std::vector<ID3D11RenderTargetView*> views;
+
+		views.insert(views.begin(), cachedRenderTargetView.Get());
+		for (auto& v : Mrt) views.push_back(v);
+
+		dc->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), cachedDepthStencilView.Get());
+	}
+	else
+	{
+		//通常時の設定
+		dc->OMSetRenderTargets(1, cachedRenderTargetView.GetAddressOf(), cachedDepthStencilView.Get());
+	}
 }

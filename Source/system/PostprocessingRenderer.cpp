@@ -12,6 +12,7 @@ PostprocessingRenderer::PostprocessingRenderer()
 PostprocessingRenderer::~PostprocessingRenderer()
 {
 	for (auto& p : postProcessArray)delete p;
+	for (auto& b : bufferTex)delete b;
 }
 
 void PostprocessingRenderer::remove(PostProcess*pp)
@@ -27,6 +28,7 @@ void PostprocessingRenderer::update(float elapsedTime)
 void PostprocessingRenderer::render()
 {
 	GraphicsManager* graphics = GraphicsManager::instance();
+
 	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
 		// サンプラーステートの設定（リニア）
 		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
@@ -39,9 +41,9 @@ void PostprocessingRenderer::render()
 		});
 
 	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
-	
-	PostProcess* cache = scenePostProcess.get();
 
+	//ポストエフェクトでの書き込み
+	PostProcess* cache = scenePostProcess.get();
 	for (auto& p :postProcessArray)
 	{
 		//それぞれのパスに書き込み
@@ -68,7 +70,6 @@ void PostprocessingRenderer::render()
 void PostprocessingRenderer::debugGui()
 {
 	ImGui::Begin("Post Processing");
-
 	if (ImGui::TreeNode("Scene"))
 	{
 		ImGui::Image(scenePostProcess->getSrvP(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
@@ -77,6 +78,9 @@ void PostprocessingRenderer::debugGui()
 	ImGui::Separator();
 	
 	for (auto& p : postProcessArray)p->debugGui();
-
 	ImGui::End();
+
+	/*ImGui::Begin("buffer texture");
+	for (auto & b : bufferTex)b->debugGui();
+	ImGui::End();*/
 }

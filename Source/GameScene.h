@@ -15,6 +15,8 @@
 
 #include"Audio/AudioManager.h"
 
+#include"Graphics/DepthNormalTex.h"
+
 // ÉQÅ[ÉÄÉVÅ[Éì
 class GameScene : public Scene
 {
@@ -42,6 +44,8 @@ private:
 	std::unique_ptr<UIManager>uiManager;
 	std::unique_ptr<ParticleManager>particleMgr;
 	std::unique_ptr<CollisionSystem>collisionSystem;
+
+	std::unique_ptr<DepthNormalTex>depthNormalTex;
 
 	std::unique_ptr<Skymap>skymap;
 };

@@ -773,6 +773,11 @@ void SkinnedMesh::render(ID3D11DeviceContext* immediate_context,
 			immediate_context->DrawIndexed(subset.index_count, subset.start_index_location, 0);
 		}
 	}
+
+	//アンバインド
+	immediate_context->VSSetShader(nullptr, nullptr, 0);
+	immediate_context->PSSetShader(nullptr, nullptr, 0);
+	immediate_context->GSSetShader(nullptr, nullptr, 0);
 }
 
 int SkinnedMesh::findBoneIndex(const char* name)

@@ -31,7 +31,11 @@ public:
 	int getAnimationIndex() { return animation_index; }
 	void setAnimationIndex(int index) { animation_index = index; }
 	animation::keyframe getKeyframe() { return keyframe; }
-
+private:
+	inline bool canAnimation() { return animation_index >= 0; }
+	void blendAnimationUpdate(float blendRate);
+	void animationUpdate(float elapsedTime);
+	float calcBlandRate(float elapsedTime);
 private:
 	//アニメーション番号
 	int animation_index = 1;

@@ -2,6 +2,7 @@
 #include<d3d11.h>
 #include<wrl.h>
 #include<cstdint>
+#include<vector>
 
 class FrameBuffer
 {
@@ -11,7 +12,12 @@ public:
 
 	void clear(ID3D11DeviceContext* dc,
 		float r = 0, float g = 0, float b = 0, float a = 1, float depth = 1);
+
+	void clear(ID3D11DeviceContext* dc,
+		std::vector<ID3D11RenderTargetView*>rtv,float r = 0, float g = 0, float b = 0, float a = 1, float depth = 1);
+
 	void activate(ID3D11DeviceContext* dc);
+	void activate(ID3D11DeviceContext* dc, std::vector<ID3D11RenderTargetView*>rtv);
 	void deactivate(ID3D11DeviceContext* dc);
 	
 	ID3D11ShaderResourceView* getSrvP() { return shaderResourceViews[0].Get(); }
@@ -27,4 +33,7 @@ private:
 	D3D11_VIEWPORT cachedViewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> cachedRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> cachedDepthStencilView;
+
+	//マルチレンダーターゲット用
+	std::vector<ID3D11RenderTargetView*>Mrt;
 };

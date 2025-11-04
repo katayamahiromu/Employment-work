@@ -1,5 +1,5 @@
-wav,name
-04 checkpoint,bgm
-グレート,se1
-マタニティ,se2
-TimeReepEffect,timeReep
+wav,name,attribute,count
+04 checkpoint,bgm,reverse,1
+グレート,se1,reverse,1
+マタニティ,se2,reverse,1
+TimeReepEffect,timeReep,null,1

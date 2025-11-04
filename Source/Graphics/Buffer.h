@@ -97,6 +97,13 @@ inline void bindBuffer(ID3D11DeviceContext* dc, int slot, ID3D11Buffer** buffer,
 	dc->GSSetConstantBuffers(slot, 1, buffer);
 }
 
+inline void resetBuffer(ID3D11DeviceContext*dc, int slot)
+{
+	dc->VSSetConstantBuffers(slot, 1, nullptr);
+	dc->PSSetConstantBuffers(slot, 1, nullptr);
+	dc->GSSetConstantBuffers(slot, 1, nullptr);
+}
+
 /// <summary>
 /// ポストエフェクト用の定数バッファの更新と設定
 /// </summary>

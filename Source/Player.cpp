@@ -44,8 +44,8 @@ void Player::prepare()
     lister = getObject()->GetComponent<Audio3DListener>();
     collision = getObject()->GetComponent<CollisionComponent>();
 
-    collision->setMeshName("NIC:magic_wand");
-    collision->setBoneInfo("NIC:wand2_BK",0.5f);
+   /* collision->setMeshName("NIC:magic_wand");
+    collision->setBoneInfo("NIC:wand2_BK",0.5f);*/
    
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
@@ -76,14 +76,13 @@ void Player::update(float elapsedTime)
     //リスナーの情報更新
     lister->setVelocity(movement->getVelocity());
 
-    //ボタンが押されているかの状態を送信
-    TimeLapseManager::instance().setIsRecord(playerController->isButton(GamePad::BTN_A));
-    TimeLapseManager::instance().setIsPushButton(playerController->isButtonDown(GamePad::BTN_A));
-    TimeLapseManager::instance().setIsRelease(playerController->isButtonRelease(GamePad::BTN_A));
+    //タイムラプス側に通知
+    timeLapsNotice();
 
     //カメラに情報を送る
     sendCameraData();
 
+    //デバックプリミティブの描画
     debugDrawPrimitive();
 
     //巻き戻し時のエフェクト生成
@@ -180,6 +179,14 @@ bool Player::inputMove(float elapsedTime)
     movement->turn(vec, elapsedTime);
 
     return(vec.x != 0.0f || vec.z != 0.0f) ? true : false;
+}
+
+void Player::timeLapsNotice()
+{
+    //ボタンが押されているかの状態を送信
+    TimeLapseManager::instance().setIsRecord(playerController->isButton(GamePad::BTN_A));
+    TimeLapseManager::instance().setIsPushButton(playerController->isButtonDown(GamePad::BTN_A));
+    TimeLapseManager::instance().setIsRelease(playerController->isButtonRelease(GamePad::BTN_A));
 }
 
 bool Player::inputAttack()
