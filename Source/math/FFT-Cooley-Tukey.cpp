@@ -154,7 +154,7 @@ std::vector<Complex> FFT::fft_from_uint8(ID3D11DeviceContext* dc, const std::vec
 	param.log2N = static_cast<UINT>(std::log2(static_cast<float>(param.N)));
 	dc->UpdateSubresource(fftBuffer.Get(), 0, 0, &param, 0, 0);
 
-	const UINT THREADS_PER_GROUP = 512;
+	const UINT THREADS_PER_GROUP = 16;
 	UINT groupCount = static_cast<UINT>((buf.size() + THREADS_PER_GROUP - 1) / THREADS_PER_GROUP);
 	
 	//ビット反転をGPU側で計算

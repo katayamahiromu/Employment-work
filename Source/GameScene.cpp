@@ -75,7 +75,7 @@ void GameScene::finalize()
 // 更新処理
 void GameScene::update(float elapsedTime)
 {
-	////カメラの更新処理
+	//カメラの更新処理
 	DirectX::XMMATRIX M = DirectX::XMLoadFloat4x4(playerManager->getPlayer()->getTransform());
 	DirectX::XMFLOAT3 front;
 	DirectX::XMStoreFloat3(&front,M.r[2]);
@@ -116,10 +116,7 @@ void GameScene::render()
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 
-	std::vector<ID3D11RenderTargetView*>rtvs;
-	rtvs.emplace_back(depthNormalTex->getRtv());
-
-	PostEffects->getPostProcess()->prepare(dc,rtvs);
+	PostEffects->getPostProcess()->prepare(dc);
 	//スカイマップ
 	skymap->Render(dc, *camera);
 
@@ -175,6 +172,4 @@ void GameScene::render()
 	// 2D 描画
 	uiManager->render(dc);
 	PostEffects->debugGui();
-
-	depthNormalTex->Gui();
 }

@@ -4,6 +4,8 @@
 #include"Component/object.h"
 #include"CameraController.h"
 #include"Component/Animation.h"
+#include"Component/meshTexchange.h"
+#include"Graphics/Sprite.h"
 
 class ModelScene : public Scene
 {
@@ -29,6 +31,10 @@ private:
 	std::unique_ptr<ObjectManager>objManager;
 	std::shared_ptr<Object>model;
 
+
+	std::vector<uint64_t>idArray;
+	std::vector<std::unique_ptr<Sprite>>tex;
 	std::shared_ptr<Animation>animation;
+	std::shared_ptr<MeshTexChange>meshTexChange;
 	int animationIndex = 0;
 };

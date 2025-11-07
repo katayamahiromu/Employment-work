@@ -12,7 +12,6 @@ PostprocessingRenderer::PostprocessingRenderer()
 PostprocessingRenderer::~PostprocessingRenderer()
 {
 	for (auto& p : postProcessArray)delete p;
-	for (auto& b : bufferTex)delete b;
 }
 
 void PostprocessingRenderer::remove(PostProcess*pp)
@@ -28,7 +27,9 @@ void PostprocessingRenderer::update(float elapsedTime)
 void PostprocessingRenderer::render()
 {
 	GraphicsManager* graphics = GraphicsManager::instance();
+	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
 
+	//描画設定
 	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
 		// サンプラーステートの設定（リニア）
 		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
@@ -39,8 +40,6 @@ void PostprocessingRenderer::render()
 		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
 		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
 		});
-
-	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
 
 	//ポストエフェクトでの書き込み
 	PostProcess* cache = scenePostProcess.get();
@@ -79,8 +78,4 @@ void PostprocessingRenderer::debugGui()
 	
 	for (auto& p : postProcessArray)p->debugGui();
 	ImGui::End();
-
-	/*ImGui::Begin("buffer texture");
-	for (auto & b : bufferTex)b->debugGui();
-	ImGui::End();*/
 }

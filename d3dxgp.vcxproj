@@ -177,6 +177,7 @@
     <ClCompile Include="Source\Component\Audio3DEmitter.cpp" />
     <ClCompile Include="Source\Component\Audio3DListener.cpp" />
     <ClCompile Include="Source\Component\CollisionConponent.cpp" />
+    <ClCompile Include="Source\Component\meshTexchange.cpp" />
     <ClCompile Include="Source\Component\Movement.cpp" />
     <ClCompile Include="Source\Component\object.cpp" />
     <ClCompile Include="Source\Component\PlayerController.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Source\Component\Audio3DListener.h" />
     <ClInclude Include="Source\Component\CollisionConponent.h" />
     <ClInclude Include="Source\Component\Component.h" />
+    <ClInclude Include="Source\Component\meshTexchange.h" />
     <ClInclude Include="Source\Component\Movement.h" />
     <ClInclude Include="Source\Component\object.h" />
     <ClInclude Include="Source\Component\PlayerController.h" />

@@ -48,6 +48,7 @@ float4 main(GS_OUT input, bool is_front_face : SV_IsFrontFace) : SV_TARGET
 
     //ベースカラーの取得
     float4 color = textureMaps[0].Sample(samplerState, pin.texcoord);
+    color.rgb *= color.a;
     //color.rgb = ComputeRamp(ramp, samplerState, color.rgb);
     color.rgb = pow(color.rgb, GammaFactor);
     float alpha = color.a;
@@ -66,7 +67,6 @@ float4 main(GS_OUT input, bool is_front_face : SV_IsFrontFace) : SV_TARGET
         B = -B;
         N = -N;
     }
-
 
     float4 normal = textureMaps[1].Sample(samplerState, pin.texcoord);
     normal = (normal * 2.0) - 1.0;

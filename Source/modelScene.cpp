@@ -4,6 +4,8 @@
 #include"Graphics/GraphicsManager.h"
 #include"imgui.h"
 
+#include<algorithm>
+
 ModelScene::ModelScene()
 {
 
@@ -24,14 +26,32 @@ void ModelScene::initialize()
 
 	//見たいやつのモデル
 	model = objManager->create();
-	model->loadModel("Resources\\Model\\pico\\pico_chan.fbx");
+	//model->loadModel("Resources\\Model\\CuteBox\\Box01.fbx");
+	model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
 	model->setScale(scale);
 	model->setPosition(position);
 	model->setRotation(rotation);
 
 	model->AddComponent<Animation>();
+	//model->AddComponent<MeshTexChange>("Face07");
 
 	animation = model->GetComponent<Animation>();
+	//meshTexChange = model->GetComponent<MeshTexChange>();
+
+
+	//別の顔のマテリアルをロード
+	int maxReserveMaterial = 4;
+	int count = 2;
+	std::wstring extension = L".png";
+	std::wstring name = L"Face";
+	std::wstring filePath = L"Resources\\Model\\CuteBox\\Texture\\Face\\";
+
+	for (int i = 0; i < maxReserveMaterial; ++i)
+	{
+		std::wstring texName = filePath + name +L"0" + std::to_wstring(count) + extension;
+		//meshTexChange->loadTexture(texName);
+		count++;
+	}
 }
 
 void ModelScene::finalize()
@@ -56,11 +76,8 @@ void  ModelScene::Gui()
 	ImGui::SliderFloat3("scale", &scale.x, 0.01f, 1.0f);
 	ImGui::SliderFloat4("rotate", &rotation.x, -10.0f, 10.0f);
 
-	ImGui::SliderInt("index", &animationIndex, 0, 10);
-	if (ImGui::Button("animation play"))
-	{
-		animation->playAnimation(animationIndex, true);
-	}
+	ImGui::SliderInt("playAnimation", &animationIndex, 0, model->getModel()->animation_clips.size());
+	if (ImGui::Button("Play")) animation->playAnimation(animationIndex, false);
 	ImGui::End();
 }
 

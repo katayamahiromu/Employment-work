@@ -303,6 +303,9 @@
     <ClCompile Include="Source\Graphics\MrtAttachment.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Component\meshTexchange.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Framework.h">
@@ -571,6 +574,9 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\MrtAttachment.h">
       <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Component\meshTexchange.h">
+      <Filter>Source\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

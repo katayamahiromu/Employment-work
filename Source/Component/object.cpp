@@ -176,7 +176,7 @@ void ObjectManager::render(const DirectX::XMFLOAT4X4& view, const DirectX::XMFLO
 		// サンプラーステートの設定（アニソトロピック）
 		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::ANISOTROPIC)].GetAddressOf());
 		// ブレンドステートの設定（アルファ）
-		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
+		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::NONE)].Get(), nullptr, 0xFFFFFFFF);
 		// 深度ステンシルステートの設定（深度テストオン、深度書き込みオン）
 		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::ON_ON)].Get(), 0);
 		// ラスタライザステートの設定（ソリッド、裏面表示オフ）

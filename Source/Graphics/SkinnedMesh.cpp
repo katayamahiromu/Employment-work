@@ -763,6 +763,7 @@ void SkinnedMesh::render(ID3D11DeviceContext* immediate_context,
 			immediate_context->UpdateSubresource(constant_buffer.Get(), 0, 0, &data, 0, 0);
 			immediate_context->VSSetConstantBuffers(0, 1, constant_buffer.GetAddressOf());
 
+			//変更用のSRVにデータが有ればそれを使う
 			ID3D11ShaderResourceView* resorce[] =
 			{
 				material.shader_resource_views[0].Get(),

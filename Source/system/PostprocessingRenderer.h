@@ -19,8 +19,6 @@ public:
 	void update(float elapsedTime);
 
 	void addPostProcess(PostProcess* postProcess) { postProcessArray.push_back(postProcess); }
-	void addBufferTex(PostProcess* postProcess) { bufferTex.push_back(postProcess);}
-
 
 	void backErase() { postProcessArray.pop_back(); }
 
@@ -35,6 +33,5 @@ public:
 private:
 	std::unique_ptr<PostProcess>scenePostProcess;
 	std::vector<PostProcess*>postProcessArray;
-	std::vector<PostProcess*>bufferTex;
 	std::unique_ptr<FullScreenQuad>fullScreenQuad;
 };

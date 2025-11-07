@@ -288,6 +288,20 @@ public:
 		}
 	};
 
+	//マテリアル検索
+	material* getMaterial(uint64_t key)
+	{
+		auto it = materials.find(key);
+		return it != materials.end() ? &it->second : nullptr;
+	}
+	//マテリアルの最大数取得
+	size_t getMaxMaterial() { return materials.size(); }
+
+	//マテリアルの変更
+	void changeMaterial(uint64_t key,Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>srv) 
+	{
+		getMaterial(key)->shader_resource_views[0] = srv;
+	}
 
 	std::unordered_map<uint64_t, material> materials;
 

@@ -24,8 +24,12 @@ StageManager::~StageManager()
 void StageManager::CreateMainStage()
 {
 	std::shared_ptr<Object>obj = om->create();
-	obj->loadModel("Resources\\Model\\ExampleStage\\ExampleStage.fbx");
+	obj->loadModel("Resources\\Model\\Stage\\BLD.fbx");
 	obj->setName("main stage");
+	const float scale_factor = 0.01f;	// モデルが大きいのでスケール調整
+	DirectX::XMFLOAT3 scale = { scale_factor, scale_factor, scale_factor };
+	obj->setScale(scale);
+	obj->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	obj->AddComponent<Stage>();
 
 	stageArray.emplace_back(obj);

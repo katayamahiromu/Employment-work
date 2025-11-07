@@ -132,49 +132,53 @@ loop
   breakc_z r0.z
 
 #line 21
-  mov r1.xyzw, v[r0.y + 0][3].xyzw  // r1.x <- element.vs.world_normal.x; r1.y <- element.vs.world_normal.y; r1.z <- element.vs.world_normal.z; r1.w <- element.vs.world_normal.w
-  mov r2.xyzw, v[r0.y + 0][4].xyzw  // r2.x <- element.vs.world_tangent.x; r2.y <- element.vs.world_tangent.y; r2.z <- element.vs.world_tangent.z; r2.w <- element.vs.world_tangent.w
-  mov r3.xyzw, v[r0.y + 0][5].xyzw  // r3.x <- element.vs.color.x; r3.y <- element.vs.color.y; r3.z <- element.vs.color.z; r3.w <- element.vs.color.w
+  mov r1.xyzw, v[r0.y + 0][4].xyzw  // r1.x <- element.vs.world_tangent.x; r1.y <- element.vs.world_tangent.y; r1.z <- element.vs.world_tangent.z; r1.w <- element.vs.world_tangent.w
+  mov r2.xyzw, v[r0.y + 0][5].xyzw  // r2.x <- element.vs.color.x; r2.y <- element.vs.color.y; r2.z <- element.vs.color.z; r2.w <- element.vs.color.w
   mov r0.zw, v[r0.y + 0][2].xxxy  // r0.z <- element.vs.texcoord.x; r0.w <- element.vs.texcoord.y
-
-#line 22
-  itof r4.x, l(1)  // r4.x <- element.vs.world_position.w
-
-#line 23
-  mov r4.y, r0.y
-  mul r5.xyz, cb1[6].xxxx, v[r0.y + 0][3].xyzx
-  add r4.yzw, r5.xxyz, v[r4.y + 0][1].xxyz  // r4.y <- element.vs.world_position.x; r4.z <- element.vs.world_position.y; r4.w <- element.vs.world_position.z
+  mov r3.x, v[r0.y + 0][3].w  // r3.x <- element.vs.world_normal.w
 
 #line 24
-  mul r5.xyzw, r4.yyyy, cb1[0].xyzw
-  mul r6.xyzw, r4.zzzz, cb1[1].xyzw
+  mov r3.y, r0.y
+  mul r4.xyz, cb1[6].xxxx, v[r0.y + 0][3].xyzx
+  add r3.yzw, r4.xxyz, v[r3.y + 0][1].xxyz  // r3.y <- element.vs.world_position.x; r3.z <- element.vs.world_position.y; r3.w <- element.vs.world_position.z
+
+#line 25
+  mov r4.x, l(1.000000)  // r4.x <- element.vs.world_position.w
+
+#line 28
+  mov r4.yzw, -v[r0.y + 0][3].xxyz  // r4.y <- element.vs.world_normal.x; r4.z <- element.vs.world_normal.y; r4.w <- element.vs.world_normal.z
+
+#line 31
+  mul r5.xyzw, r3.yyyy, cb1[0].xyzw
+  mul r6.xyzw, r3.zzzz, cb1[1].xyzw
   add r5.xyzw, r5.xyzw, r6.xyzw
-  mul r6.xyzw, r4.wwww, cb1[2].xyzw
+  mul r6.xyzw, r3.wwww, cb1[2].xyzw
   add r5.xyzw, r5.xyzw, r6.xyzw
   mul r6.xyzw, r4.xxxx, cb1[3].xyzw
   add r5.xyzw, r5.xyzw, r6.xyzw  // r5.x <- element.vs.position.x; r5.y <- element.vs.position.y; r5.z <- element.vs.position.z; r5.w <- element.vs.position.w
 
-#line 25
+#line 33
   mov r6.x, l(-1)  // r6.x <- element.is_outline
 
-#line 27
+#line 34
   mov o0.xyzw, r5.xyzw
-  mov o1.xyz, r4.yzwy
+  mov o1.xyz, r3.yzwy
   mov o1.w, r4.x
   mov o2.xy, r0.zwzz
-  mov o3.xyzw, r1.xyzw
-  mov o4.xyzw, r2.xyzw
-  mov o5.xyzw, r3.xyzw
+  mov o3.xyz, r4.yzwy
+  mov o3.w, r3.x
+  mov o4.xyzw, r1.xyzw
+  mov o5.xyzw, r2.xyzw
   mov o6.x, r6.x
   emit 
 
-#line 28
+#line 35
   iadd r0.y, r0.y, l(-1)
 endloop 
 
-#line 29
+#line 36
 cut 
 
-#line 31
+#line 37
 ret 
-// Approximately 57 instruction slots used
+// Approximately 59 instruction slots used

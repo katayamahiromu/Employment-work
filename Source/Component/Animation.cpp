@@ -1,10 +1,11 @@
 #include"Animation.h"
 #include"imgui.h"
+#include<algorithm>
 
 void Animation::OnGUI()
 {
 	ImGui::InputFloat("animation_tick", &animation_tick);
-	ImGui::InputInt("animation_index", &animation_index);
+	ImGui::InputInt("animation_index", &animation_index,0,0, ImGuiInputTextFlags_ReadOnly);
 }
 
 void Animation::prepare() 

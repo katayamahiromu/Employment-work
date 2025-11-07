@@ -6,7 +6,7 @@ StructuredBuffer<float2> data_input : register(t0);
 //情報書き込みバッファ
 RWStructuredBuffer<float2> data_output : register(u0);
 
-[numthreads(512, 1, 1)]
+[numthreads(16, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 	uint i = DTid.x;
