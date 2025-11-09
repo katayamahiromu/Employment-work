@@ -34,7 +34,7 @@ private:
 	DirectX::XMFLOAT3 angle  = { 0,0,0 }; //カメラの角度
 	DirectX::XMFLOAT3 velocity = { 0,0,0 };
 	float frontY = 0.0f;
-	float range = 10.0f;
+	float range = 5.0f;
 	float spring = 10.0;
 	float damping = 2.0;
 
@@ -46,9 +46,9 @@ private:
 
 
 	//デバック用
-	float					rotateX = DirectX::XMConvertToRadians(45);
-	float					rotateY = 0.0f;
-	float					distance = 10.0f;
+	float rotateX = DirectX::XMConvertToRadians(45);
+	float rotateY = 0.0f;
+	float distance = 10.0f;
 	DirectX::XMFLOAT3 camera_position{ 0.0f, 0.0f, -10.0f };
 	DirectX::XMFLOAT3 camera_focus{ 0.0f, 0.0f, 0.0f };
 };

@@ -70,7 +70,7 @@ void Skymap::Render(ID3D11DeviceContext* immediate_context,Camera& camera)
 	DirectX::XMStoreFloat4x4(&smc.inverse_view_projection, 
 		DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(camera.getView()) * DirectX::XMLoadFloat4x4(camera.getProjection())));
 
-	bindBuffer<sky_map_constants>(immediate_context, CBS_SKY_MAP, sky_map_buffer.GetAddressOf(), &smc);
+	bindBuffer<sky_map_constants>(immediate_context, 3, sky_map_buffer.GetAddressOf(), &smc);
 
 	//•`‰æ
 	skymap_sprite->render(immediate_context, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);

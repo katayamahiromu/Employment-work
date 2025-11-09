@@ -81,6 +81,7 @@ public:
 		const DirectX::XMFLOAT3& start,
 		const DirectX::XMFLOAT3& end,
 		const SkinnedMesh* model,
+		const DirectX::XMFLOAT4X4& transform,
 		HitResult& result);
 
 	static bool squareVsSquare(

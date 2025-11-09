@@ -5,6 +5,7 @@
 #include"Component/TimeLapse.h"
 #include"Component/Audio3DEmitter.h"
 #include"Component/CollisionConponent.h"
+#include"Component/meshTexchange.h"
 
 #include"system/StateMachine.h"
 
@@ -49,19 +50,22 @@ private:
 	std::shared_ptr<TimeLapse>timeLaps;
 	std::shared_ptr<Audio3DEmitter>emitter;
 	std::shared_ptr<CollisionComponent>collision;
+	std::shared_ptr<MeshTexChange>meshTexChange;
+
 	std::unique_ptr<StateMachine>stateMachine;
 
 	std::vector<DirectX::XMFLOAT3>receiveCollision;
 	//アニメーション用
 	enum class Anime
 	{
-		Idle,
-		Fwd_Start,
-		Fwd_Walk,
-		Fwd_Stop,
-		Attack,
-		Damage,
-		Death
+		idle,
+		light_punch,
+		double_kick,
+		strong_kick,
+		lose,
+		light_kick,
+		strong_punch,
+		walk
 	};
 
 	//行動用
@@ -70,5 +74,15 @@ private:
 		Idle,
 		Pursuit,
 		Attack,
+	};
+
+	//顔のテクスチャ
+	enum class Face
+	{
+		smile,
+		straight,
+		obscene,
+		love,
+		paninful,
 	};
 };

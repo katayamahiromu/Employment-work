@@ -38,12 +38,12 @@ void GameScene::initialize()
 	uiManager = std::make_unique<UIManager>();
 	uiManager->registerUi(new RewindTimeUI(*playerManager->getPlayer()->GetComponent<TimeLapse>()));
 
-	skymap = std::make_unique<Skymap>(L"Resources/Image/Sky.png");
+	skymap = std::make_unique<Skymap>(L"Resources/Image/cuve.png");
 	
 	//ポストエフェクト
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects->addPostProcess(new ColorGrading);
 	//PostEffects->addPostProcess(new LuminanceExtract);
-	//PostEffects->addPostProcess(new ColorGrading);
 	PostEffects->addPostProcess(new ACES_Filmic);
 
 	//カメラ初期設定

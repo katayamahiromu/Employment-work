@@ -20,8 +20,8 @@ void Weapon::OnGUI()
 
 void Weapon::prepare()
 {
-	ownerMeshIndex = owner->getModel()->findMeshIndex("NIC:full_body");
-	ownerBoneIndex = owner->getModel()->findBoneIndex("NIC:Cup_L_BK", ownerMeshIndex);
+	ownerMeshIndex = owner->getModel()->findMeshIndex("body_hand");
+	ownerBoneIndex = owner->getModel()->findBoneIndex("LeftHandMiddle1", ownerMeshIndex);
 }
 
 void Weapon::update(float elapsedTime)
@@ -45,9 +45,6 @@ void Weapon::update(float elapsedTime)
 	weapon->setTransform(weaponMatrix);
 
 	//s—ñ‚ğŒ³‚ÉˆÊ’uA‰ñ“]‚Ìİ’è
-	/*DirectX::XMVECTOR scaleVec, rotQuat, transVec;
-	DirectX::XMMatrixDecompose(&scaleVec, &rotQuat, &transVec, weaponMat);*/
-
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT4 rotation;

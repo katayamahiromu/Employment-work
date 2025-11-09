@@ -126,6 +126,7 @@ bool Collision::intersectRayAndModel(
 	const DirectX::XMFLOAT3& start,
 	const DirectX::XMFLOAT3& end,
 	const SkinnedMesh* model,
+	const DirectX::XMFLOAT4X4& transform,
 	HitResult& result)
 {
 	//ワールド空間上でのレイの視点
@@ -145,7 +146,8 @@ bool Collision::intersectRayAndModel(
 	for (const SkinnedMesh::mesh&mesh : model->meshes)
 	{
 		//レイをワールド空間からローカル空間へ変換
-		DirectX::XMMATRIX worldTransformMat = DirectX::XMLoadFloat4x4(&mesh.default_global_transform);
+		DirectX::XMMATRIX worldTrans = DirectX::XMLoadFloat4x4(&transform);
+		DirectX::XMMATRIX worldTransformMat = DirectX::XMLoadFloat4x4(&mesh.default_global_transform) * worldTrans;
 		DirectX::XMMATRIX inverseWorldTransformMat = DirectX::XMMatrixInverse(nullptr, worldTransformMat);
 
 		//ローカル空間上でのレイの始点

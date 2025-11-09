@@ -23,5 +23,5 @@ void Stage::update(float elapsedTime)
 
 bool Stage::raycast(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end, HitResult& hit)
 {
-	return Collision::intersectRayAndModel(start, end, getObject()->getModel(), hit);
+	return Collision::intersectRayAndModel(start, end, getObject()->getModel(), *getObject()->getTransform(), hit);
 }

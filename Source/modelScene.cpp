@@ -6,6 +6,9 @@
 
 #include<algorithm>
 
+//Ý’èŠÖŒW
+#define Anime 0
+
 ModelScene::ModelScene()
 {
 
@@ -27,15 +30,18 @@ void ModelScene::initialize()
 	//Œ©‚½‚¢‚â‚Â‚Ìƒ‚ƒfƒ‹
 	model = objManager->create();
 	//model->loadModel("Resources\\Model\\CuteBox\\Box01.fbx");
-	model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
+	//model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
+	model->loadModel("Resources\\Model\\Block\\Block.fbx");
 	model->setScale(scale);
 	model->setPosition(position);
 	model->setRotation(rotation);
 
+#if Anime
 	model->AddComponent<Animation>();
+	animation = model->GetComponent<Animation>();
+#endif
 	//model->AddComponent<MeshTexChange>("Face07");
 
-	animation = model->GetComponent<Animation>();
 	//meshTexChange = model->GetComponent<MeshTexChange>();
 
 
@@ -76,8 +82,10 @@ void  ModelScene::Gui()
 	ImGui::SliderFloat3("scale", &scale.x, 0.01f, 1.0f);
 	ImGui::SliderFloat4("rotate", &rotation.x, -10.0f, 10.0f);
 
+#if Anime
 	ImGui::SliderInt("playAnimation", &animationIndex, 0, model->getModel()->animation_clips.size());
 	if (ImGui::Button("Play")) animation->playAnimation(animationIndex, false);
+#endif
 	ImGui::End();
 }
 

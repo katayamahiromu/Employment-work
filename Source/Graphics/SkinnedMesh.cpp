@@ -79,7 +79,7 @@ void fetch_bone_influences(const FbxMesh* fbx_mesh,
 	}
 }
 
-SkinnedMesh::SkinnedMesh(ID3D11Device* device, const char* fbx_filename, bool triangulate)
+SkinnedMesh::SkinnedMesh(ID3D11Device* device, const char* fbx_filename, bool triangulate):fileName(fbx_filename)
 {
 	std::filesystem::path cereal_filename(fbx_filename);
 	cereal_filename.replace_extension("cereal");

@@ -2,6 +2,7 @@
 #include"imgui.h"
 #include"Graphics/Texture.h"
 #include"DeviceManager.h"
+#include"../Utils/convertStrings.h"
 
 MeshTexChange::MeshTexChange(const char* materialName):materialName(materialName)
 {
@@ -27,7 +28,13 @@ void MeshTexChange::prepare()
 				const SkinnedMesh::material& material = m->materials.at(key);
 
 				//キー取得後変更前も保存
-				loadTexture(material.shader_resource_views[0].Get());
+				 
+				//モデルからのパス
+				const std::wstring name = StringToWString(material.texture_filenames->c_str());
+				const std::wstring directory = extractionDirectory(m->getName());
+
+				const std::wstring file = directory + name;
+				loadTexture(file.c_str());
 
 				return;
 			}
@@ -42,35 +49,49 @@ void MeshTexChange::update(float elapsedTime)
 
 void MeshTexChange::OnGUI()
 {
-	for (int i = 0; i < texArray.size(); ++i)
+	
+	int id = 0;
+	for (auto& tex:texArray)
 	{
-		ImGui::PushID(i);
+		ImGui::PushID(id);
 
-		ImGui::Image(texArray.at(i)->getShaderResourceView().Get(), {32, 32});
+		ImGui::Image(tex.second->getShaderResourceView().Get(), {32, 32});
 		ImGui::SameLine();
 
-		if (ImGui::Button("change texture") )changeMeshTex(i);
+		if (ImGui::Button("change texture") )changeMeshTex(tex.first);
 		ImGui::Separator();
 		ImGui::PopID();
+
+		id++;
 	}
 }
 
-void MeshTexChange::loadTexture(std::wstring filename)
+void MeshTexChange::loadTexture(const wchar_t* filename)
 {
 	//変更可能な画像の登録
-	texArray.push_back(
-		std::make_unique<Sprite>(DeviceManager::instance()->getDevice(), filename.c_str())
-	);
+	texArray.insert({
+		filename,
+		std::make_unique<Sprite>(DeviceManager::instance()->getDevice(), filename)
+		});
 }
 
-void MeshTexChange::loadTexture(ID3D11ShaderResourceView* srv)
+void MeshTexChange::changeMeshTex(const wchar_t* name)
 {
-	texArray.push_back(
-		std::make_unique<Sprite>(DeviceManager::instance()->getDevice(), srv)
-	);
+	getObject()->getModel()->changeMaterial(key, texArray.at(name)->getShaderResourceView());
 }
 
-void MeshTexChange::changeMeshTex(int textureNum)
+const std::wstring MeshTexChange::extractionDirectory(const char* file)
 {
-	getObject()->getModel()->changeMaterial(key, texArray.at(textureNum)->getShaderResourceView());
+	std::string str = file;
+
+	//ディレクトリ部分を抽出
+	size_t pos = str.find_last_of("\\/");
+	if (pos != std::string::npos)
+	{
+		str.erase(pos + 1);
+	}
+
+	//wString型に変換
+	const std::wstring wstr = StringToWString(str);
+	return wstr;
 }

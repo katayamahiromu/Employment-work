@@ -315,6 +315,7 @@ public:
 	SkinnedMesh(ID3D11Device* device, const char* fbx_filename, bool triangulate = false);
 	virtual ~SkinnedMesh() = default;
 
+	const char* getName() { return fileName; }
 	/// <summary>
 	/// •`‰æˆ—
 	/// </summary>
@@ -393,4 +394,5 @@ protected:
 	void create_com_objects(ID3D11Device* device, const char* fbx_filename);
 private:
 	animation::keyframe*keyframe = nullptr;
+	const char* fileName;
 };

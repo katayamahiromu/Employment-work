@@ -31,9 +31,9 @@ void Enemy::prepare()
 	emitter->loadFile("Resources\\Audio\\グレート.wav");
 
 	collision = getObject()->GetComponent<CollisionComponent>();
-	collision->setMeshName("PLT:PLT_mesh");
-	collision->setBoneInfo("PLT:Knee_L_BK",1.0f);
-	collision->setBoneInfo("PLT:Knee_R_BK",1.0f);
+	collision->setMeshName("Box");
+
+	meshTexChange = getObject()->GetComponent<MeshTexChange>();
 	
 	//待機
 	stateMachine->registerState(CAST_INT(Action::Idle),
@@ -50,6 +50,20 @@ void Enemy::prepare()
 	stateMachine->changeState(CAST_INT(Action::Idle));
 
 	targetPosition = *owner->getPosition();
+
+	//別の顔のマテリアルをロード
+	int maxReserveMaterial = 4;
+	int count = 2;
+	std::wstring extension = L".png";
+	std::wstring name = L"Face";
+	std::wstring filePath = L"Resources\\Model\\CuteBox\\Texture\\Face\\";
+
+	for (int i = 0; i < maxReserveMaterial; ++i)
+	{
+		const std::wstring texName = filePath + name + L"0" + std::to_wstring(count) + extension;
+		meshTexChange->loadTexture(texName.c_str());
+		count++;
+	}
 }
 
 void Enemy::update(float elapsedTime)
@@ -100,7 +114,7 @@ void Enemy::setRandomTargetPosition()
 
 void Enemy::enterIdle()
 {
-	animation->playAnimation(CAST_INT(Anime::Idle), false);
+	animation->playAnimation(CAST_INT(Anime::idle), false);
 }
 
 void Enemy::executeIdle(float elapsedTime)
@@ -113,7 +127,7 @@ void Enemy::executeIdle(float elapsedTime)
 
 void Enemy::enterPursuit()
 {
-	animation->playAnimation(CAST_INT(Anime::Fwd_Walk), true);
+	animation->playAnimation(CAST_INT(Anime::walk), true);
 	targetPosition = *owner->getPosition();
 }
 
@@ -129,7 +143,7 @@ void Enemy::executePursuit(float elapsedTime)
 
 void Enemy::enterAttack()
 {
-	animation->playAnimation(CAST_INT(Anime::Attack),false);
+	animation->playAnimation(CAST_INT(Anime::strong_punch),false);
 }
 
 void Enemy::executeAttack(float elapsedTime)

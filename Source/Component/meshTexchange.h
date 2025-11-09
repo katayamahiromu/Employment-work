@@ -21,14 +21,15 @@ public:
 	void OnGUI()override;
 
 	//変更可能な画像を連番登録
-	void loadTexture(std::wstring filename);
-	void loadTexture(ID3D11ShaderResourceView* srv);
+	void loadTexture(const wchar_t* filename);
 
 	//登録された番号に変更
-	void changeMeshTex(int textureNum);
+	void changeMeshTex(const wchar_t* name);
+private:
+	const std::wstring extractionDirectory(const char*file);
 private:
 	//どのメッシュに対してのテクスチャかのキー
 	uint64_t key = -1;
 	const char* materialName;
-	std::vector<std::unique_ptr<Sprite>>texArray;
+	std::unordered_map<const wchar_t*, std::unique_ptr<Sprite>>texArray;
 };

@@ -17,7 +17,7 @@
 //
 // Name                                 Type  Format         Dim      HLSL Bind  Count
 // ------------------------------ ---------- ------- ----------- -------------- ------
-// SKY_MAP_BUFFER                    cbuffer      NA          NA            cb2      1 
+// SKY_MAP_BUFFER                    cbuffer      NA          NA            cb3      1 
 //
 //
 //
@@ -41,7 +41,7 @@
 //
 vs_5_0
 dcl_globalFlags refactoringAllowed | skipOptimization
-dcl_constantbuffer CB2[5], immediateIndexed
+dcl_constantbuffer CB3[5], immediateIndexed
 dcl_input v0.xyzw
 dcl_input v1.xyzw
 dcl_input v2.xy
@@ -70,12 +70,12 @@ mov r1.xyzw, v1.xyzw  // r1.x <- vout.color.x; r1.y <- vout.color.y; r1.z <- vou
 mov r2.xy, v2.xyxx  // r2.x <- vout.texcoord.x; r2.y <- vout.texcoord.y
 
 #line 15
-mul r3.xyzw, v0.xxxx, cb2[1].xyzw
-mul r4.xyzw, v0.yyyy, cb2[2].xyzw
+mul r3.xyzw, v0.xxxx, cb3[1].xyzw
+mul r4.xyzw, v0.yyyy, cb3[2].xyzw
 add r3.xyzw, r3.xyzw, r4.xyzw
-mul r4.xyzw, v0.zzzz, cb2[3].xyzw
+mul r4.xyzw, v0.zzzz, cb3[3].xyzw
 add r3.xyzw, r3.xyzw, r4.xyzw
-mul r4.xyzw, v0.wwww, cb2[4].xyzw
+mul r4.xyzw, v0.wwww, cb3[4].xyzw
 add r3.xyzw, r3.xyzw, r4.xyzw  // r3.x <- position.x; r3.y <- position.y; r3.z <- position.z; r3.w <- position.w
 
 #line 16

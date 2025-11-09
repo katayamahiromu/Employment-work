@@ -23,11 +23,11 @@ void Movement::update(float elapsedTime)
 void Movement::move(const DirectX::XMFLOAT3& direction, float elapsedTime)
 {
 	this->direction = direction;
-	////垂直速度更新処理
-	//updateVerticalVelocity(elapsedTime);
+	//垂直速度更新処理
+	updateVerticalVelocity(elapsedTime);
 
-	////垂直移動更新処理
-	//updateVerticalMove(elapsedTime);
+	//垂直移動更新処理
+	updateVerticalMove(elapsedTime);
 
 	//水平速度更新処理
 	updateHorizontalVelocity(elapsedTime);

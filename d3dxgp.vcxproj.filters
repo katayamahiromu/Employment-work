@@ -428,9 +428,6 @@
     <ClInclude Include="Source\Component\Animation.h">
       <Filter>Source\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Graphics\BufferSlots.h">
-      <Filter>Source\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Graphics\Skymap.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
@@ -578,6 +575,9 @@
     <ClInclude Include="Source\Component\meshTexchange.h">
       <Filter>Source\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\convertStrings.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -593,9 +593,6 @@
       <Filter>HLSL</Filter>
     </None>
     <None Include="HLSL\Line.hlsli">
-      <Filter>HLSL</Filter>
-    </None>
-    <None Include="HLSL\Buffer.hlsli">
       <Filter>HLSL</Filter>
     </None>
     <None Include="HLSL\Skymap.hlsli">

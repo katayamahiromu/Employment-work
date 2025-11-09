@@ -24,7 +24,7 @@ void PlayerManager::playerCreate()
 	player->setScale(scale);
 	player->setHeight(1.2f);
 	player->setRange(0.5f);
-	player->loadModel("Resources\\Model\\nico\\nico.fbx");
+	player->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
 	player->AddComponent<Player>();
 	player->AddComponent<PlayerController>();
 	player->AddComponent<Movement>();

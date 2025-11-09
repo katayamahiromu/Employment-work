@@ -43,11 +43,7 @@ void Player::prepare()
     playerController = getObject()->GetComponent<PlayerController>();
     lister = getObject()->GetComponent<Audio3DListener>();
     collision = getObject()->GetComponent<CollisionComponent>();
-
-   /* collision->setMeshName("NIC:magic_wand");
-    collision->setBoneInfo("NIC:wand2_BK",0.5f);*/
    
-
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
     //‘Ò‹@
@@ -125,7 +121,6 @@ void Player::debugDrawPrimitive()
     float height = getObject()->getHeight();
     float range = getObject()->getRange();
     debugRenderer->drawCylinder(pos, range, height, { 0,0,0,1 });
-    //debugRenderer->drawSphere(pos, 1.0f, { 0,0,0,1 });
 }
 
 DirectX::XMFLOAT3 Player::getMoveVec()const
@@ -196,7 +191,7 @@ bool Player::inputAttack()
 
 void Player::enterIdle()
 {
-    animation->playAnimation(CAST_INT(Anime::Idel), true);
+    animation->playAnimation(CAST_INT(Anime::idle), true);
 }
 
 void Player::executeIdle(float elapsedTime)
@@ -214,7 +209,7 @@ void Player::executeIdle(float elapsedTime)
 
 void Player::enterMove()
 {
-    animation->playAnimation(CAST_INT(Anime::FwdRun), true);
+    animation->playAnimation(CAST_INT(Anime::run), true);
 }
 
 void Player::executeMove(float elapsedTime)
@@ -223,6 +218,7 @@ void Player::executeMove(float elapsedTime)
     {
         stateMachine->changeState(CAST_INT(Action::Idel));
     }
+
     if (inputAttack())
     {
         stateMachine->changeState(CAST_INT(Action::Attack));
@@ -231,7 +227,7 @@ void Player::executeMove(float elapsedTime)
 
 void Player::enterAttack()
 {
-    animation->playAnimation(CAST_INT(Anime::Attack),false);
+    animation->playAnimation(CAST_INT(Anime::thrust),false);
 }
 
 void Player::executeAttack(float elapsedTime)

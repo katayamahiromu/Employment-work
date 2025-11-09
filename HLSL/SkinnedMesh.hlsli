@@ -1,5 +1,3 @@
-#include"Buffer.hlsli"
-
 struct VS_IN
 {
     float4 position : POSITION;
@@ -34,7 +32,7 @@ cbuffer OBJECT_CONSTANT_BUFFER : register(b0)
     row_major float4x4 bone_transforms[MAX_BONES];
 };
 
-CBUFFER(SCENE_CONSTANT_BUFFER, CBS_SCENE_CONSTANTS)
+cbuffer SCENE_CONSTANT_BUFFER : register(b1)
 {
     row_major float4x4 view_projection;
     float4 light_direction;

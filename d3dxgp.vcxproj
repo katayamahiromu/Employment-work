@@ -269,7 +269,6 @@
     <ClInclude Include="Source\GameScene.h" />
     <ClInclude Include="Source\Graphics\ACES_Filmic.h" />
     <ClInclude Include="Source\Graphics\Buffer.h" />
-    <ClInclude Include="Source\Graphics\BufferSlots.h" />
     <ClInclude Include="Source\Graphics\ColorGrading.h" />
     <ClInclude Include="Source\Graphics\DebugRenderer.h" />
     <ClInclude Include="Source\Graphics\depthStencilTex.h" />
@@ -323,6 +322,7 @@
     <ClInclude Include="Source\UIManager.h" />
     <ClInclude Include="Source\Weapon.h" />
     <ClInclude Include="Source\WeaponManager.h" />
+    <ClInclude Include="Utils\convertStrings.h" />
     <ClInclude Include="Utils\DirectXTK-main\Inc\DDSTextureLoader.h" />
     <ClInclude Include="Utils\DirectXTK-main\Inc\WICTextureLoader.h" />
     <ClInclude Include="Utils\imgui\imconfig.h" />
@@ -336,7 +336,6 @@
     <ClInclude Include="Utils\Singleton.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HLSL\Buffer.hlsli" />
     <None Include="HLSL\Debug.hlsli" />
     <None Include="HLSL\FFT.hlsli" />
     <None Include="HLSL\FullScreenQuad.hlsli" />

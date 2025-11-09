@@ -17,6 +17,12 @@ LuminanceExtract::~LuminanceExtract()
 
 }
 
+void LuminanceExtract::update(float elapsedTime)
+{
+	bindBufferToPostEffect<luminanceExtractConstants>(
+		DeviceManager::instance()->getDeviceContext(), 2, buffer.GetAddressOf(), &luminanceExtractConstant);
+}
+
 void LuminanceExtract::debugGui()
 {
 	if (ImGui::TreeNode("Extract Luminance"))
@@ -27,10 +33,4 @@ void LuminanceExtract::debugGui()
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
-}
-
-void LuminanceExtract::update(float elapsedTime)
-{
-	bindBufferToPostEffect<luminanceExtractConstants>(
-		DeviceManager::instance()->getDeviceContext(), 2, buffer.GetAddressOf(), &luminanceExtractConstant);
 }

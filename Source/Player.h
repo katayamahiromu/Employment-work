@@ -62,15 +62,14 @@ private:
 
 	enum class Anime
 	{
-		Idel,
-		FwdRun,
-		FwdStart,
-		FwdStop,
-		JumpAir,
-		JumpRecovery,
-		JumpStart,
-		Attack,
-		Death,
+		death,
+		idle,
+		run,
+		thrust,
+		attack_finish,
+		attack_up,
+		attack_down,
+		attack_horizon
 	};
 
 	enum class Action
