@@ -19,6 +19,11 @@ ColorGrading::~ColorGrading()
 
 void ColorGrading::update(float elapsedTime)
 {
+	
+}
+
+void ColorGrading::bindShader()
+{
 	bindBufferToPostEffect<ColorGrading::CBColorGrading>(
 		DeviceManager::instance()->getDeviceContext(), 2, buffer.GetAddressOf(), &colorGrading);
 }

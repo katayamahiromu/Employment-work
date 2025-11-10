@@ -17,6 +17,8 @@ public:
 	};
 	void debugGui()override;
 	void update(float elapsedTime)override;
+
+	void bindShader()override;
 private:
 	CBColorGrading colorGrading;
 };

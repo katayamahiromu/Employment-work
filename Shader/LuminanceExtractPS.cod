@@ -75,11 +75,11 @@ add r0.z, r0.z, r0.x
 max r0.y, r0.z, r0.y  // r0.y <- contribution
 
 #line 32
-div r0.x, r0.y, r0.x
-mul r0.xyz, r0.xxxx, r1.xyzx  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
+div r0.x, r0.y, r0.x  // r0.x <- contribution
 
 #line 33
-mul r0.xyz, r0.xyzx, cb2[0].yyyy
+mul r0.x, r0.x, cb2[0].y
+mul r0.xyz, r0.xxxx, r1.xyzx  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
 
 #line 34
 mov o0.xyz, r0.xyzx

@@ -47,6 +47,7 @@ void PostprocessingRenderer::render()
 	{
 		//‚»‚ê‚¼‚ê‚ÌƒpƒX‚É‘‚«ž‚Ý
 		p->prepare(dc);
+		p->bindShader();
 		fullScreenQuad->bilt(dc, cache->getSrv(), 0, 1,p->getPixelShader());
 		p->clean(dc);
 		cache = p;

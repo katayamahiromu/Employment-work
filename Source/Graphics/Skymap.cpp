@@ -11,6 +11,7 @@
 Skymap::Skymap(const wchar_t* filename)
 {
 	ID3D11Device* device = DeviceManager::instance()->getDevice();
+
 	//スカイマップ用のテクスチャ及びスプライトを準備
 	TextureManager::instance()->loadTextureFromFile(
 		device, filename,
@@ -39,7 +40,7 @@ Skymap::~Skymap()
 
 }
 
-void Skymap::Render(ID3D11DeviceContext* immediate_context,Camera& camera)
+void Skymap::Render(ID3D11DeviceContext* immediate_context, Camera& camera)
 {
 	GraphicsManager* graphics = GraphicsManager::instance();
 

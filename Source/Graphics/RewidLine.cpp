@@ -20,9 +20,14 @@ RewindLine::~RewindLine()
 void RewindLine::update(float elapsedTime)
 {
 	rlParam.time += elapsedTime;
+}
+
+void RewindLine::bindShader()
+{
 	bindBufferToPostEffect<RewindLineParameter>(
 		DeviceManager::instance()->getDeviceContext(), 2, buffer.GetAddressOf(), &rlParam);
 }
+
 
 void RewindLine::debugGui()
 {

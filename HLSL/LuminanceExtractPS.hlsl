@@ -21,7 +21,7 @@ float RGB2Luminance(float3 rgb)
 float4 main(VS_OUT pin) : SV_TARGET
 {
     float4 color = texture0.Sample(sampler0, pin.texcoord);
-    float alpha = color.a;
+    
     // RGB > 輝度値に変換
     float luminance = RGB2Luminance(color.rgb);
 
@@ -29,7 +29,7 @@ float4 main(VS_OUT pin) : SV_TARGET
     float contribution = max(0, luminance - threshold);
 
     // 出力する色を補正する
-    color.rgb *= contribution / luminance;
-    color.rgb *= intensity;
-    return float4(color);
+    contribution /= luminance;
+    color.rgb *= contribution * intensity;
+    return color;
 }

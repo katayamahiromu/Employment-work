@@ -49,7 +49,7 @@ void TitleScene::initialize()
 
 	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
 	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
-	sample->play(true);
+	//sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
 }

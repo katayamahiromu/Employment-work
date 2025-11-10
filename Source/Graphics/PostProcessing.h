@@ -17,6 +17,9 @@ public:
 	ID3D11ShaderResourceView* getSrvP() { return framebuffer.get()->getSrvP(); }
 	ID3D11ShaderResourceView** getSrv() {return framebuffer.get()->getSrv(); }
 	ID3D11PixelShader* getPixelShader() { return pixelShader.Get(); }
+
+	//シェーダーのバインド
+	virtual void bindShader(){};
 protected:
 	std::unique_ptr<FrameBuffer>framebuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>buffer;

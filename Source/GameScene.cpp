@@ -42,9 +42,9 @@ void GameScene::initialize()
 	
 	//ポストエフェクト
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new ColorGrading);
-	//PostEffects->addPostProcess(new LuminanceExtract);
-	PostEffects->addPostProcess(new ACES_Filmic);
+	//PostEffects->addPostProcess(new ACES_Filmic);
 
 	//カメラ初期設定
 	Camera::instance()->defaultSetting();
@@ -59,7 +59,7 @@ void GameScene::initialize()
 
 	AudioResourceList* list = AudioResourceList::instance();
 	list->loadResource("Resources\\data\\SceneGameAudioData.csv",true);
-	list->getAudio("bgm")->play(true);
+	//list->getAudio("bgm")->play(true);
 
 	//別のレンダーターゲット
 	depthNormalTex = std::make_unique<DepthNormalTex>();

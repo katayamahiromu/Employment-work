@@ -11,6 +11,14 @@ namespace MessageData
 		DirectX::XMFLOAT4	angle;
 	};
 
+	// ロックオンカメラ
+	static	constexpr const	char* CAMERACHANGELOCKONMODE = "CAMERA CHANGE LOCKONMODE";
+	struct	CAMERACHANGELOCKONMODEDATA
+	{
+		DirectX::XMFLOAT3	start;
+		DirectX::XMFLOAT3	target;
+	};
+
 	//レイキャスト
 	static	constexpr const char* RAY_CAST_RESULT = "RAY CAST RESULT";
 	struct RAYCASTREQUEST

@@ -13,15 +13,35 @@ CameraController::CameraController()
 	newPosition = *Camera::instance()->getEye();
 
 	CAMERACHANGEFREEMODEKEY = Messenger::instance().addReceiver(MessageData::CAMERACHANGEFREEMODE, [&](void* data) { onFreeMode(data); });
+	CAMERACHANGELOCKONMODEKEY = Messenger::instance().addReceiver(MessageData::CAMERACHANGELOCKONMODE, [&](void* data) {onLockonMode(data);});
 }
 
 CameraController::~CameraController()
 {
 	Messenger::instance().removeReceiver(CAMERACHANGEFREEMODEKEY);
+	Messenger::instance().removeReceiver(CAMERACHANGELOCKONMODEKEY);
 }
 
 //更新処理
 void CameraController::update(float elapsedTime)
+{
+	switch (mode)
+	{
+	case CameraController::free:
+		freeCamera(elapsedTime);
+		break;
+	case CameraController::lockon:
+		lockonCamera(elapsedTime);
+		break;
+	default:
+		break;
+	}
+
+	//カメラの視点と注視点を設定
+	Camera::instance()->setLookAt(position, target, { 0,1,0 });
+}
+
+void CameraController::freeCamera(float elapsedTime)
 {
 	//カメラ位置
 	computeEye(elapsedTime);
@@ -29,17 +49,17 @@ void CameraController::update(float elapsedTime)
 	//カメラの回転
 	rotateCameraAngle(elapsedTime);
 
-	//地形との当たり判定
-	HitResult result;
-	MessageData::RAYCASTREQUEST r = { newTarget,newPosition,result,false };
-	Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
-	if (r.isHit)
-	{
-		DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&r.result.position);
-		DirectX::XMVECTOR cuv = DirectX::XMVectorSet(0, 1, 0, 0);
-		p = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorReplicate(4), cuv, p);
-		DirectX::XMStoreFloat3(&newPosition, p);
-	}
+	////地形との当たり判定
+	//HitResult result;
+	//MessageData::RAYCASTREQUEST r = { newTarget,newPosition,result,false };
+	//Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
+	//if (r.isHit)
+	//{
+	//	DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&r.result.position);
+	//	DirectX::XMVECTOR cuv = DirectX::XMVectorSet(0, 1, 0, 0);
+	//	p = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorReplicate(4), cuv, p);
+	//	DirectX::XMStoreFloat3(&newPosition, p);
+	//}
 
 	//注視点を少しずれて移動するようにする
 	static	constexpr	float	Speed = 1.0f / 8.0f;
@@ -49,9 +69,32 @@ void CameraController::update(float elapsedTime)
 	target.x += (newTarget.x - target.x) * Speed;
 	target.y += (newTarget.y - target.y) * Speed;
 	target.z += (newTarget.z - target.z) * Speed;
+}
 
-	//カメラの視点と注視点を設定
-	Camera::instance()->setLookAt(position, target, { 0,1,0 });
+void  CameraController ::lockonCamera(float elapsedTime)
+{
+	//	後方斜に移動させる
+	DirectX::XMVECTOR	t0 = DirectX::XMVectorSet(targetWork[0].x, 0.5f, targetWork[0].z, 0);
+	DirectX::XMVECTOR	t1 = DirectX::XMVectorSet(targetWork[1].x, 0.5f, targetWork[1].z, 0);
+	DirectX::XMVECTOR	crv = DirectX::XMLoadFloat3(Camera::instance()->getRight());
+	DirectX::XMVECTOR	cuv = DirectX::XMVectorSet(0, 1, 0, 0);
+	DirectX::XMVECTOR	v = DirectX::XMVectorSubtract(t1, t0);
+	DirectX::XMVECTOR	l = DirectX::XMVector3Length(v);
+
+	t0 = DirectX::XMLoadFloat3(&targetWork[0]);
+	t1 = DirectX::XMLoadFloat3(&targetWork[1]);
+
+	//	新しい注視点を算出
+	DirectX::XMStoreFloat3(&newTarget, DirectX::XMVectorMultiplyAdd(v, DirectX::XMVectorReplicate(0.5f), t0));
+
+	//	新しい座標を算出
+	l = DirectX::XMVectorClamp(l
+		, DirectX::XMVectorReplicate(lengthLimit[0])
+		, DirectX::XMVectorReplicate(lengthLimit[1]));
+	t0 = DirectX::XMVectorMultiplyAdd(l, DirectX::XMVector3Normalize(DirectX::XMVectorNegate(v)), t0);
+	t0 = DirectX::XMVectorMultiplyAdd(crv, DirectX::XMVectorReplicate(sideValue * 3.0f), t0);
+	t0 = DirectX::XMVectorMultiplyAdd(cuv, DirectX::XMVectorReplicate(3.0f), t0);
+	DirectX::XMStoreFloat3(&newPosition, t0);
 }
 
 void CameraController::debugUpdate(float elapsedTime)
@@ -258,7 +301,53 @@ void CameraController::onFreeMode(void* data)
 {
 	//データの受け取り
 	MessageData::CAMERACHANGEFREEMODEDATA* p = static_cast<MessageData::CAMERACHANGEFREEMODEDATA*>(data);
+	
+	if (this->mode != Mode::free)
+	{
+		// 角度算出
+		DirectX::XMFLOAT3	v;
+		v.x = newPosition.x - newTarget.x;
+		v.y = newPosition.y - newTarget.y;
+		v.z = newPosition.z - newTarget.z;
+		angle.y = atan2f(v.x, v.z) + DirectX::XM_PI;
+		angle.x = atan2f(v.y, v.z);
+		//	角度の正規化
+		angle.y = atan2f(sinf(angle.y), cosf(angle.y));
+		angle.x = atan2f(sinf(angle.x), cosf(angle.x));
+	}
+	mode = Mode::free;
 	targetAngleY = p->angle.y;
 	newTarget = p->target;
 	newTarget.y += 0.01f;
+}
+
+void CameraController::onLockonMode(void* data)
+{
+	MessageData::CAMERACHANGELOCKONMODEDATA* p = static_cast<MessageData::CAMERACHANGELOCKONMODEDATA*>(data);
+	if(mode != Mode::lockon)
+		sideValue = calcSide(p->start, p->target);
+
+	mode = Mode::lockon;
+	targetWork[0] = p->start;
+	targetWork[1] = p->target;
+	targetWork[0].y += 0.01f;
+	targetWork[1].y += 0.01f;
+}
+
+float CameraController::calcSide(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
+{
+	//外積を用いて横軸のズレ方向算出
+	DirectX::XMFLOAT2 v;
+	v.x = position.x - target.x;
+	v.y = position.z - target.z;
+	float l = sqrtf(v.x * v.x + v.y * v.y);
+	v.y /= l;
+
+	DirectX::XMFLOAT2 n;
+	n.x = p1.x - p2.x;
+	n.y = p1.z - p2.z;
+	l = sqrtf(n.x * n.x + n.y * n.y);
+	n.x /= l;
+	n.y /= l;
+	return ((v.x * n.y) - (v.y * n.x) < 0) ? +1.0f : -1.0f;
 }

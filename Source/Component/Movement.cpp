@@ -23,6 +23,7 @@ void Movement::update(float elapsedTime)
 void Movement::move(const DirectX::XMFLOAT3& direction, float elapsedTime)
 {
 	this->direction = direction;
+
 	//垂直速度更新処理
 	updateVerticalVelocity(elapsedTime);
 
@@ -213,59 +214,61 @@ void Movement::updateHorizontalMove(float elapsedTime)
 		DirectX::XMFLOAT3 start = { pos.x,pos.y + 1.0f,pos.z };
 		DirectX::XMFLOAT3 end = { pos.x + moveX,pos.y + 1.0f,pos.z + moveZ };
 
-		//レイキャスト
-		HitResult result;
-		MessageData::RAYCASTREQUEST r = { start,end,result,false };
-		Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
-		if (r.isHit)
-		{
-			DirectX::XMVECTOR startVec = DirectX::XMLoadFloat3(&r.result.position);
-			DirectX::XMVECTOR endVec = DirectX::XMLoadFloat3(&end);
-			DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(endVec, startVec);
+		////レイキャスト
+		//HitResult result;
+		//MessageData::RAYCASTREQUEST r = { start,end,result,false };
+		//Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
+		//if (r.isHit)
+		//{
+		//	DirectX::XMVECTOR startVec = DirectX::XMLoadFloat3(&r.result.position);
+		//	DirectX::XMVECTOR endVec = DirectX::XMLoadFloat3(&end);
+		//	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(endVec, startVec);
 
-			//壁の法線ベクトル
-			DirectX::XMVECTOR normalVec = DirectX::XMLoadFloat3(&r.result.normal);
+		//	//壁の法線ベクトル
+		//	DirectX::XMVECTOR normalVec = DirectX::XMLoadFloat3(&r.result.normal);
 
-			//入射ベクトルを逆ベクトルに変換
-			vec = DirectX::XMVectorNegate(vec);
+		//	//入射ベクトルを逆ベクトルに変換
+		//	vec = DirectX::XMVectorNegate(vec);
 
-			//入射ベクトルを法線で射影（移動位置から壁までの距離）
-			DirectX::XMVECTOR lengthVec = DirectX::XMVector3Dot(vec, normalVec);
-			float length;
-			DirectX::XMStoreFloat(&length, lengthVec);
+		//	//入射ベクトルを法線で射影（移動位置から壁までの距離）
+		//	DirectX::XMVECTOR lengthVec = DirectX::XMVector3Dot(vec, normalVec);
+		//	float length;
+		//	DirectX::XMStoreFloat(&length, lengthVec);
 
-			//補正位置へのベクトルを計算
-			DirectX::XMVECTOR correctVec = DirectX::XMVectorScale(normalVec, length * 1.1f);
+		//	//補正位置へのベクトルを計算
+		//	DirectX::XMVECTOR correctVec = DirectX::XMVectorScale(normalVec, length * 1.1f);
 
-			//最終的な補正位置ベクトルを計算
-			DirectX::XMVECTOR correctPosVec = DirectX::XMVectorAdd(endVec, correctVec);
-			DirectX::XMFLOAT3 correctPos;
-			DirectX::XMStoreFloat3(&correctPos, correctPosVec);
+		//	//最終的な補正位置ベクトルを計算
+		//	DirectX::XMVECTOR correctPosVec = DirectX::XMVectorAdd(endVec, correctVec);
+		//	DirectX::XMFLOAT3 correctPos;
+		//	DirectX::XMStoreFloat3(&correctPos, correctPosVec);
 
 
-			//壁の先に壁が合った場合の処理
-			start = r.result.position;
-			end = correctPos;
-			HitResult result2;
-			MessageData::RAYCASTREQUEST r2 = { start,end,result2,false };
-			Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r2);
-			if (r2.isHit)
-			{
-				pos.x = r2.result.position.x;
-				pos.z = r2.result.position.z;
-			}
-			else
-			{
-				pos.x = correctPos.x;
-				pos.z = correctPos.z;
-			}
-		}
-		else
-		{
-			//壁に当たっていない場合は通常の移動
-			pos.x += moveX;
-			pos.z += moveZ;
-		}
+		//	//壁の先に壁が合った場合の処理
+		//	start = r.result.position;
+		//	end = correctPos;
+		//	HitResult result2;
+		//	MessageData::RAYCASTREQUEST r2 = { start,end,result2,false };
+		//	Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r2);
+		//	if (r2.isHit)
+		//	{
+		//		pos.x = r2.result.position.x;
+		//		pos.z = r2.result.position.z;
+		//	}
+		//	else
+		//	{
+		//		pos.x = correctPos.x;
+		//		pos.z = correctPos.z;
+		//	}
+		//}
+		//else
+		//{
+		//	//壁に当たっていない場合は通常の移動
+		//	pos.x += moveX;
+		//	pos.z += moveZ;
+		//}
+		pos.x += moveX;
+		pos.z += moveZ;
 	}
 	getObject()->setPosition(pos);
 }
