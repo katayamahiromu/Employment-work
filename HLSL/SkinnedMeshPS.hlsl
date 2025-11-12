@@ -107,6 +107,6 @@ float4 main(GS_OUT input, bool is_front_face : SV_IsFrontFace) : SV_TARGET
     //float3 ReturnColor = (diffuse + specular + color.rgb)/1.5f;
     //sRGB‹óŠÔ‚Ö
     ReturnColor = pow(ReturnColor.rgb, 1.0f / GammaFactor);
-
+    
     return float4(ReturnColor.rgb, color.a);
 }

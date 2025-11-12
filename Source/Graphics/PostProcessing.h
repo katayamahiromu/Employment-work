@@ -20,6 +20,8 @@ public:
 
 	//シェーダーのバインド
 	virtual void bindShader(){};
+
+	virtual void unBind(){}
 protected:
 	std::unique_ptr<FrameBuffer>framebuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>buffer;

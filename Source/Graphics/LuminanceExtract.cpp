@@ -9,7 +9,7 @@ LuminanceExtract::LuminanceExtract()
 	ID3D11Device* device = DeviceManager::instance()->getDevice();
 	ShaderManager::instance()->createPsFromCso(device, "Shader//LuminanceExtractPS.cso", pixelShader.GetAddressOf());
 	createBuffer<luminanceExtractConstants>(device, buffer.GetAddressOf());
-	framebuffer = std::make_unique<FrameBuffer>(device, 1280/2, 720/2);
+	framebuffer = std::make_unique<FrameBuffer>(device, 1280, 720);
 };
 
 LuminanceExtract::~LuminanceExtract()

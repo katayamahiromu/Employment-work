@@ -18,8 +18,9 @@ void Animation::update(float elapsedTime)
 	//アニメーションを行わない場合即抜け
 	if (!canAnimation())return;
 	
+	float rate = elapsedTime * animationRate;
 	//ブレンド率の算出
-	float blendRate = calcBlandRate(elapsedTime);
+	float blendRate = calcBlandRate(rate);
 
 	//ブレンド補完
 	if (blendRate < 1.0f)
@@ -29,7 +30,7 @@ void Animation::update(float elapsedTime)
 	else
 	{
 		//通常の処理
-		animationUpdate(elapsedTime);
+		animationUpdate(rate);
 	}
 }
 

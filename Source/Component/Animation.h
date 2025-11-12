@@ -31,6 +31,8 @@ public:
 	int getAnimationIndex() { return animation_index; }
 	void setAnimationIndex(int index) { animation_index = index; }
 	animation::keyframe getKeyframe() { return keyframe; }
+
+	void setAnimationRate(float rate) { animationRate = rate; }
 private:
 	inline bool canAnimation() { return animation_index >= 0; }
 	void blendAnimationUpdate(float blendRate);
@@ -55,4 +57,7 @@ private:
 
 	//アニメーションブレンドの時間
 	float animationBlendSeconds = 0.0f;
+
+	//アニメーションの再生率
+	float animationRate = 1.0f;
 };

@@ -1,133 +1,144 @@
 ﻿#include"TitleScene.h"
 #include"DeviceManager.h"
 #include"Graphics/GraphicsManager.h"
-#include"Input/InputManager.h"
 #include"SceneManager.h"
 #include"GameScene.h"
 #include"LoadingScene.h"
 #include"imgui.h"
 #include"modelScene.h"
 
+#include"system/PostprocessingRenderer.h"
+#include"Graphics/LuminanceExtract.h"
+#include"Graphics/GaussianFiltering.h"
+#include"Graphics/ColorGrading.h"
+#include"Graphics/Mask.h"
+
+#include<algorithm>
 
 //初期化処理
 void TitleScene::initialize()
 {
+	ID3D11Device* device = DeviceManager::instance()->getDevice();
 	//タイトル画像読み込み
-	titleImage = std::make_unique<Sprite>(DeviceManager::instance()->getDevice(), L"Resources\\Image\\Title.png");
-	test.push("aaa");
-	test.push("bbb");
-	test.push("ccc");
-	test.push("ddd");
-	test.push("eee");
+	titleImage = std::make_unique<Sprite>(device, L"Resources\\Image\\Title.png");
 
-	//objManager = std::make_unique<ObjectManager>();
-	//cmrController = std::make_unique<CameraController>();
+	//2D設定
+	rogo = std::make_unique<Button>(L"Resources\\Image\\title2.png");
+	rogo->setPos({ 600,-50 });
+	rogo->setSize({ 600,600 });
 
-	//DeviceManager* deviceMgr = DeviceManager::instance();
-	//const float scale_fcator = 0.1f;	// モデルが大きいのでスケール調整
-	//DirectX::XMFLOAT3 scale = { scale_fcator, scale_fcator, scale_fcator };
-	//std::shared_ptr<Object>obj = objManager->create();
-	//obj->loadModel("Resources\\Model\\player\\Chiyo School Dress.fbx");
-	//obj->setName("test enemy");
-	//obj->setScale(scale);
-	//obj->setPosition({ 0.0f,0.0f,0.0f });
+	Button* start = new Button(L"Resources\\Image\\button1.png");
+	start->loadReplaceSprite(L"Resources\\Image\\button1_replace.png");
+	start->setPos({ 270,460 });
+	start->setSize({ 260,100 });
+	choices.push_back(start);
 
-	////カメラ初期設定
-	//Camera* camera = Camera::instance();
-	//camera->setLookAt(
-	//	DirectX::XMFLOAT3(0, 10, -10),// カメラの視点（位置）
-	//	DirectX::XMFLOAT3(0, 0, 0),	  // カメラの注視点（ターゲット）
-	//	DirectX::XMFLOAT3(0, 1, 0)    // カメラの上方向
-	//);
+	Button* exit = new Button(L"Resources\\Image\\button2.png");
+	exit->loadReplaceSprite(L"Resources\\Image\\button2_replace.png");
+	exit->setPos({ 710,460 });
+	exit->setSize({ 260,100 });
+	choices.push_back(exit);
 
-	//camera->setPerspectiveFov(
-	//	DirectX::XMConvertToRadians(45),	// 視野角
-	//	deviceMgr->getScreenWidth() / deviceMgr->getScreenHeight(),	// 画面縦横比率
-	//	0.1f,		// カメラが映し出すの最近距離
-	//	1000.0f		// カメラが映し出すの最遠距離
-	//);
+	titleImage = std::make_unique<Sprite>(device, L"Resources/Image/title_back.png");
 
+	//3D設定
+	objManager = std::make_unique<ObjectManager>();
+	objManager->setLineSize(0.008f);
+
+	//カメラ初期設定
+	Camera* camera = Camera::instance();
+	camera->defaultSetting();
+	DirectX::XMFLOAT3 eye{ -4.426f, 0.492f, -0.476f };
+	DirectX::XMFLOAT3 forcus{ 4.426f,-0.492f,-2.381f };
+	DirectX::XMFLOAT3 up{ -1.475f,4.426f,0.476f };
+	Camera::instance()->setLookAt(eye,forcus,up);
+
+	model = objManager->create();
+	model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
+
+	const float scale_factor = 0.01f;	// モデルが大きいのでスケール調整
+	DirectX::XMFLOAT3 scale = { scale_factor, scale_factor, scale_factor };
+	model->setScale(scale);
+
+	DirectX::XMFLOAT3 direction = { -360.0f,0.0f,-51.0f };
+	model->setRotation(direction);
+
+	DirectX::XMFLOAT4 rotation{ 0.0f,-1.0,0.0f,-0.3f };
+	model->setRotation(rotation);
+	model->AddComponent<Animation>();
+	model->AddComponent<PlayerController>();
+
+	animation = model->GetComponent<Animation>();
+	controller = model->GetComponent<PlayerController>();
+
+	//ポストエフェクトの設定
+	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects->addPostProcess(new LuminanceExtract);
+	PostEffects->addPostProcess(new GaussianFilter);
+	PostEffects->addPostProcess(new ColorGrading);
+	//PostEffects->addPostProcess(new Mask);
+	
+	//idolのアニメーションを再生
+	animation->playAnimation(1, true);
 	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
 	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
 	//sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
+
+	//ボタン設定
+	controller->registerFunc([&]()
+		{
+			//ボタンを押したらゲームシーンに遷移
+			switch (select)
+			{
+			case Select::Start:SceneManager::instance()->changeScene(new LoadingScene(new GameScene));break;
+			case Select::Exit:SceneManager::instance()->changeScene(nullptr);break;
+			}
+		},
+		PlayerController::keyAllocation::key_A);
 }
 
 //終了化
 void TitleScene::finalize()
 {
-	//objManager->clear();
+	for (auto b : choices)delete b;
 }
 
 //更新処理
 void TitleScene::update(float elapsedTime)
 {
-	GamePad* gamePad = InputManager::instance()->getGamePad();
+	DirectX::XMFLOAT3 direction = { -360.0f,0.0f,-51.0f };
+	model->setRotation(direction);
+	objManager->update(elapsedTime);
 
-	//ボタンを押したらゲームシーンに遷移
-	if (gamePad->getButtonDown() & GamePad::BTN_A)
-	{
-		SceneManager::instance()->changeScene(new LoadingScene(new GameScene));
-	}
 
-	spectrum->update(sample.get());
+	//セレクト
+	updateSelector(elapsedTime);
 
-	/*objManager->update(elapsedTime);
-	objManager->updateTransform();
-	cmrController->debugUpdate(elapsedTime);*/
+	//選択されいる物だけ色を変える
+	for (auto b : choices)b->replaceFlagOff();
+	choices.at(select)->replaceFlagOn();
 }
 
 void TitleScene::Gui()
 {
 	ImGui::Begin("test");
-	for (int i = 0;i < count;++i)
-	{
-		ImGui::Text(test.at(i).c_str());
-	}
-	ImGui::Separator();
-
-	ImGui::InputText("", text, sizeof(text));
-	ImGui::SameLine();
-	if (ImGui::Button("Push"))		//sendボタンが押されたら
-	{
-		if (strcmp(text, "") != 0)//入力ウィンドウに入力がある
-		{
-			test.pushFront(text);
-		}
-		text[0] = '\0';
-
-		if (count < 5) count++;
-		count = std::clamp(count, 0, 5);
-	}
-
-	if (ImGui::Button("pop front"))
-	{
-		count--;
-		test.frontAndPop();
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("pop back"))
-	{
-		count--;
-		test.backAndPop();
-	}
-
 
 	if (ImGui::Button("model scene"))
 	{
 		SceneManager::instance()->changeScene(new ModelScene);
 	}
-
-	float playTime = sample->getPlayTime();
-	ImGui::InputFloat("play time", &playTime);
+	ImGui::SliderFloat("animation rate", &rate,0.0f,1.0f);
+	animation->setAnimationRate(rate);
+	ImGui::InputInt("selct", &select);
 	ImGui::End();
 
-	ImGui::Begin("Spectrum");
+	/*ImGui::Begin("Spectrum");
 	std::vector<float>data = *spectrum->getSpectrumData();
 	ImGui::PlotLines("FFT",data.data(), (int)data.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(0, 150));
 	spectrum->OnGUi();
-	ImGui::End();
+	ImGui::End();*/
 }
 
 //描画処理
@@ -137,38 +148,19 @@ void TitleScene::render()
 	GraphicsManager* graphics = GraphicsManager::instance();
 
 	ID3D11DeviceContext* dc = mgr->getDeviceContext();
-	ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
-	ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
+	//ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
+	//ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
 
-	//画面クリア＆レンダーターゲットビュー設定
-	FLOAT color[] = { 0.0f,0.0f,0.5f,1.0f };//RGBA(0.0f~1.0f)
-	dc->ClearRenderTargetView(rtv, color);
-	dc->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	dc->OMSetRenderTargets(1, &rtv, dsv);
-	
-	// 2D 描画設定
-	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
-		// サンプラーステートの設定（リニア）
-		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
-		// ブレンドステートの設定（アルファ）
-		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
-		// 深度ステンシルステートの設定（深度テストオフ、深度書き込みオフ）
-		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
-		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
-		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
-	});
+	////画面クリア＆レンダーターゲットビュー設定
+	//FLOAT color[] = { 0.0f,0.0f,0.5f,1.0f };//RGBA(0.0f~1.0f)
+	//dc->ClearRenderTargetView(rtv, color);
+	//dc->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//dc->OMSetRenderTargets(1, &rtv, dsv);
 
-	// 2D 描画
-	{
-		titleImage->render(dc,
-			0, 0, mgr->getScreenWidth(), mgr->getScreenHeight(),
-			1, 1, 1, 1,
-			0,
-			0, 0, 1280, 720
-		);
-	}
+	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects->getPostProcess()->prepare(dc);
 
-
+	// 2D背景
 	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
 		// サンプラーステートの設定（リニア）
 		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
@@ -179,8 +171,65 @@ void TitleScene::render()
 		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
 		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
 		});
+	titleImage->render(dc, 0, 0, 1280, 720);
+
+	//3D描画
+	Camera* camera = Camera::instance();
+	const DirectX::XMFLOAT4X4* view = camera->getView();
+	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
+
+	DirectX::XMFLOAT4 cameraPos;
+	cameraPos.x = camera->getEye()->x;
+	cameraPos.y = camera->getEye()->y;
+	cameraPos.z = camera->getEye()->z;
+	cameraPos.w = 0.0f;
+
+	objManager->render(*view, *proj, cameraPos);
+	PostEffects->getPostProcess()->clean(dc);
+	PostEffects->render();
+
+	// 2D 描画設定
+	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
+		// サンプラーステートの設定（リニア）
+		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
+		// ブレンドステートの設定（アルファ）
+		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ADD)].Get(), nullptr, 0xFFFFFFFF);
+		// 深度ステンシルステートの設定（深度テストオフ、深度書き込みオフ）
+		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
+		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
+		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
+	});
+
+	// 2D 描画
+	{
+		rogo->draw();
+		for (auto b : choices) b->draw();
+	}
+
+	//graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
+	//	// サンプラーステートの設定（リニア）
+	//	dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
+	//	// ブレンドステートの設定（アルファ）
+	//	dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::NONE)].Get(), nullptr, 0xFFFFFFFF);
+	//	// 深度ステンシルステートの設定（深度テストオフ、深度書き込みオフ）
+	//	dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
+	//	// ラスタライザステートの設定（ソリッド、裏面表示オフ）
+	//	dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
+	//	});
 	
-	spectrum->draw(dc);
+	//spectrum->draw(dc);
 
 	Gui();
+	PostEffects->debugGui();
+}
+
+void TitleScene::updateSelector(float elapsedTime)
+{
+	paddingTime -= elapsedTime;
+	if (paddingTime > 0.0f) return;
+
+	DirectX::XMFLOAT2 axis = controller->getLeftStick();
+	select += static_cast<int>(axis.x);
+	select = std::clamp(select, static_cast<int>(Select::Start), static_cast<int>(Select::Exit));
+	paddingTime = freezeTime;
 }

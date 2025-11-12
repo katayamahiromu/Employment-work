@@ -18,6 +18,7 @@ public:
 
 	//カメラの位置と姿勢の設定
 	void setLookAt(const DirectX::XMFLOAT3& eye, const DirectX::XMFLOAT3& forcus,const DirectX::XMFLOAT3& up);
+	void setLookAt();
 
 	//カメラのレンズの設定
 	void setPerspectiveFov(float fovY, float aspect, float nearZ, float farZ);

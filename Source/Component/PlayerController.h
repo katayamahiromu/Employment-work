@@ -26,6 +26,7 @@ public:
 		key_RB,
 		key_LT,
 		key_RL,
+		FUNC1,
 		MAX
 	};
 

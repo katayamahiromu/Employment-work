@@ -11,6 +11,7 @@
 
 #include"RewindTimeUI.h"
 #include"Graphics/LuminanceExtract.h"
+#include"Graphics/GaussianFiltering.h"
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/RewidLine.h"
@@ -43,6 +44,7 @@ void GameScene::initialize()
 	//ポストエフェクト
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 	PostEffects->addPostProcess(new LuminanceExtract);
+	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
 	//PostEffects->addPostProcess(new ACES_Filmic);
 
@@ -60,9 +62,6 @@ void GameScene::initialize()
 	AudioResourceList* list = AudioResourceList::instance();
 	list->loadResource("Resources\\data\\SceneGameAudioData.csv",true);
 	//list->getAudio("bgm")->play(true);
-
-	//別のレンダーターゲット
-	depthNormalTex = std::make_unique<DepthNormalTex>();
 }
 
 // 終了処理

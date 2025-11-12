@@ -29,7 +29,7 @@ public:
 	/// </summary>
 	/// <param name="device">デバイス</param>
 	/// <param name="filename">ファイル名</param>
-	Sprite(ID3D11Device* device, const wchar_t* filename);
+	Sprite(ID3D11Device* device, const wchar_t* filename,bool isBlack = false);
 	Sprite(ID3D11Device* device, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>shader_resource_view);
 	virtual ~Sprite();
 

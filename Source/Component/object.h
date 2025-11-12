@@ -42,8 +42,8 @@ public:
 	void setPosition(const DirectX::XMFLOAT3& p) { this->position = p; }
 
 	// 回転の設定
-	void setRotation(const DirectX::XMFLOAT4& rotation) { this->rotation = rotation; }
-
+	void setRotation(DirectX::XMFLOAT3 &direction);
+	void setRotation(DirectX::XMFLOAT4 rotation) { this->rotation = rotation; }
 	// 回転の取得
 	const DirectX::XMFLOAT4* getRotation() const { return &rotation; }
 
@@ -146,6 +146,12 @@ public:
 
 	//オブジェクト検索
 	Object* searchObject(const char* name);
+
+	//ラインサイズ設定
+	void setLineSize(float size) { lineSize = size; }
+
+	//ラインカラー設定
+	void setlineColor(DirectX::XMFLOAT3& color) { lineColor = color; }
 private:
 	void drawLister();
 	void drawDetail();

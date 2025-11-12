@@ -306,6 +306,15 @@
     <ClCompile Include="Source\Component\meshTexchange.cpp">
       <Filter>Source\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\GaussianFiltering.cpp">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Button.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Mask.cpp">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Framework.h">
@@ -578,6 +587,15 @@
     <ClInclude Include="Utils\convertStrings.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\GaussianFiltering.h">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Button.h">
+      <Filter>Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Mask.h">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -697,6 +715,15 @@
       <Filter>HLSL\math</Filter>
     </FxCompile>
     <FxCompile Include="HLSL\DepthPS.hlsl">
+      <Filter>HLSL\Post Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\GaussianFilterPS.hlsl">
+      <Filter>HLSL\Post Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\SpriteBlackOutPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\MaskPS.hlsl">
       <Filter>HLSL\Post Effect</Filter>
     </FxCompile>
   </ItemGroup>

@@ -16,7 +16,7 @@ private:
 	struct RewindLineParameter
 	{
 		float time = 0.0f;
-		DirectX::XMFLOAT2 screenSize{1280,720};
+		DirectX::XMFLOAT2 screenSize{ 1280.0f,720.0f };
 		float dummy = 0.0f;
 	};
 

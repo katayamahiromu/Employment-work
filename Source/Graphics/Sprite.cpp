@@ -8,7 +8,7 @@
 /// </summary>
 /// <param name="device">デバイス</param>
 /// <param name="filename">ファイル名</param>
-Sprite::Sprite(ID3D11Device* device, const wchar_t* filename)
+Sprite::Sprite(ID3D11Device* device, const wchar_t* filename,bool isBlack)
 {
 	HRESULT hr{ S_OK };
 
@@ -45,7 +45,16 @@ Sprite::Sprite(ID3D11Device* device, const wchar_t* filename)
 	};
 
 	ShaderManager::instance()->createVsFromCso(device, ".\\Shader\\SpriteVS.cso", vertex_shader.GetAddressOf(), input_layout.GetAddressOf(), input_element_desc, ARRAYSIZE(input_element_desc));
-	ShaderManager::instance()->createPsFromCso(device, ".\\Shader\\SpritePS.cso", pixel_shader.GetAddressOf());
+	
+	//黒抜きを適用するかどうか
+	if (isBlack)
+	{
+		ShaderManager::instance()->createPsFromCso(device, ".\\Shader\\SpriteBlackOutPS.cso", pixel_shader.GetAddressOf());
+	}
+	else
+	{
+		ShaderManager::instance()->createPsFromCso(device, ".\\Shader\\SpritePS.cso", pixel_shader.GetAddressOf());
+	}
 
 	if (filename != nullptr)
 	{

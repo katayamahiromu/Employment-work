@@ -23,6 +23,35 @@ void Object::update(float elapsedTime)
 	}
 }
 
+void Object::setRotation(DirectX::XMFLOAT3& direction)
+{
+	DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&direction);
+	if (DirectX::XMVector3Equal(Dir, DirectX::XMVectorZero()))return;// 無効な方向なら何もしない
+
+	Dir = DirectX::XMVector3Normalize(Dir);
+
+	// 上方向（ワールド基準）
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	// 右方向を計算
+	DirectX::XMVECTOR right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(up, Dir));
+	up = DirectX::XMVector3Cross(Dir, right);
+
+	// 回転行列を構築
+	DirectX::XMMATRIX rotMatrix = DirectX::XMMATRIX(
+		right,
+		up,
+		Dir,
+		DirectX::XMVectorSet(0, 0, 0, 1)
+	);
+
+	// 行列 → クォータニオンに変換
+	DirectX::XMVECTOR quat = DirectX::XMQuaternionRotationMatrix(rotMatrix);
+
+	// 正規化して格納
+	DirectX::XMStoreFloat4(&rotation, DirectX::XMQuaternionNormalize(quat));
+}
+
 void Object::updateTransform()
 {
 	//スケール行列を作成
@@ -194,7 +223,7 @@ void ObjectManager::render(const DirectX::XMFLOAT4X4& view, const DirectX::XMFLO
 	sc.color = lineColor;
 	sc.size = lineSize;
 	// 3D 描画に利用する定数バッファの更新と設定
-	bindBuffer(dc, CBS_SCENE_CONSTANTS, buffer.GetAddressOf(), & sc);
+	bindBuffer(dc, 1, buffer.GetAddressOf(), &sc);
 
 	ID3D11ShaderResourceView* srv = ranpTexture->getShaderResourceView().Get();
 	dc->PSSetShaderResources(3, 1, &srv);

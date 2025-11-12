@@ -45,7 +45,5 @@ private:
 	std::unique_ptr<ParticleManager>particleMgr;
 	std::unique_ptr<CollisionSystem>collisionSystem;
 
-	std::unique_ptr<DepthNormalTex>depthNormalTex;
-
 	std::unique_ptr<Skymap>skymap;
 };

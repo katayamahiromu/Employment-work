@@ -1,10 +1,11 @@
 #pragma once
-#include"Graphics/Sprite.h"
+#include"Button.h"
 #include"Scene.h"
-#include"../RingBuffer.h"
 #include"Component/object.h"
-#include"CameraController.h"
 #include"Audio/AudioManager.h"
+#include"Graphics/Skymap.h"
+#include"Component/Animation.h"
+#include"Component/PlayerController.h"
 #include<string>
 #include<memory>
 
@@ -31,18 +32,35 @@ public:
 
 	void Gui();
 private:
-	//ƒ^ƒCƒgƒ‹‰æ‘œ
+	void updateSelector(float elapsedTime);
+	enum Select
+	{
+		Start,
+		Exit,
+	};
+	int select = 0;
+	float paddingTime = 0;
+
+	//“ü—Í’âŽ~ŽžŠÔ
+	const float freezeTime = 0.3f;
+private:
+	//3DŠÖŒW
 	std::unique_ptr<ObjectManager>objManager;
-	std::unique_ptr<CameraController>cmrController;
+	std::shared_ptr<Object>model;
+	std::shared_ptr<Animation>animation;
+	
+	//“®‚«
+	std::shared_ptr<PlayerController>controller;
+
+	//2DŠÖŒW
 	std::unique_ptr<Sprite>titleImage;
+	std::unique_ptr<Button>rogo;
+
+	std::vector<Button*>choices;
 
 	std::unique_ptr<Audio>sample;
 	std::unique_ptr<Audio>sampleRevers;
-
 	std::unique_ptr<Spectrum>spectrum;
 
-	bool flag = true;
-	int count = 5;
-	RingBuffer<std::string, 5>test;
-	char text[32];
+	float rate = 1.0f;
 };

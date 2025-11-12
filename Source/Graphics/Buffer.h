@@ -2,7 +2,6 @@
 
 #include <d3d11.h>
 #include <wrl.h>
-#include"BufferSlots.h"
 
 /// <summary>
 /// 定数バッファの作成

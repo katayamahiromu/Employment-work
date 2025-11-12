@@ -16,7 +16,7 @@
 // Name                 Index   Mask Register SysValue  Format   Used
 // -------------------- ----- ------ -------- -------- ------- ------
 // SV_POSITION              0   xyzw        0      POS   float       
-// COLOR                    0   xyzw        1     NONE   float   xyzw
+// COLOR                    0   xyzw        1     NONE   float       
 // TEXCOORD                 0   xy          2     NONE   float   xy  
 //
 //
@@ -30,7 +30,6 @@ ps_5_0
 dcl_globalFlags refactoringAllowed | skipOptimization
 dcl_sampler s0, mode_default
 dcl_resource_texture2d (float,float,float,float) t0
-dcl_input_ps linear v1.xyzw
 dcl_input_ps linear v2.xy
 dcl_output o0.xyzw
 dcl_temps 2
@@ -41,21 +40,32 @@ dcl_temps 2
 //   v2.x <- pin.texcoord.x; v2.y <- pin.texcoord.y; 
 //   o0.x <- <main return value>.x; o0.y <- <main return value>.y; o0.z <- <main return value>.z; o0.w <- <main return value>.w
 //
-#line 7 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\SpritePS.hlsl"
-sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z; r0.w <- color.w
+#line 7 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\SpriteBlackOutPS.hlsl"
+sample_indexable(texture2d)(float,float,float,float) r0.xyz, v2.xyxx, t0.xyzw, s0
+mov r0.xyz, r0.xyzx  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
 
 #line 8
-mov r0.w, r0.w  // r0.w <- alpha
+dp3 r0.w, r0.xyzx, r0.xyzx
+sqrt r0.w, r0.w
+ge r0.w, r0.w, l(0.000100)
+movc r0.w, r0.w, l(1.000000), l(0)  // r0.w <- isBlack
 
-#line 11
-mov r1.x, l(2.200000)  // r1.x <- GAMMA
+#line 9
+mov r1.x, l(-0.000000)
+add r1.x, r1.x, l(1.000000)
+mul r0.w, r0.w, r1.x
+add r0.w, r0.w, l(0.000000)  // r0.w <- alpha
 
 #line 12
-log r1.yzw, r0.xxyz
-mul r1.xyz, r1.yzwy, r1.xxxx
-exp r0.xyz, r1.xyzx
+mov r1.x, l(2.200000)  // r1.x <- GAMMA
 
-#line 14
-mul o0.xyzw, r0.xyzw, v1.xyzw
+#line 13
+log r0.xyz, r0.xyzx
+mul r0.xyz, r0.xyzx, r1.xxxx
+exp r0.xyz, r0.xyzx
+
+#line 16
+mov o0.xyz, r0.xyzx
+mov o0.w, r0.w
 ret 
-// Approximately 8 instruction slots used
+// Approximately 17 instruction slots used
