@@ -24,6 +24,13 @@ void PostprocessingRenderer::update(float elapsedTime)
 	for (auto& p : postProcessArray)p->update(elapsedTime);
 }
 
+void PostprocessingRenderer::clear()
+{
+	for (auto& p : postProcessArray)delete p;
+	//ƒTƒCƒY‚Ì‰Šú‰»
+	postProcessArray.resize(0);
+}
+
 void PostprocessingRenderer::render()
 {
 	GraphicsManager* graphics = GraphicsManager::instance();

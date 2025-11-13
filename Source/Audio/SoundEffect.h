@@ -8,10 +8,10 @@ class SoundEffect
 {
 public:
 	SoundEffect() {};
-	~SoundEffect();
+	virtual ~SoundEffect();
 
-	IUnknown* getIUnknown() { return pXAPO; }
-private:
+	IUnknown* getIUnknown()const { return pXAPO; }
+protected:
 	void release();
 protected:
 	IUnknown* pXAPO = nullptr;

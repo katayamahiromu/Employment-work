@@ -1,30 +1,27 @@
 #include "FullScreenQuad.hlsli"
 
+#define KERNEL_MAX 25
 Texture2D texture0 : register(t0);
 SamplerState sampler0 : register(s0);
 
 cbuffer Gaussian : register(b2)
 {
-    float2 texelSize;
-    float offset;
-    int sampleCount; //サンプルのカウント
-    
-    float2 directions[8]; // サンプリング方向
+    float4 weights[KERNEL_MAX * KERNEL_MAX];
+    float kernelSize;
+    float2 texcel;
+    float dummy;
 }
 
 float4 main(VS_OUT pin) : SV_TARGET
 {
-    float2 uv = pin.texcoord;
-    float4 sum = 0;
-    
-    //指定方向から色を算出
-    [unroll]
-    for (int i = 0; i < sampleCount; ++i)
+    float4 color = (float4) 0;
+    color.a = 1;
+	//指定のカーネルサイズ分周囲から色を取得。CPU側で計算した重みを積和していく
+    for (int i = 0; i < kernelSize * kernelSize; i++)
     {
-        float2 o = directions[i] * offset * texelSize;
-        sum += texture0.Sample(sampler0, uv + o);
+        float2 offset = texcel * weights[i].xy;
+        float weight = weights[i].z;
+        color.rgb += texture0.Sample(sampler0, pin.texcoord + offset).rgb * weight;
     }
-
-    //均した色を返す
-    return sum / sampleCount;
+    return color * texture0.Sample(sampler0, pin.texcoord);
 }

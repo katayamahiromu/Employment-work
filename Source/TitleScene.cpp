@@ -103,6 +103,7 @@ void TitleScene::initialize()
 void TitleScene::finalize()
 {
 	for (auto b : choices)delete b;
+	PostprocessingRenderer::instance()->clear();
 }
 
 //更新処理
@@ -119,6 +120,8 @@ void TitleScene::update(float elapsedTime)
 	//選択されいる物だけ色を変える
 	for (auto b : choices)b->replaceFlagOff();
 	choices.at(select)->replaceFlagOn();
+
+	PostprocessingRenderer::instance()->update(elapsedTime);
 }
 
 void TitleScene::Gui()

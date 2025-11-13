@@ -281,8 +281,6 @@ void Audio::setSubmixVoice(SubMixVoice* sv)
 	hr = sourceVoice->SetOutputVoices(&sendlist);
 }
 
-
-
 size_t Audio::getSamplePlay()
 {
 	XAUDIO2_VOICE_STATE state;

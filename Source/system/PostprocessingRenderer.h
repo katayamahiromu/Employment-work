@@ -16,6 +16,8 @@ public:
 		return &inst;
 	}
 
+	void clear();
+
 	void update(float elapsedTime);
 
 	void addPostProcess(PostProcess* postProcess) { postProcessArray.push_back(postProcess); }

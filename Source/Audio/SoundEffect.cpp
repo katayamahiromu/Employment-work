@@ -22,6 +22,7 @@ Reverb::~Reverb()
 {
 }
 
+
 Echo::Echo()
 {
 	CreateFX(__uuidof(FXEcho), &pXAPO);

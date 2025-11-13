@@ -13,24 +13,25 @@ public:
 
 	void bindShader()override;
 
+	#define KERNEL_MAX 25
 	struct Gaussian
 	{
-		DirectX::XMFLOAT2 texelSize;
-		float offset = 1.0f;
-		int sampleCount;
-
-		struct Direction
-		{
-			DirectX::XMFLOAT2 dir;
-			DirectX::XMFLOAT2 dummy;
-		};
-
-		Direction directions[8];
+		DirectX::XMFLOAT4 weights[KERNEL_MAX * KERNEL_MAX];
+		float kernelSize;
+		DirectX::XMFLOAT2 texcel;
+		float dummy;
 	};
+
+	struct GaussianDates
+	{
+		int kernelSize{ 9 };
+		float sigma{ 10.0f };
+		DirectX::XMFLOAT2 textureSize;
+	};
+
 private:
-	void settingDirection();
+	void calcGaussianFilterConstant(Gaussian& constant,const GaussianDates&data);
 private:
 	Gaussian gaussian;
-	int power = 1;
-	int mode = 0;
+	GaussianDates data;
 };

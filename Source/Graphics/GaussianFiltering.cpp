@@ -10,8 +10,7 @@ GaussianFilter::GaussianFilter()
 	ShaderManager::instance()->createPsFromCso(device, "Shader//GaussianFilterPS.cso", pixelShader.GetAddressOf());
 	framebuffer = std::make_unique<FrameBuffer>(device, 1280, 720);
 	createBuffer<GaussianFilter::Gaussian>(device, buffer.GetAddressOf());
-	gaussian.texelSize = {1280.0f, 720.0f};
-	settingDirection();
+	gaussian.texcel = {1280.0f, 720.0f};
 }
 
 GaussianFilter::~GaussianFilter()
@@ -21,7 +20,7 @@ GaussianFilter::~GaussianFilter()
 
 void GaussianFilter::update(float elapsedTime)
 {
-
+	calcGaussianFilterConstant(gaussian, data);
 }
 
 void GaussianFilter::bindShader()
@@ -30,35 +29,33 @@ void GaussianFilter::bindShader()
 		DeviceManager::instance()->getDeviceContext(), 2, buffer.GetAddressOf(), &gaussian);
 }
 
-void GaussianFilter::settingDirection()
+void GaussianFilter::calcGaussianFilterConstant(Gaussian& constant, const GaussianDates& data)
 {
-	switch (mode)
+	//	‹ô”‚Ìê‡‚ÍŠï”‚É’¼‚·
+	int kernelSize = data.kernelSize;
+	if (kernelSize % 2 == 0)
+		kernelSize++;
+	constant.kernelSize = kernelSize;
+	constant.texcel.x = 1.0f / data.textureSize.x;
+	constant.texcel.y = 1.0f / data.textureSize.y;
+	//	d‚İ‚ğZo
+	float sum = 0.0f;
+	int id = 0;
+	for (int y = -kernelSize / 2; y <= kernelSize / 2; y++)
 	{
-	case 0:
-		gaussian.sampleCount = 3;
-		gaussian.directions[0].dir = { -1, 0 };
-		gaussian.directions[1].dir = { 0, 0 };
-		gaussian.directions[2].dir = { 1, 0 };
-		break;
-	case 1:
-		gaussian.sampleCount = 5;
-		gaussian.directions[0].dir = { 0, -1 };
-		gaussian.directions[1].dir = { 0,  0 };
-		gaussian.directions[2].dir = { 0,  1 };
-		gaussian.directions[3].dir = { -1, 0 };
-		gaussian.directions[4].dir = { 1, 0 };
-		break;
-	case 2:
-		gaussian.sampleCount = 8;
-		gaussian.directions[0].dir = { -1, -1 };
-		gaussian.directions[1].dir = { -1,  1 };
-		gaussian.directions[2].dir = { 1, -1 };
-		gaussian.directions[3].dir = { 1,  1 };
-		gaussian.directions[4].dir = { -1,  0 };
-		gaussian.directions[5].dir = { 1,  0 };
-		gaussian.directions[6].dir = { 0, -1 };
-		gaussian.directions[7].dir = { 0,  1 };
-		break;
+		for (int x = -kernelSize / 2; x <= kernelSize / 2; x++)
+		{
+			constant.weights[id].x = (float)x;
+			constant.weights[id].y = (float)y;
+			constant.weights[id].z = (float)exp(-(x * x + y * y) / (2.0f * data.sigma * data.sigma)) / (2.0f * DirectX::XM_PI * data.sigma);
+			sum += constant.weights[id].z;
+			id++;
+		}
+	}
+	//	•½‹Ï‰»
+	for (int i = 0; i < kernelSize * kernelSize; i++)
+	{
+		constant.weights[i].z /= sum;
 	}
 }
 
@@ -66,16 +63,8 @@ void GaussianFilter::debugGui()
 {
 	if (ImGui::TreeNode("Gaussian Filter"))
 	{
-		ImGui::InputFloat2("texel Size", &gaussian.texelSize.x);
-		if (ImGui::SliderInt("offset", &power, 0, 10))
-		{
-			gaussian.offset = static_cast<float>(1 << power);
-		}
-
-		if (ImGui::SliderInt("mode", &mode, 0, 2))
-		{
-			settingDirection();
-		}
+		ImGui::SliderInt("kernelSize", &data.kernelSize, 1, 15);
+		ImGui::SliderFloat("deviation", &data.sigma, 1.0f, 10.0f);
 		ImGui::Image(framebuffer->getSrvP(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::TreePop();
 	}

@@ -24,15 +24,17 @@ void SubMixVoice::setVolume(float volume)
 	pSubMixVoice->SetVolume(volume);
 }
 
-void SubMixVoice::addEffect(SoundEffect* Effect)
+void SubMixVoice::addEffect(std::unique_ptr<SoundEffect>&& effect)
 {
 	//ディスクリプタの設定
 	XAUDIO2_EFFECT_DESCRIPTOR descriptor;
 	descriptor.InitialState = true;
 	descriptor.OutputChannels = 2;
-	descriptor.pEffect = Effect->getIUnknown();
+	descriptor.pEffect = effect->getIUnknown();
 
 	descriptorArray.push_back(descriptor);
+
+	effects.push_back(std::move(effect));
 }
 
 void SubMixVoice::applyEffect()

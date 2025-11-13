@@ -4,7 +4,7 @@
 #include<xaudio2fx.h>
 #include<xapofx.h>
 #include<vector>
-
+#include<memory>
 #include<xapobase.h>
 
 #include"SoundEffect.h"
@@ -19,7 +19,7 @@ public:
 	IXAudio2SubmixVoice* getSubMiXVoice() { return pSubMixVoice; }
 
 	//エフェクトの積み込み
-	void addEffect(SoundEffect*Effect);
+	void addEffect(std::unique_ptr<SoundEffect>&& effect);
 
 	//エフェクトの適用
 	void applyEffect();
@@ -27,6 +27,7 @@ protected:
 	void equalizer();
 private:
 	std::vector<XAUDIO2_EFFECT_DESCRIPTOR> descriptorArray;
+	std::vector<std::unique_ptr<SoundEffect>> effects;
 	IXAudio2SubmixVoice* pSubMixVoice = nullptr;
 };
 
