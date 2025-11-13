@@ -3,8 +3,12 @@
 #include<xaudio2.h>
 #include<xaudio2fx.h>
 #include<xapofx.h>
+#include<vector>
 
 #include<xapobase.h>
+
+#include"SoundEffect.h"
+
 class SubMixVoice
 {
 public:
@@ -12,11 +16,17 @@ public:
 	~SubMixVoice();
 
 	void setVolume(float volume);
-	void Reverb();
-	void echo();
-	void equalizer();
 	IXAudio2SubmixVoice* getSubMiXVoice() { return pSubMixVoice; }
+
+	//エフェクトの積み込み
+	void addEffect(SoundEffect*Effect);
+
+	//エフェクトの適用
+	void applyEffect();
+protected:
+	void equalizer();
 private:
+	std::vector<XAUDIO2_EFFECT_DESCRIPTOR> descriptorArray;
 	IXAudio2SubmixVoice* pSubMixVoice = nullptr;
 };
 

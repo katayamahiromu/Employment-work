@@ -4,6 +4,9 @@
 // デストラクタ
 AudioManager::~AudioManager()
 {
+
+	delete smv;
+
 	// マスタリングボイス破棄
 	if (masteringVoice != nullptr)
 	{
@@ -42,6 +45,10 @@ AudioManager* AudioManager::initialize()
 	// マスタリングボイス生成
 	hr = xaudio->CreateMasteringVoice(&masteringVoice);
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+
+
+	smv = new SubMixVoiceManager;
+	smv->createSubMixVoice();
 
 	return this;
 }

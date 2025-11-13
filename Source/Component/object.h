@@ -96,6 +96,7 @@ public:
 	DirectX::XMFLOAT4 getMaterialColor() { return materialColor; }
 	void setMaterialColor(DirectX::XMFLOAT4 color) { materialColor = color; }
 private:
+	//ƒ‚ƒfƒ‹î•ñ
 	std::string name;
 	DirectX::XMFLOAT3 position = { 0,0,0 }; //ˆÊ’u
 	DirectX::XMFLOAT4 rotation = { 0, 0, 0, 1 };//‰ñ“]
@@ -103,7 +104,6 @@ private:
 
 	float height = 1.0; //‚‚³
 	float range = 1.0f; //”¼Œa
-
 	DirectX::XMFLOAT4 materialColor = { 1.0f,1.0f,1.0f,1.0f };
 
 	// p¨s—ñ

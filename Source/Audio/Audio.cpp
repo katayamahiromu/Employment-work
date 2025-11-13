@@ -19,6 +19,8 @@ Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource)
 		XAUDIO2_DEFAULT_FREQ_RATIO,
 		callback.get());
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+
+	setSubmixVoice(AudioManager::instance()->getSmv()->getSubMixVoice(0));
 }
 
 // デストラクタ
@@ -273,11 +275,13 @@ float Audio::getPlayTime()
 void Audio::setSubmixVoice(SubMixVoice* sv)
 {
 	HRESULT hr;
-	//サブミックスボイスに登録する
+	//サブミックスボイスを登録する
 	XAUDIO2_SEND_DESCRIPTOR send = { 0,sv->getSubMiXVoice()};
 	XAUDIO2_VOICE_SENDS sendlist = { 1,&send };
 	hr = sourceVoice->SetOutputVoices(&sendlist);
 }
+
+
 
 size_t Audio::getSamplePlay()
 {

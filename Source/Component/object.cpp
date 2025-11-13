@@ -45,7 +45,7 @@ void Object::setRotation(DirectX::XMFLOAT3& direction)
 		DirectX::XMVectorSet(0, 0, 0, 1)
 	);
 
-	// 行列 → クォータニオンに変換
+	// 行列をクォータニオンに変換
 	DirectX::XMVECTOR quat = DirectX::XMQuaternionRotationMatrix(rotMatrix);
 
 	// 正規化して格納

@@ -3,7 +3,7 @@
 #include <xaudio2.h>
 #include "Audio.h"
 #include "Audio3DSystem.h"
-#include "SubMixVoice.h"
+#include "SubMixVoiceManager.h"
 #include <unordered_map>
 #include"../Utils/RingBuffer.h"
 
@@ -49,9 +49,16 @@ public:
 
 	void registerAudio(SoundListner* source, int slot) { listenerArray.insert({ slot,source }); }
 	SoundListner* findAudio(int slot) { return listenerArray.at(slot); }
+
+	IXAudio2* getIXAudio2() { return xaudio; }
+
+	SubMixVoiceManager* getSmv() { return smv; }
 private:
 	IXAudio2*				xaudio = nullptr;
 	IXAudio2MasteringVoice* masteringVoice = nullptr;
+
+	//エフェクトの設定を纏めたやつ
+	SubMixVoiceManager*smv = nullptr;
 
 	std::unordered_map<int, SoundListner*>listenerArray;
 };

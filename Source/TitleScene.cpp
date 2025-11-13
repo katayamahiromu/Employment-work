@@ -80,8 +80,8 @@ void TitleScene::initialize()
 	
 	//idolのアニメーションを再生
 	animation->playAnimation(1, true);
-	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
-	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
+	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
 	//sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
@@ -132,6 +132,11 @@ void TitleScene::Gui()
 	ImGui::SliderFloat("animation rate", &rate,0.0f,1.0f);
 	animation->setAnimationRate(rate);
 	ImGui::InputInt("selct", &select);
+
+	if (ImGui::Button("sample play"))
+	{
+		sample->DCPlay();
+	}
 	ImGui::End();
 
 	/*ImGui::Begin("Spectrum");

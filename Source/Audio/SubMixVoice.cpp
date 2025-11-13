@@ -2,6 +2,7 @@
 
 SubMixVoice::SubMixVoice(IXAudio2* xaudio)
 {
+	//空のサブミックスボイスを作成
 	UINT32 channels = 2;
 	UINT32 samplingRate = 44100;
 	
@@ -23,40 +24,24 @@ void SubMixVoice::setVolume(float volume)
 	pSubMixVoice->SetVolume(volume);
 }
 
-void SubMixVoice::Reverb()
+void SubMixVoice::addEffect(SoundEffect* Effect)
 {
-	IUnknown* pXAPO;
-	XAudio2CreateReverb(&pXAPO);
-
+	//ディスクリプタの設定
 	XAUDIO2_EFFECT_DESCRIPTOR descriptor;
 	descriptor.InitialState = true;
 	descriptor.OutputChannels = 2;
-	descriptor.pEffect = pXAPO;
+	descriptor.pEffect = Effect->getIUnknown();
 
-	XAUDIO2_EFFECT_CHAIN chain;
-	chain.EffectCount = 1;
-	chain.pEffectDescriptors = &descriptor;
-
-	pSubMixVoice->SetEffectChain(&chain);
-	pXAPO->Release();
+	descriptorArray.push_back(descriptor);
 }
 
-void SubMixVoice::echo()
+void SubMixVoice::applyEffect()
 {
-	IUnknown* pXAPO;
-	CreateFX(__uuidof(FXEcho), &pXAPO);
-
-	XAUDIO2_EFFECT_DESCRIPTOR descriptor;
-	descriptor.InitialState = true;
-	descriptor.OutputChannels = 2;
-	descriptor.pEffect = pXAPO;
-
-	XAUDIO2_EFFECT_CHAIN chain;
-	chain.EffectCount = 1;
-	chain.pEffectDescriptors = &descriptor;
-
+	//配列分呼び出されるたび再設定
+	XAUDIO2_EFFECT_CHAIN chain{};
+	chain.EffectCount = static_cast<UINT32>(descriptorArray.size());
+	chain.pEffectDescriptors = descriptorArray.data();
 	pSubMixVoice->SetEffectChain(&chain);
-	pXAPO->Release();
 }
 
 void SubMixVoice::equalizer()

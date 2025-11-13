@@ -37,7 +37,7 @@ void TimeLapseManager::update()
 		}
 		else
 		{
-			reversOrigin->setPitch(1.5 + 0.5f * ((float)rand() / RAND_MAX));
+			reversOrigin->setPitch(1.5f + 0.5f * ((float)rand() / RAND_MAX));
 			reversOrigin->reversPlay(origin);
 			effect->setVolume(2.0f);
 			effect->play(true);

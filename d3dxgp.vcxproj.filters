@@ -315,6 +315,15 @@
     <ClCompile Include="Source\Graphics\Mask.cpp">
       <Filter>Source\Graphics\Post Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Source\HPBar.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\SoundEffect.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\SubMixVoiceManager.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Framework.h">
@@ -595,6 +604,18 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\Mask.h">
       <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\HPBar.h">
+      <Filter>Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Component\Status.h">
+      <Filter>Source\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SoundEffect.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SubMixVoiceManager.h">
+      <Filter>Source\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

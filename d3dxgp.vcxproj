@@ -170,7 +170,9 @@
     <ClCompile Include="Source\Audio\AudioCallback.cpp" />
     <ClCompile Include="Source\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Audio\AudioResource.cpp" />
+    <ClCompile Include="Source\Audio\SoundEffect.cpp" />
     <ClCompile Include="Source\Audio\SubMixVoice.cpp" />
+    <ClCompile Include="Source\Audio\SubMixVoiceManager.cpp" />
     <ClCompile Include="Source\Button.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\CameraController.cpp" />
@@ -210,6 +212,7 @@
     <ClCompile Include="Source\Graphics\Specturm.cpp" />
     <ClCompile Include="Source\Graphics\Sprite.cpp" />
     <ClCompile Include="Source\Graphics\Texture.cpp" />
+    <ClCompile Include="Source\HPBar.cpp" />
     <ClCompile Include="Source\Input\GamePad.cpp" />
     <ClCompile Include="Source\Input\InputManager.cpp" />
     <ClCompile Include="Source\Input\Mouse.cpp" />
@@ -253,6 +256,8 @@
     <ClInclude Include="Source\Audio\AudioResource.h" />
     <ClInclude Include="Source\Audio\AudioCallback.h" />
     <ClInclude Include="Source\Audio\SubMixVoice.h" />
+    <ClInclude Include="Source\Audio\SoundEffect.h" />
+    <ClInclude Include="Source\Audio\SubMixVoiceManager.h" />
     <ClInclude Include="Source\Button.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\CameraController.h" />
@@ -265,6 +270,7 @@
     <ClInclude Include="Source\Component\Movement.h" />
     <ClInclude Include="Source\Component\object.h" />
     <ClInclude Include="Source\Component\PlayerController.h" />
+    <ClInclude Include="Source\Component\Status.h" />
     <ClInclude Include="Source\Component\TimeLapse.h" />
     <ClInclude Include="Source\DeviceManager.h" />
     <ClInclude Include="Source\Enemy.h" />
@@ -295,6 +301,7 @@
     <ClInclude Include="Source\Graphics\Sprite.h" />
     <ClInclude Include="Source\Graphics\Texture.h" />
     <ClInclude Include="Source\high_resolution_timer.h" />
+    <ClInclude Include="Source\HPBar.h" />
     <ClInclude Include="Source\Input\GamePad.h" />
     <ClInclude Include="Source\Input\InputManager.h" />
     <ClInclude Include="Source\Input\Mouse.h" />

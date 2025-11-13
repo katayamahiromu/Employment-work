@@ -34,6 +34,6 @@ void RewindTimeUI::update(float elapsedTime)
 
 void RewindTimeUI::render(ID3D11DeviceContext* dc)
 {
-	baseLine->render(dc, { 10.0f, 10.0f, 300.0f, 50.f }, { 0.2f,0.2f,0.2f,0.8f });
-	gage->render(dc, { 14.0f,14.0,gageWidth,42.0f }, color);
+	baseLine->render(dc, { 10.0f, 650.0f, 300.0f, 50.f }, { 0.2f,0.2f,0.2f,0.8f });
+	gage->render(dc, { 14.0f,654.0,gageWidth,42.0f }, color);
 }

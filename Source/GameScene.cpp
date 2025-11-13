@@ -10,12 +10,13 @@
 #include "math/Mathf.h"
 
 #include"RewindTimeUI.h"
+#include"HPBar.h"
+
 #include"Graphics/LuminanceExtract.h"
 #include"Graphics/GaussianFiltering.h"
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/RewidLine.h"
-#include"Graphics/depthStencilTex.h"
 
 #include"ResourceList/AuidoResourceList.h"
 
@@ -38,6 +39,7 @@ void GameScene::initialize()
 
 	uiManager = std::make_unique<UIManager>();
 	uiManager->registerUi(new RewindTimeUI(*playerManager->getPlayer()->GetComponent<TimeLapse>()));
+	//uiManager->registerUi(new HPBar(&Hp));
 
 	skymap = std::make_unique<Skymap>(L"Resources/Image/cuve.png");
 	
