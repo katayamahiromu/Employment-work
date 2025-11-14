@@ -48,7 +48,7 @@ void GameScene::initialize()
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
-	//PostEffects->addPostProcess(new ACES_Filmic);
+	PostEffects->addPostProcess(new ACES_Filmic);
 
 	//ƒJƒƒ‰‰Šúİ’è
 	Camera::instance()->defaultSetting();

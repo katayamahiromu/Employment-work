@@ -50,16 +50,16 @@ void CameraController::freeCamera(float elapsedTime)
 	rotateCameraAngle(elapsedTime);
 
 	////ínå`Ç∆ÇÃìñÇΩÇËîªíË
-	//HitResult result;
-	//MessageData::RAYCASTREQUEST r = { newTarget,newPosition,result,false };
-	//Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
-	//if (r.isHit)
-	//{
-	//	DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&r.result.position);
-	//	DirectX::XMVECTOR cuv = DirectX::XMVectorSet(0, 1, 0, 0);
-	//	p = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorReplicate(4), cuv, p);
-	//	DirectX::XMStoreFloat3(&newPosition, p);
-	//}
+	HitResult result;
+	MessageData::RAYCASTREQUEST r = { newTarget,newPosition,result,false };
+	Messenger::instance().sendData(MessageData::RAY_CAST_RESULT, &r);
+	if (r.isHit)
+	{
+		DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&r.result.position);
+		DirectX::XMVECTOR cuv = DirectX::XMVectorSet(0, 1, 0, 0);
+		p = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorReplicate(4), cuv, p);
+		DirectX::XMStoreFloat3(&newPosition, p);
+	}
 
 	//íçéãì_Çè≠ÇµÇ∏ÇÍÇƒà⁄ìÆÇ∑ÇÈÇÊÇ§Ç…Ç∑ÇÈ
 	static	constexpr	float	Speed = 1.0f / 8.0f;

@@ -53,6 +53,36 @@ AudioManager* AudioManager::initialize()
 	return this;
 }
 
+void AudioManager::update(float elapsedTime)
+{
+	//サブミックスボイスの更新
+	smv->update();
+
+	for (auto& audioSource : audioSources)
+	{
+		audioSource->update(elapsedTime);
+
+		//破棄リストに追加
+		if (audioSource->getPlayFlag())
+		{
+			audioSource->destruction();
+			removeSources.push_back(audioSource);
+		}
+	}
+
+	//破棄処理
+	for (auto& audioSource : removeSources)
+	{
+		auto itr = std::find(audioSources.begin(), audioSources.end(), audioSource);
+		if (itr != audioSources.end())
+		{
+			audioSources.erase(itr);
+		}
+	}
+
+	removeSources.clear();
+}
+
 // オーディオソース読み込み
 std::unique_ptr<Audio> AudioManager::loadAudioSource(const char* filename)
 {

@@ -24,6 +24,11 @@ void SubMixVoice::setVolume(float volume)
 	pSubMixVoice->SetVolume(volume);
 }
 
+void SubMixVoice::update()
+{
+	for (auto& effect : effects)effect->update(pSubMixVoice);
+}
+
 void SubMixVoice::addEffect(std::unique_ptr<SoundEffect>&& effect)
 {
 	//ディスクリプタの設定
@@ -44,6 +49,16 @@ void SubMixVoice::applyEffect()
 	chain.EffectCount = static_cast<UINT32>(descriptorArray.size());
 	chain.pEffectDescriptors = descriptorArray.data();
 	pSubMixVoice->SetEffectChain(&chain);
+}
+
+SoundEffect* SubMixVoice::getEffect(SoundEffectType type)
+{
+	for (auto& effect : effects)
+	{
+		if (effect->getType() == type) return effect.get();
+	}
+
+	return nullptr;
 }
 
 void SubMixVoice::equalizer()

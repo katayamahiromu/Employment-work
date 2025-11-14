@@ -14,8 +14,9 @@ cbuffer Gaussian : register(b2)
 
 float4 main(VS_OUT pin) : SV_TARGET
 {
-    float4 color = (float4) 0;
+    float4 color = texture0.Sample(sampler0, pin.texcoord);
     color.a = 1;
+    
 	//指定のカーネルサイズ分周囲から色を取得。CPU側で計算した重みを積和していく
     for (int i = 0; i < kernelSize * kernelSize; i++)
     {
@@ -23,5 +24,6 @@ float4 main(VS_OUT pin) : SV_TARGET
         float weight = weights[i].z;
         color.rgb += texture0.Sample(sampler0, pin.texcoord + offset).rgb * weight;
     }
-    return color * texture0.Sample(sampler0, pin.texcoord);
+    
+    return color;
 }

@@ -30,6 +30,8 @@ public:
 	//逆再生用にデータの変形
 	void createReversWav() { resource->reversData(); }
 
+	void update(float elapsedTime);
+
 	/// <summary>
 	/// オーディオの再生
 	/// </summary>
@@ -128,10 +130,24 @@ public:
 	/// ループのカウント
 	/// </summary>
 	void loopCountUp() { loopCount++; }
+
+	//再生終了
+	void endPlay() { isEnd = true; }
+
+	//再生開始
+	void playStart() { isEnd = false; }
+
+	//破棄準備
+	void destruction() { isEnd = false; }
+
+	bool getPlayFlag() { return isEnd; }
+
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;
 	std::unique_ptr<AudioCallback>callback;
 	float volume = 1.0f;
 	int loopCount = 0;
+	
+	bool isEnd = false;
 };

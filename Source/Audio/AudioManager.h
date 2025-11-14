@@ -23,6 +23,8 @@ public:
 
 	AudioManager* initialize();
 
+	void update(float elapsedTime);
+
 	/// <summary>
 	/// 読み込み
 	/// </summary>
@@ -53,6 +55,10 @@ public:
 	IXAudio2* getIXAudio2() { return xaudio; }
 
 	SubMixVoiceManager* getSmv() { return smv; }
+
+	void RegisterAudioArray(Audio* audio) { audioSources.emplace_back(audio); }
+
+	int PlayAudioCount() { return static_cast<int>(audioSources.size()); }
 private:
 	IXAudio2*				xaudio = nullptr;
 	IXAudio2MasteringVoice* masteringVoice = nullptr;
@@ -60,5 +66,11 @@ private:
 	//エフェクトの設定を纏めたやつ
 	SubMixVoiceManager*smv = nullptr;
 
+	//登録
 	std::unordered_map<int, SoundListner*>listenerArray;
+
+	std::vector<Audio*>audioSources;
+
+	//破棄リスト
+	std::vector<Audio*>removeSources;
 };

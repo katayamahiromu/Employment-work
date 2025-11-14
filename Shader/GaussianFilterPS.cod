@@ -54,39 +54,40 @@ dcl_temps 4
 //   o0.x <- <main return value>.x; o0.y <- <main return value>.y; o0.z <- <main return value>.z; o0.w <- <main return value>.w
 //
 #line 17 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\GaussianFilterPS.hlsl"
-itof r0.xyz, l(0, 0, 0, 0)  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
+sample_indexable(texture2d)(float,float,float,float) r0.xyz, v1.xyxx, t0.xyzw, s0
+mov r0.xyz, r0.xyzx  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
 
 #line 18
-itof r1.w, l(1)  // r1.w <- color.w
+itof r0.w, l(1)  // r0.w <- color.w
 
-#line 20
-mov r0.w, l(0)  // r0.w <- i
-mov r1.xyz, r0.xyzx  // r1.x <- color.x; r1.y <- color.y; r1.z <- color.z
-mov r2.x, r0.w  // r2.x <- i
+#line 21
+mov r1.x, l(0)  // r1.x <- i
+mov r1.yzw, r0.xxyz  // r1.y <- color.x; r1.z <- color.y; r1.w <- color.z
+mov r2.x, r1.x  // r2.x <- i
 loop 
   itof r2.y, r2.x
   mul r2.z, cb2[625].x, cb2[625].x
   lt r2.y, r2.y, r2.z
   breakc_z r2.y
 
-#line 22
+#line 23
   mul r2.yz, cb2[625].yyzy, cb2[r2.x + 0].xxyx  // r2.y <- offset.x; r2.z <- offset.y
 
-#line 23
+#line 24
   mov r2.w, cb2[r2.x + 0].z  // r2.w <- weight
 
-#line 24
+#line 25
   add r2.yz, r2.yyzy, v1.xxyx
   sample_indexable(texture2d)(float,float,float,float) r3.xyz, r2.yzyy, t0.xyzw, s0
   mul r2.yzw, r2.wwww, r3.xxyz
-  add r1.xyz, r1.xyzx, r2.yzwy
+  add r1.yzw, r1.yyzw, r2.yyzw
 
-#line 25
+#line 26
   iadd r2.x, r2.x, l(1)
 endloop 
 
-#line 26
-sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v1.xyxx, t0.xyzw, s0
-mul o0.xyzw, r0.xyzw, r1.xyzw
+#line 28
+mov o0.xyz, r1.yzwy
+mov o0.w, r0.w
 ret 
-// Approximately 21 instruction slots used
+// Approximately 22 instruction slots used

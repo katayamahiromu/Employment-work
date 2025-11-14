@@ -41,6 +41,9 @@ void Framework::update(float elapsedTime/*Elapsed seconds from last frame*/)
 	// 入力更新処理
 	inputMgr->update();
 
+	//サウンドの更新
+	audioMgr->update(elapsedTime);
+
 	// シーン更新処理
 	SceneManager::instance()->update(elapsedTime);
 }

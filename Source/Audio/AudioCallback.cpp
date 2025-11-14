@@ -1,5 +1,5 @@
 #include"AudioCallback.h"
-#include"Audio.h"
+#include"AudioManager.h"
 
 AudioCallback::AudioCallback()
 {
@@ -21,9 +21,6 @@ void AudioCallback::OnVoiceProcessingPassStart(UINT32 SamplesRequired) noexcept
 
 }
 
-
-
-
 ////終端到達時
 void AudioCallback::OnStreamEnd()noexcept
 {
@@ -33,13 +30,17 @@ void AudioCallback::OnStreamEnd()noexcept
 //バッファの再生が終了した時
 void AudioCallback::OnBufferEnd(void* pBufferContext)noexcept
 {
-
+	static_cast<Audio*>(pBufferContext)->endPlay();
 }
 
 //バッファの再生が始まる直前
 void AudioCallback::OnBufferStart(void* pBufferContext)noexcept
 {
+	Audio* audio = static_cast<Audio*>(pBufferContext);
 
+	//既に再生フラグが立っていればリターン
+	if (audio->getPlayFlag())return;
+	AudioManager::instance()->RegisterAudioArray(audio);
 }
 
 //ループポイント到達時

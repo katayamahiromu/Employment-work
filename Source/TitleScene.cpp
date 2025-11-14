@@ -140,6 +140,27 @@ void TitleScene::Gui()
 	{
 		sample->DCPlay();
 	}
+
+	ImGui::SliderFloat("wetLevel", &wetLevel, 0.0f, 1.0f);
+	ImGui::SliderFloat("roomSize", &roomSize, 0.0f, 1.0f);
+	ImGui::SliderFloat("decayTime", &decayTime, 0.0f, 20.0f);
+
+	SubMixVoiceManager*smv = AudioManager::instance()->getSmv();
+	SoundEffect* SE1 = smv->getSubMixVoice(0)->getEffect(REVERB);
+	static_cast<Reverb*>(SE1)->setDecayTime(decayTime);
+	static_cast<Reverb*>(SE1)->setRoomSize(roomSize);
+	static_cast<Reverb*>(SE1)->setWetLevel(wetLevel);
+
+	ImGui::SliderFloat("delay", &delay, 0.0f, 1.0f);
+	ImGui::SliderFloat("feedback", &feedback, 0.0f, 1.0f);
+	ImGui::SliderFloat("wetDryMix", &wetDryMix, 0.0f, 1.0f);
+	SoundEffect* SE2 = smv->getSubMixVoice(0)->getEffect(ECHO);
+	static_cast<Echo*>(SE2)->setDelay(delay);
+	static_cast<Echo*>(SE2)->setFeedback(feedback);
+	static_cast<Echo*>(SE2)->setWetDryMix(wetDryMix);
+	
+	int count = AudioManager::instance()->PlayAudioCount();
+	ImGui::InputInt("Audio Play Count", &count);
 	ImGui::End();
 
 	/*ImGui::Begin("Spectrum");

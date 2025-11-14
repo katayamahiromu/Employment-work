@@ -18,11 +18,16 @@ public:
 	void setVolume(float volume);
 	IXAudio2SubmixVoice* getSubMiXVoice() { return pSubMixVoice; }
 
+	//値の更新等
+	void update();
+
 	//エフェクトの積み込み
 	void addEffect(std::unique_ptr<SoundEffect>&& effect);
 
 	//エフェクトの適用
 	void applyEffect();
+
+	SoundEffect* getEffect(SoundEffectType type);
 protected:
 	void equalizer();
 private:

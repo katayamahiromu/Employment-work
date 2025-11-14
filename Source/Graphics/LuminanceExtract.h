@@ -11,7 +11,7 @@ public:
 	struct luminanceExtractConstants
 	{
 		float threshold{ 0.05f }; //高輝度抽出のための閾値
-		float intensity{ 5.7f }; //ブルームの強度
+		float intensity{ 1.4f }; //ブルームの強度
 		DirectX::XMFLOAT2 dummy{0.0f,0.0f};
 	};
 	void debugGui()override;

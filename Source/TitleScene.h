@@ -63,4 +63,13 @@ private:
 	std::unique_ptr<Spectrum>spectrum;
 
 	float rate = 1.0f;
+
+	//åüç∏
+	float wetLevel = 0.7f;
+	float roomSize = 1.0f;
+	float decayTime = 20.0f;
+
+	float wetDryMix = 1.0; // 0.0f Å` 100.0f
+	float feedback = 0.0f; // -99.0f Å` 99.0f
+	float delay = 500.0f; // 1ms Å` 2000ms
 };

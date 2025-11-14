@@ -33,6 +33,11 @@ Audio::~Audio()
 	}
 }
 
+void Audio::update(float elapsedTime)
+{
+
+}
+
 // çƒê∂
 void Audio::play(bool loop)
 {
