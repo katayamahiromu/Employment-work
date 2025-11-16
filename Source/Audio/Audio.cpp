@@ -35,7 +35,36 @@ Audio::~Audio()
 
 void Audio::update(float elapsedTime)
 {
+	if (isFadeIn)
+	{
+		//フェードイン処理
+		volume += (1.0f / fadeTime) * elapsedTime;
 
+		//ボリュームが範囲内にあるように調整
+		if (volume > 1.0f)
+		{
+			volume = 1.0f;
+			isFadeIn = false;
+		}
+		setVolume(volume);
+	}
+	else if (isFadeOut)
+	{
+		//フェードアウト処理
+		volume -= (1.0f / fadeTime) * elapsedTime;
+
+		//ボリュームが範囲内になるように調整
+		if (volume < 0.0f)
+		{
+			volume = 0.0f;
+			isFadeOut = false;
+
+			//停止時に破棄準備
+			stop();
+			destruction();
+		}
+		setVolume(volume);
+	}
 }
 
 // 再生
@@ -291,4 +320,29 @@ size_t Audio::getSamplePlay()
 	XAUDIO2_VOICE_STATE state;
 	sourceVoice->GetState(&state);
 	return state.SamplesPlayed;
+}
+
+//フェード
+void Audio::setFade(Fade type, float fadeTime)
+{
+	//フェードが０秒以下なら何もしない
+	if (fadeTime < 0.0f) return;
+
+	switch (type)
+	{
+	case Audio::Fade::None:
+		setVolume(1.0f);
+		return;
+	case Audio::Fade::In:
+		setVolume(0.0f);
+		isFadeIn = true;
+		break;
+	case Audio::Fade::Out:
+		isFadeOut = true;
+		break;
+	default:
+		break;
+	}
+
+	this->fadeTime = fadeTime;
 }

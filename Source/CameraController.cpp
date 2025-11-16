@@ -1,5 +1,4 @@
 #include"CameraController.h"
-#include"Camera.h"
 #include"Input/InputManager.h"
 #include"math/Mathf.h"
 #include"imgui.h"
@@ -9,8 +8,9 @@
 
 CameraController::CameraController()
 {
-	position = *Camera::instance()->getEye();
-	newPosition = *Camera::instance()->getEye();
+	camera = std::make_unique<Camera>();
+	position = *camera->getEye();
+	newPosition = *camera->getEye();
 
 	CAMERACHANGEFREEMODEKEY = Messenger::instance().addReceiver(MessageData::CAMERACHANGEFREEMODE, [&](void* data) { onFreeMode(data); });
 	CAMERACHANGELOCKONMODEKEY = Messenger::instance().addReceiver(MessageData::CAMERACHANGELOCKONMODE, [&](void* data) {onLockonMode(data);});
@@ -38,7 +38,7 @@ void CameraController::update(float elapsedTime)
 	}
 
 	//カメラの視点と注視点を設定
-	Camera::instance()->setLookAt(position, target, { 0,1,0 });
+	camera->setLookAt(position, target, { 0,1,0 });
 }
 
 void CameraController::freeCamera(float elapsedTime)
@@ -76,7 +76,7 @@ void  CameraController ::lockonCamera(float elapsedTime)
 	//	後方斜に移動させる
 	DirectX::XMVECTOR	t0 = DirectX::XMVectorSet(targetWork[0].x, 0.5f, targetWork[0].z, 0);
 	DirectX::XMVECTOR	t1 = DirectX::XMVectorSet(targetWork[1].x, 0.5f, targetWork[1].z, 0);
-	DirectX::XMVECTOR	crv = DirectX::XMLoadFloat3(Camera::instance()->getRight());
+	DirectX::XMVECTOR	crv = DirectX::XMLoadFloat3(camera->getRight());
 	DirectX::XMVECTOR	cuv = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR	v = DirectX::XMVectorSubtract(t1, t0);
 	DirectX::XMVECTOR	l = DirectX::XMVector3Length(v);
@@ -97,79 +97,6 @@ void  CameraController ::lockonCamera(float elapsedTime)
 	DirectX::XMStoreFloat3(&newPosition, t0);
 }
 
-void CameraController::debugUpdate(float elapsedTime)
-{
-	Mouse* mouse = InputManager::instance()->getMouse();
-
-	float moveX = (mouse->getPositionX() - mouse->getPrevPositionX()) * 0.02f;
-	float moveY = (mouse->getPositionY() - mouse->getPrevPositionY()) * 0.02f;
-
-	Camera* camera = Camera::instance();
-	// 視線行列を生成
-	DirectX::XMMATRIX V;
-	{
-		DirectX::XMVECTOR up{ DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f) };
-		// マウス操作
-		{
-			if (::GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-			{
-				// Y軸回転
-				rotateY += moveX * 0.5f;
-				if (rotateY > DirectX::XM_PI)
-					rotateY -= DirectX::XM_2PI;
-				else if (rotateY < -DirectX::XM_PI)
-					rotateY += DirectX::XM_2PI;
-				// X軸回転
-				rotateX += moveY * 0.5f;
-				if (rotateX > DirectX::XMConvertToRadians(89.9f))
-					rotateX = DirectX::XMConvertToRadians(89.9f);
-				else if (rotateX < -DirectX::XMConvertToRadians(89.9f))
-					rotateX = -DirectX::XMConvertToRadians(89.9f);
-			}
-			else if (::GetAsyncKeyState(VK_MBUTTON) & 0x8000)
-			{
-				V = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&camera_position),
-					DirectX::XMLoadFloat3(&camera_focus),
-					up);
-				DirectX::XMFLOAT4X4 W;
-				DirectX::XMStoreFloat4x4(&W, DirectX::XMMatrixInverse(nullptr, V));
-				// 平行移動
-				float s = distance * 0.035f;
-				float x = moveX * s;
-				float y = moveY * s;
-				camera_focus.x -= W._11 * x;
-				camera_focus.y -= W._12 * x;
-				camera_focus.z -= W._13 * x;
-
-				camera_focus.x += W._21 * y;
-				camera_focus.y += W._22 * y;
-				camera_focus.z += W._23 * y;
-			}
-			int i = mouse->getWheel();
-			if (i != 0)	// ズーム
-			{
-				distance -= static_cast<float>(mouse->getWheel()) * distance * 0.001f;
-			}
-		}
-		float sx = ::sinf(rotateX), cx = ::cosf(rotateX);
-		float sy = ::sinf(rotateY), cy = ::cosf(rotateY);
-		DirectX::XMVECTOR Focus = DirectX::XMLoadFloat3(&camera_focus);
-		DirectX::XMVECTOR Front = DirectX::XMVectorSet(-cx * sy, -sx, -cx * cy, 0.0f);
-		DirectX::XMVECTOR Distance = DirectX::XMVectorSet(distance, distance, distance, 0.0f);
-		Front = DirectX::XMVectorMultiply(Front, Distance);
-		DirectX::XMVECTOR Eye = DirectX::XMVectorSubtract(Focus, Front);
-		DirectX::XMStoreFloat3(&camera_position, Eye);
-		// カメラに視点を注視点を設定
-		Camera::instance()->setLookAt(camera_position, camera_focus, { 0, 1, 0 });
-	}
-
-	if (mouse->getWheel() != 0)
-	{
-		// ズーム
-		distance -= static_cast<float>(mouse->getWheel()) * distance * 0.001f;
-	}
-}
-
 void CameraController::OnGui()
 {
 	ImGui::Begin("camera parameter");
@@ -177,7 +104,7 @@ void CameraController::OnGui()
 	ImGui::SliderFloat("spring", &spring,10.0f,30.0f);
 	ImGui::SliderFloat("damping", &damping,1.0f,5.0f);
 
-	DirectX::XMFLOAT3 eye = *Camera::instance()->getEye();
+	DirectX::XMFLOAT3 eye = *camera->getEye();
 	ImGui::InputFloat3("eye", &eye.x);
 	ImGui::InputFloat3("Target", &target.x);
 	ImGui::InputFloat3("angle", &angle.x);
@@ -277,7 +204,7 @@ void CameraController::computeEyeTPS(float elapsedTime)
 	//スプリング　ダンピング
 	DirectX::XMFLOAT3 diff;
 	DirectX::XMStoreFloat3(&diff,
-		DirectX::XMVectorSubtract(idealEyeVec, DirectX::XMLoadFloat3(Camera::instance()->getEye())));
+		DirectX::XMVectorSubtract(idealEyeVec, DirectX::XMLoadFloat3(camera->getEye())));
 
 	DirectX::XMFLOAT3 force;
 	DirectX::XMStoreFloat3(&force,
@@ -290,7 +217,7 @@ void CameraController::computeEyeTPS(float elapsedTime)
 	velocity.y += force.y * elapsedTime;
 	velocity.z += force.z * elapsedTime;
 
-	DirectX::XMFLOAT3 eye = *Camera::instance()->getEye();
+	DirectX::XMFLOAT3 eye = *camera->getEye();
 
 	newPosition.x += velocity.x * elapsedTime;
 	newPosition.y += velocity.y * elapsedTime;

@@ -43,7 +43,7 @@ Spectrum::~Spectrum()
 
 void Spectrum::update(Audio* audio)
 {
-	const int FFT_SIZE = 1024; //解析サイズ
+	const int FFT_SIZE = 512; //解析サイズ
 
 	size_t startPosition = audio->getSamplePlay(); //再生中のサンプル位置
 	AudioResource* resource = audio->getResource(); //WAVデータ
@@ -77,6 +77,50 @@ void Spectrum::update(Audio* audio)
 		normalized[i] = std::clamp(value, 0.0f, 1.0f);
 	}
 
+	//ガウシアン平均化
+	std::vector<float> smooth(normalized.size());
+	for (size_t i = 2; i < normalized.size() - 2; i++)
+	{
+		smooth[i] =
+			normalized[i - 2] * 0.06f +
+			normalized[i - 1] * 0.24f +
+			normalized[i] * 0.40f +
+			normalized[i + 1] * 0.24f +
+			normalized[i + 2] * 0.06f;
+	}
+
+
+	//ログスケール圧縮（1 / 3オクターブ）
+	{
+		const int bandCount = 30;
+		std::vector<float> bands(bandCount, 0.0f);
+
+		float sampleRate = 44100;
+		float maxFreq = sampleRate / 2.0f;
+
+		for (int b = 0; b < bandCount; b++)
+		{
+			float f1 = 20.0f * powf(2.0f, (b * 1.0f) / 3.0f);  // 1/3 octave lower
+			float f2 = 20.0f * powf(2.0f, ((b + 1) * 1.0f) / 3.0f);
+
+			if (f1 >= maxFreq) break;
+			if (f2 > maxFreq) f2 = maxFreq;
+
+			int i1 = int((f1 / maxFreq) * (smooth.size() - 1));
+			int i2 = int((f2 / maxFreq) * (smooth.size() - 1));
+
+			float sum = 0.0f;
+			int count = 0;
+
+			for (int i = i1; i <= i2; i++)
+			{
+				sum += smooth[i];
+				count++;
+			}
+
+			if (count > 0) bands[b] = sum / count;
+		}
+	}
 	spectrums = normalized;
 }
 

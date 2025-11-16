@@ -26,14 +26,21 @@
 // 初期化
 void GameScene::initialize()
 {
+	//カメラ初期設定
+	cameraCtrl = std::make_unique<CameraController>();
+
 	collisionSystem = std::make_unique<CollisionSystem>();
 
 	DeviceManager* deviceMgr = DeviceManager::instance();
+
+	//オブジェクト設定
 	objManager = std::make_unique<ObjectManager>();
 
 	stageManager = std::make_unique<StageManager>(*objManager.get());
 
 	playerManager = std::make_unique<PlayerManager>(*objManager.get());
+	playerManager->playerCreate(cameraCtrl->getCamera());
+
 	enemyManager = std::make_unique<EnemyManager>(*objManager.get());
 	enemyManager->enemyCreate(playerManager->getPlayer());
 
@@ -49,10 +56,6 @@ void GameScene::initialize()
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
 	PostEffects->addPostProcess(new ACES_Filmic);
-
-	//カメラ初期設定
-	Camera::instance()->defaultSetting();
-	cameraCtrl = std::make_unique<CameraController>();
 
 	//パーティクル
 	particleMgr = std::make_unique<ParticleManager>();
@@ -112,7 +115,7 @@ void GameScene::render()
 	GraphicsManager* graphics = GraphicsManager::instance();
 	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
 
-	Camera* camera = Camera::instance();
+	Camera* camera = cameraCtrl->getCamera();
 	const DirectX::XMFLOAT4X4* view = camera->getView();
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();

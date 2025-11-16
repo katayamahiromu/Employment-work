@@ -145,7 +145,7 @@ void Audio3D::setDSPSetting(SoundListner& listner)
 	}
 	else
 	{
-		//正面なんでフィルター無し
+		//正面ではフィルター無し
 		dspSetting.filterParam = 0.0f;
 	}
 }

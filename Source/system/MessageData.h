@@ -3,6 +3,14 @@
 
 namespace MessageData
 {
+	//カメラのベクトル情
+	static	constexpr const char* CAMERAVEC = "CAMERA VEC";
+	struct CameraVec
+	{
+		DirectX::XMFLOAT3 cameraFront;
+		DirectX::XMFLOAT3 cameraRight;
+	};
+
 	//フリーカメラ
 	static	constexpr const char* CAMERACHANGEFREEMODE = "CAMERA CHANGE FREEMODE";
 	struct	CAMERACHANGEFREEMODEDATA

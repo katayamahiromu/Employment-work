@@ -4,7 +4,6 @@
 // デストラクタ
 AudioManager::~AudioManager()
 {
-
 	delete smv;
 
 	// マスタリングボイス破棄

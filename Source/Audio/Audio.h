@@ -142,6 +142,16 @@ public:
 
 	bool getPlayFlag() { return isEnd; }
 
+
+	enum class Fade
+	{
+		None = -1,
+		In = 0,
+		Out = 1,
+	};
+
+	void setFade(Fade type, float fadeTime);
+
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;
@@ -150,4 +160,9 @@ protected:
 	int loopCount = 0;
 	
 	bool isEnd = false;
+
+	bool IsFading() { return isFadeIn || isFadeOut ? true : false; }
+	bool isFadeIn = false;
+	bool isFadeOut = false;
+	float fadeTime = 0.0f;
 };

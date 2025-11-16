@@ -4,21 +4,12 @@
 //カメラ
 class Camera
 {
-private:
-	Camera() {}
+public:
+	Camera() { defaultSetting(); }
 	~Camera(){}
 public:
-	static Camera* instance()
-	{
-		static Camera inst;
-		return &inst;
-	}
-	//デフォルト設定
-	void defaultSetting();
-
 	//カメラの位置と姿勢の設定
 	void setLookAt(const DirectX::XMFLOAT3& eye, const DirectX::XMFLOAT3& forcus,const DirectX::XMFLOAT3& up);
-	void setLookAt();
 
 	//カメラのレンズの設定
 	void setPerspectiveFov(float fovY, float aspect, float nearZ, float farZ);
@@ -45,6 +36,9 @@ public:
 	const DirectX::XMFLOAT3* getFront()const { return &front; }
 
 	void setEye(DirectX::XMFLOAT3* eye) { this->eye = *eye; }
+private:
+	//デフォルト設定
+	void defaultSetting();
 private:
 	DirectX::XMFLOAT4X4 view = {
 		1, 0, 0, 0,

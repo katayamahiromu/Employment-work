@@ -11,6 +11,7 @@
 #include"Graphics/LuminanceExtract.h"
 #include"Graphics/GaussianFiltering.h"
 #include"Graphics/ColorGrading.h"
+#include"Graphics/ACES_Filmic.h"
 #include"Graphics/Mask.h"
 
 #include<algorithm>
@@ -46,12 +47,11 @@ void TitleScene::initialize()
 	objManager->setLineSize(0.008f);
 
 	//カメラ初期設定
-	Camera* camera = Camera::instance();
-	camera->defaultSetting();
+	fixCamera = std::make_unique<Camera>();
 	DirectX::XMFLOAT3 eye{ -4.426f, 0.492f, -0.476f };
 	DirectX::XMFLOAT3 forcus{ 4.426f,-0.492f,-2.381f };
 	DirectX::XMFLOAT3 up{ -1.475f,4.426f,0.476f };
-	Camera::instance()->setLookAt(eye,forcus,up);
+	fixCamera->setLookAt(eye,forcus,up);
 
 	model = objManager->create();
 	model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
@@ -76,12 +76,12 @@ void TitleScene::initialize()
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
-	//PostEffects->addPostProcess(new Mask);
+	PostEffects->addPostProcess(new ACES_Filmic);
 	
 	//idolのアニメーションを再生
 	animation->playAnimation(1, true);
-	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
-	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
+	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
 	//sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
@@ -109,6 +109,8 @@ void TitleScene::finalize()
 //更新処理
 void TitleScene::update(float elapsedTime)
 {
+	//spectrum->update(sample.get());
+
 	DirectX::XMFLOAT3 direction = { -360.0f,0.0f,-51.0f };
 	model->setRotation(direction);
 	objManager->update(elapsedTime);
@@ -145,7 +147,7 @@ void TitleScene::Gui()
 	ImGui::SliderFloat("roomSize", &roomSize, 0.0f, 1.0f);
 	ImGui::SliderFloat("decayTime", &decayTime, 0.0f, 20.0f);
 
-	SubMixVoiceManager*smv = AudioManager::instance()->getSmv();
+	/*SubMixVoiceManager*smv = AudioManager::instance()->getSmv();
 	SoundEffect* SE1 = smv->getSubMixVoice(0)->getEffect(REVERB);
 	static_cast<Reverb*>(SE1)->setDecayTime(decayTime);
 	static_cast<Reverb*>(SE1)->setRoomSize(roomSize);
@@ -157,7 +159,7 @@ void TitleScene::Gui()
 	SoundEffect* SE2 = smv->getSubMixVoice(0)->getEffect(ECHO);
 	static_cast<Echo*>(SE2)->setDelay(delay);
 	static_cast<Echo*>(SE2)->setFeedback(feedback);
-	static_cast<Echo*>(SE2)->setWetDryMix(wetDryMix);
+	static_cast<Echo*>(SE2)->setWetDryMix(wetDryMix);*/
 	
 	int count = AudioManager::instance()->PlayAudioCount();
 	ImGui::InputInt("Audio Play Count", &count);
@@ -203,7 +205,7 @@ void TitleScene::render()
 	titleImage->render(dc, 0, 0, 1280, 720);
 
 	//3D描画
-	Camera* camera = Camera::instance();
+	Camera* camera = fixCamera.get();
 	const DirectX::XMFLOAT4X4* view = camera->getView();
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 
@@ -245,11 +247,11 @@ void TitleScene::render()
 	//	// ラスタライザステートの設定（ソリッド、裏面表示オフ）
 	//	dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
 	//	});
-	
+	//
 	//spectrum->draw(dc);
 
 	Gui();
-	PostEffects->debugGui();
+	//PostEffects->debugGui();
 }
 
 void TitleScene::updateSelector(float elapsedTime)

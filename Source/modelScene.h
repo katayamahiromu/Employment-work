@@ -2,7 +2,7 @@
 #include"Scene.h"
 #include"Graphics/SkinnedMesh.h"
 #include"Component/object.h"
-#include"CameraController.h"
+#include"DebugCameraController.h"
 #include"Component/Animation.h"
 #include"Component/meshTexchange.h"
 #include"Graphics/Sprite.h"
@@ -27,7 +27,7 @@ private:
 	DirectX::XMFLOAT3 position = {0.0f,0.0f,0.0f};
 	DirectX::XMFLOAT4 rotation = {0.0f,0.0f,0.0f,0.0f};
 private:
-	std::unique_ptr<CameraController>cameraController;
+	std::unique_ptr<DebugCameraController>cameraController;
 	std::unique_ptr<ObjectManager>objManager;
 	std::shared_ptr<Object>model;
 

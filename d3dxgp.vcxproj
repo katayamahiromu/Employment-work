@@ -179,12 +179,14 @@
     <ClCompile Include="Source\Component\Animation.cpp" />
     <ClCompile Include="Source\Component\Audio3DEmitter.cpp" />
     <ClCompile Include="Source\Component\Audio3DListener.cpp" />
+    <ClCompile Include="Source\Component\CameraInfo.cpp" />
     <ClCompile Include="Source\Component\CollisionConponent.cpp" />
     <ClCompile Include="Source\Component\meshTexchange.cpp" />
     <ClCompile Include="Source\Component\Movement.cpp" />
     <ClCompile Include="Source\Component\object.cpp" />
     <ClCompile Include="Source\Component\PlayerController.cpp" />
     <ClCompile Include="Source\Component\TimeLapse.cpp" />
+    <ClCompile Include="Source\DebugCameraController.cpp" />
     <ClCompile Include="Source\DeviceManager.cpp" />
     <ClCompile Include="Source\Enemy.cpp" />
     <ClCompile Include="Source\EnemyManager.cpp" />
@@ -264,6 +266,7 @@
     <ClInclude Include="Source\Component\Animation.h" />
     <ClInclude Include="Source\Component\Audio3DEmitter.h" />
     <ClInclude Include="Source\Component\Audio3DListener.h" />
+    <ClInclude Include="Source\Component\CameraInfo.h" />
     <ClInclude Include="Source\Component\CollisionConponent.h" />
     <ClInclude Include="Source\Component\Component.h" />
     <ClInclude Include="Source\Component\meshTexchange.h" />
@@ -272,6 +275,7 @@
     <ClInclude Include="Source\Component\PlayerController.h" />
     <ClInclude Include="Source\Component\Status.h" />
     <ClInclude Include="Source\Component\TimeLapse.h" />
+    <ClInclude Include="Source\DebugCameraController.h" />
     <ClInclude Include="Source\DeviceManager.h" />
     <ClInclude Include="Source\Enemy.h" />
     <ClInclude Include="Source\EnemyManager.h" />

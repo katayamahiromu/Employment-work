@@ -1,5 +1,5 @@
 #include"Component/object.h"
-#include"Camera.h"
+#include"system/MessageData.h"
 #include"imgui.h"
 #include"../Utils/Macro.h"
 #include"math/Mathf.h"
@@ -43,6 +43,7 @@ void Player::prepare()
     playerController = getObject()->GetComponent<PlayerController>();
     lister = getObject()->GetComponent<Audio3DListener>();
     collision = getObject()->GetComponent<CollisionComponent>();
+    cameraInfo = getObject()->GetComponent<CameraInfo>();
    
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
@@ -128,7 +129,7 @@ DirectX::XMFLOAT3 Player::getMoveVec()const
     // “ü—Íî•ñ‚ðŽæ“¾
     DirectX::XMFLOAT2 leftStick = playerController->getLeftStick();
     // ƒJƒƒ‰•ûŒü‚ðŽæ“¾
-    Camera* camera = Camera::instance();
+    Camera* camera = cameraInfo->getCamera();
     const DirectX::XMFLOAT3* cameraFront = camera->getFront();
     const DirectX::XMFLOAT3* cameraRight = camera->getRight();
 

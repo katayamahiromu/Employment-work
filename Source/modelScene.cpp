@@ -7,7 +7,7 @@
 #include<algorithm>
 
 //ê›íËä÷åW
-#define Anime 0
+#define Anime 1
 
 ModelScene::ModelScene()
 {
@@ -24,14 +24,12 @@ void ModelScene::initialize()
 	objManager = std::make_unique<ObjectManager>();
 
 	//ÉJÉÅÉâèâä˙ê›íË
-	Camera::instance()->defaultSetting();
-	cameraController = std::make_unique<CameraController>();
+	cameraController = std::make_unique<DebugCameraController>();
 
 	//å©ÇΩÇ¢Ç‚Ç¬ÇÃÉÇÉfÉã
 	model = objManager->create();
-	//model->loadModel("Resources\\Model\\CuteBox\\Box01.fbx");
+	model->loadModel("Resources\\Model\\CuteBox\\Box01.fbx");
 	//model->loadModel("Resources\\Model\\pico\\pico_chan_chr_pico_00.fbx");
-	model->loadModel("Resources\\Model\\Block\\Block.fbx");
 	model->setScale(scale);
 	model->setPosition(position);
 	model->setRotation(rotation);
@@ -72,7 +70,7 @@ void ModelScene::update(float elapsedTime)
 	model->setRotation(rotation);
 
 	objManager->update(elapsedTime);
-	cameraController->debugUpdate(elapsedTime);
+	cameraController->update(elapsedTime);
 }
 
 void  ModelScene::Gui()
@@ -97,7 +95,7 @@ void ModelScene::render()
 	ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
 	ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
 
-	Camera* camera = Camera::instance();
+	Camera* camera = cameraController->getCamera();
 	const DirectX::XMFLOAT4X4* view = camera->getView();
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
 

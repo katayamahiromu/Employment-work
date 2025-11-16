@@ -24,8 +24,9 @@ void Audio3DListener::prepare()
 void Audio3DListener::update(float elapsedTime)
 {
 	listener.position = *getObject()->getPosition();
-	listener.frontVec = *Camera::instance()->getFront();
-	listener.rightVec = *Camera::instance()->getRight();
+	DirectX::XMFLOAT4X4 t = *getObject()->getTransform();
+	listener.frontVec = { t._11,t._12,t._13 };
+	listener.rightVec = { t._31,t._32,t._33 };
 }
 
 void Audio3DListener::OnGUI()

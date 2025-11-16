@@ -6,10 +6,12 @@
 #include"Component/PlayerController.h"
 #include"Component/Audio3DListener.h"
 #include"Component/CollisionConponent.h"
+#include"Component/CameraInfo.h"
 
 #include"system/StateMachine.h"
 #include"Graphics/RewidLine.h"
 
+class Camera;
 //プレイヤー
 class Player :public Component
 {
@@ -28,7 +30,6 @@ public:
 	//入力値から移動ベクトルを取得
 	DirectX::XMFLOAT3 getMoveVec()const;
 private:
-
 	//移動入力処理
 	bool inputMove(float elapsedTime);
 	//攻撃入力処理
@@ -87,6 +88,7 @@ private:
 	RewindLine* rewindEffect = nullptr;
 	float effectTime = 0.0f;
 private:
+	std::shared_ptr<CameraInfo>cameraInfo;
 	std::shared_ptr<Movement>movement;
 	std::shared_ptr<Animation>animation;
 	std::shared_ptr<TimeLapse>timeLapse;

@@ -44,6 +44,8 @@ private:
 	//“ü—Í’âŽ~ŽžŠÔ
 	const float freezeTime = 0.3f;
 private:
+	//
+	std::unique_ptr<Camera>fixCamera;
 	//3DŠÖŒW
 	std::unique_ptr<ObjectManager>objManager;
 	std::shared_ptr<Object>model;
