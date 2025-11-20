@@ -135,3 +135,11 @@ DeviceManager* DeviceManager::initialize(HWND hwnd)
 
 	return this;
 }
+
+void DeviceManager::settingRender()
+{
+	FLOAT color[] = { 0.0f, 0.0f, 0.5f, 1.0f };	// RGBA(0.0`1.0)
+	immediateContext->ClearRenderTargetView(renderTargetView.Get(), color);
+	immediateContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	immediateContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+}

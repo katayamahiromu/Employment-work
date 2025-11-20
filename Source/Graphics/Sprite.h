@@ -33,6 +33,8 @@ public:
 	Sprite(ID3D11Device* device, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>shader_resource_view);
 	virtual ~Sprite();
 
+	void resizeTextureSize(ID3D11Device* device, UINT width, UINT height);
+
 	// ï`âÊèàóù
 	void render(ID3D11DeviceContext* immediate_context,
 		float dx, float dy, float dw, float dh,
@@ -51,6 +53,8 @@ public:
 	float getTextureHeight() { return static_cast<float>(texture2d_desc.Height); }
 
 	inline const Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& getShaderResourceView() const { return shader_resource_view; }
+
+	void setShaderResourceView(ID3D11ShaderResourceView* srv) { shader_resource_view = srv; }
 private:
 	static void rotate(float& x, float& y, float cx, float cy, float angle)
 	{

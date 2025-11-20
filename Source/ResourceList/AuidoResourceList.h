@@ -5,10 +5,10 @@
 
 class AudioResourceList
 {
-public:
+private:
 	AudioResourceList();
 	~AudioResourceList();
-
+public:
 	static AudioResourceList* instance()
 	{
 		static AudioResourceList inst;
@@ -18,6 +18,7 @@ public:
 	void loadResource(const char* path,bool revers = false);
 	Audio* getAudio(std::string name);
 	void allClear();
+	void allEffectClear();
 
 	void onGui();
 private:

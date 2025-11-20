@@ -7,11 +7,13 @@ PostprocessingRenderer::PostprocessingRenderer()
 {
 	fullScreenQuad = std::make_unique<FullScreenQuad>(DeviceManager::instance()->getDevice());
 	scenePostProcess = std::make_unique<PostProcess>();
+	PostprocessingRendererManager::instance()->add(this);
 }
 
 PostprocessingRenderer::~PostprocessingRenderer()
 {
 	for (auto& p : postProcessArray)delete p;
+	PostprocessingRendererManager::instance()->remove(this);
 }
 
 void PostprocessingRenderer::remove(PostProcess*pp)
@@ -31,7 +33,8 @@ void PostprocessingRenderer::clear()
 	postProcessArray.resize(0);
 }
 
-void PostprocessingRenderer::render()
+
+void PostprocessingRenderer::execution()
 {
 	GraphicsManager* graphics = GraphicsManager::instance();
 	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
@@ -50,7 +53,8 @@ void PostprocessingRenderer::render()
 
 	//ポストエフェクトでの書き込み
 	PostProcess* cache = scenePostProcess.get();
-	for (auto& p :postProcessArray)
+
+	for (auto& p : postProcessArray)
 	{
 		//それぞれのパスに書き込み
 		p->prepare(dc);
@@ -61,23 +65,18 @@ void PostprocessingRenderer::render()
 		cache = p;
 	}
 
-	//ワークバッファに戻す
-	DeviceManager* mgr = DeviceManager::instance();
-	ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
-	ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
+	cacheSrv = cache->getSrvP();
+}
 
-	// 画面クリア＆レンダーターゲット設定
-	FLOAT color[] = { 0.0f, 0.0f, 0.5f, 1.0f };	// RGBA(0.0～1.0)
-	dc->ClearRenderTargetView(rtv, color);
-	dc->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	dc->OMSetRenderTargets(1, &rtv, dsv);
-
-	fullScreenQuad->bilt(dc, cache->getSrv(), 0, 1);
+void PostprocessingRenderer::render()
+{
+	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
+	DeviceManager::instance()->settingRender();
+	fullScreenQuad->bilt(dc, &cacheSrv, 0, 1);
 }
 
 void PostprocessingRenderer::debugGui()
 {
-	ImGui::Begin("Post Processing");
 	if (ImGui::TreeNode("Scene"))
 	{
 		ImGui::Image(scenePostProcess->getSrvP(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
@@ -86,5 +85,23 @@ void PostprocessingRenderer::debugGui()
 	ImGui::Separator();
 	
 	for (auto& p : postProcessArray)p->debugGui();
+}
+
+void PostprocessingRendererManager::Gui()
+{
+	ImGui::Begin("PostprocessingRenderer");
+
+	int id = 0;
+	for (auto& pr : PostEffectArray)
+	{
+		ImGui::PushID(id++);
+		if (ImGui::TreeNode("Renderer"))
+		{
+			pr->debugGui();
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+	}
+
 	ImGui::End();
 }

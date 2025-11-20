@@ -5,7 +5,7 @@
 #include<algorithm>
 
 
-Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, SoundEmitter* emitter):Audio(xaudio,resource)
+Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, SoundEmitter* emitter):Audio(xaudio,resource,false)
 {
 	if (emitter != nullptr)
 	{

@@ -31,13 +31,11 @@ dcl_sampler s0, mode_default
 dcl_resource_texture2d (float,float,float,float) t0
 dcl_input_ps linear v1.xy
 dcl_output o0.xyzw
-dcl_temps 3
+dcl_temps 1
 sample_indexable(texture2d)(float,float,float,float) r0.xyz, v1.xyxx, t0.xyzw, s0
-mad r1.xyz, r0.xyzx, l(2.510000, 2.510000, 2.510000, 0.000000), l(0.030000, 0.030000, 0.030000, 0.000000)
-mul r1.xyz, r0.xyzx, r1.xyzx
-mad r2.xyz, r0.xyzx, l(2.430000, 2.430000, 2.430000, 0.000000), l(0.590000, 0.590000, 0.590000, 0.000000)
-mad r0.xyz, r0.xyzx, r2.xyzx, l(0.140000, 0.140000, 0.140000, 0.000000)
-div_sat o0.xyz, r1.xyzx, r0.xyzx
-mov o0.w, l(1.000000)
+dp3 r0.w, r0.xyzx, l(0.299000, 0.587000, 0.114000, 0.000000)
+mov o0.xyz, r0.xyzx
+ge r0.x, r0.w, l(0.050000)
+and o0.w, r0.x, l(0x3f800000)
 ret 
-// Approximately 8 instruction slots used
+// Approximately 6 instruction slots used

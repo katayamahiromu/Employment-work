@@ -103,7 +103,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -150,7 +150,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xinput.lib;xaudio2.lib;libfbxsdk-mt.lib;zlib-mt.lib;libxml2-mt.lib;xapobase.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>\Autodesk\FBX SDK\2020.3.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories);.\Utils\FBX SDK\2020.3.1\lib;.\Utils\FBX SDK\2020.3.1\lib\vs2019\x64\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
@@ -171,8 +171,10 @@
     <ClCompile Include="Source\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Audio\AudioResource.cpp" />
     <ClCompile Include="Source\Audio\SoundEffect.cpp" />
+    <ClCompile Include="Source\Audio\SoundGenerator.cpp" />
     <ClCompile Include="Source\Audio\SubMixVoice.cpp" />
     <ClCompile Include="Source\Audio\SubMixVoiceManager.cpp" />
+    <ClCompile Include="Source\Audio\XAPO.cpp" />
     <ClCompile Include="Source\Button.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\CameraController.cpp" />
@@ -193,6 +195,7 @@
     <ClCompile Include="Source\Framework.cpp" />
     <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\Graphics\ACES_Filmic.cpp" />
+    <ClCompile Include="Source\Graphics\BlockToAlpha.cpp" />
     <ClCompile Include="Source\Graphics\ColorGrading.cpp" />
     <ClCompile Include="Source\Graphics\DebugRenderer.cpp" />
     <ClCompile Include="Source\Graphics\depthStencilTex.cpp" />
@@ -257,9 +260,11 @@
     <ClInclude Include="Source\Audio\AudioManager.h" />
     <ClInclude Include="Source\Audio\AudioResource.h" />
     <ClInclude Include="Source\Audio\AudioCallback.h" />
+    <ClInclude Include="Source\Audio\SoundGenerator.h" />
     <ClInclude Include="Source\Audio\SubMixVoice.h" />
     <ClInclude Include="Source\Audio\SoundEffect.h" />
     <ClInclude Include="Source\Audio\SubMixVoiceManager.h" />
+    <ClInclude Include="Source\Audio\XAPO.h" />
     <ClInclude Include="Source\Button.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\CameraController.h" />
@@ -282,6 +287,7 @@
     <ClInclude Include="Source\Framework.h" />
     <ClInclude Include="Source\GameScene.h" />
     <ClInclude Include="Source\Graphics\ACES_Filmic.h" />
+    <ClInclude Include="Source\Graphics\BlockToAlpha.h" />
     <ClInclude Include="Source\Graphics\Buffer.h" />
     <ClInclude Include="Source\Graphics\ColorGrading.h" />
     <ClInclude Include="Source\Graphics\DebugRenderer.h" />
@@ -365,6 +371,7 @@
     <None Include="HLSL\Skymap.hlsli" />
     <None Include="HLSL\Spectrum.hlsli" />
     <None Include="HLSL\Sprite.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="HLSL\ACES_FilmicPS.hlsl">
@@ -382,6 +389,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="HLSL\BlackToAlphaPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\ButterflyCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
@@ -582,5 +595,13 @@
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+  </Target>
 </Project>

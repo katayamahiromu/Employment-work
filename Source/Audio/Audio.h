@@ -22,7 +22,7 @@ enum Fliter_Type
 class Audio
 {
 public:
-	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource);
+	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool effect);
 	~Audio();
 
 	std::string getName() { return resource->getName(); }
@@ -117,6 +117,8 @@ public:
 	/// 出力先をサブミックスボイスに設定する
 	/// </summary>
 	void setSubmixVoice(SubMixVoice*sv);
+
+	void clearSubMixVoice() { sourceVoice->SetOutputVoices(nullptr); }
 	
 	/// <summary>
 	/// 現在のバッファのスタート位置を取得

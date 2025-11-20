@@ -10,7 +10,6 @@ GaussianFilter::GaussianFilter()
 	ShaderManager::instance()->createPsFromCso(device, "Shader//GaussianFilterPS.cso", pixelShader.GetAddressOf());
 	framebuffer = std::make_unique<FrameBuffer>(device, 1280, 720);
 	createBuffer<GaussianFilter::Gaussian>(device, buffer.GetAddressOf());
-	gaussian.texcel = {1280.0f, 720.0f};
 }
 
 GaussianFilter::~GaussianFilter()
@@ -20,6 +19,8 @@ GaussianFilter::~GaussianFilter()
 
 void GaussianFilter::update(float elapsedTime)
 {
+	gaussian = {};
+	gaussian.texcel = { 1280.0f, 720.0f };
 	calcGaussianFilterConstant(gaussian, data);
 }
 

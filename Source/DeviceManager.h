@@ -22,6 +22,9 @@ public:
 	// 初期化処理
 	DeviceManager* initialize(HWND hwnd);
 
+	//画面クリア＆レンダーターゲット設定
+	void settingRender();
+
 	// デバイス取得
 	ID3D11Device* getDevice() const { return device.Get(); }
 
@@ -37,8 +40,6 @@ public:
 	// デプスステンシルビュー取得
 	ID3D11DepthStencilView* getDepthStencilView() const { return depthStencilView.Get(); }
 
-	//// シェーダー取得
-	//Shader* GetShader() const { return shader.get(); }
 
 	// スクリーン幅取得
 	float getScreenWidth() const { return screenWidth; }

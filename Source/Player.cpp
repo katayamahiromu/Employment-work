@@ -12,7 +12,8 @@
 #include"math/Mathf.h"
 
 #include"Graphics/GraphicsManager.h"
-#include"system/PostprocessingRenderer.h"
+#include"SceneManager.h"
+
 
 Player::Player()
 {
@@ -241,7 +242,8 @@ void Player::executeAttack(float elapsedTime)
 
 void Player::createRewindTime()
 {
-    PostprocessingRenderer* postEffect = PostprocessingRenderer::instance();
+    PostprocessingRenderer* postEffect = PostprocessingRendererManager::instance()->at(0);
+
     //ƒ{ƒ^ƒ“‚ð‰Ÿ‚³‚ê‚Ä‚¢‚é‚©
     if (playerController->isButton(GamePad::BTN_A))
     {

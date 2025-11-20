@@ -36,6 +36,9 @@ public:
 	// •`‰æˆ—
 	void render()override;
 private:
+	void sceneRender();
+	void UIRender();
+private:
 	std::unique_ptr<CameraController>cameraCtrl;
 	std::unique_ptr<ObjectManager>objManager;
 	std::unique_ptr<StageManager>stageManager;
@@ -45,5 +48,14 @@ private:
 	std::unique_ptr<ParticleManager>particleMgr;
 	std::unique_ptr<CollisionSystem>collisionSystem;
 
+
+	std::unique_ptr<PostprocessingRenderer>PostEffects;
+	std::unique_ptr<PostprocessingRenderer>uiPostEffects;
+
 	std::unique_ptr<Skymap>skymap;
+
+	std::unique_ptr<Sprite>scene;
+	std::unique_ptr<Sprite>uiScene;
+
+	float posX = 0, posY = 0;
 };

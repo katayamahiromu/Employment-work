@@ -137,6 +137,33 @@ Sprite::Sprite(ID3D11Device* device, Microsoft::WRL::ComPtr<ID3D11ShaderResource
 	}
 }
 
+void Sprite::resizeTextureSize(ID3D11Device* device, UINT width, UINT height)
+{
+	//Ý’è
+	D3D11_TEXTURE2D_DESC texture2d_desc{};
+	texture2d_desc.Width = width;
+	texture2d_desc.Height = height;
+	texture2d_desc.MipLevels = 1;
+	texture2d_desc.ArraySize = 1;
+	texture2d_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texture2d_desc.SampleDesc.Count = 1;
+	texture2d_desc.SampleDesc.Quality = 0;
+	texture2d_desc.Usage = D3D11_USAGE_DEFAULT;
+	texture2d_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	//V‚µ‚­¶¬
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> newTex;
+	HRESULT hr = device->CreateTexture2D(&texture2d_desc, nullptr, newTex.GetAddressOf());
+	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> newSRV;
+	hr = device->CreateShaderResourceView(newTex.Get(), nullptr, newSRV.GetAddressOf());
+	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+
+	//XV
+	this->texture2d_desc = texture2d_desc;
+}
+
 Sprite::~Sprite()
 {
 	if (!isLoadFile)shader_resource_view->Release();

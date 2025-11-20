@@ -31,8 +31,7 @@ public:
 	/// <param name="filename">読み込むファイル名</param>
 	/// <returns>作成したオーディオ</returns>
 	std::unique_ptr<Audio> loadAudioSource(const char* filename);
-	Audio*AllLoadAudioSource(const char* filename);
-
+	std::unique_ptr<Audio> loadAudioSourceEffect(const char* filename);
 	/// <summary>
 	/// 3D音響用の読み込み
 	/// </summary>
@@ -59,6 +58,8 @@ public:
 	void RegisterAudioArray(Audio* audio) { audioSources.emplace_back(audio); }
 
 	int PlayAudioCount() { return static_cast<int>(audioSources.size()); }
+
+	void Gui();
 private:
 	IXAudio2*				xaudio = nullptr;
 	IXAudio2MasteringVoice* masteringVoice = nullptr;

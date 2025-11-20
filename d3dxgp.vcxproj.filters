@@ -22,9 +22,6 @@
     <Filter Include="Utils\imgui">
       <UniqueIdentifier>{92701ab4-53bc-4b91-81b4-95c73d12805f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Component">
-      <UniqueIdentifier>{02840870-3ffd-483e-b8a3-eafaa977cd4a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Scene">
       <UniqueIdentifier>{2e6d931f-1f6c-4878-a9bd-8363c1132607}</UniqueIdentifier>
     </Filter>
@@ -72,6 +69,9 @@
     </Filter>
     <Filter Include="HLSL\GBuffer">
       <UniqueIdentifier>{5f2cafc6-ed27-4ccb-b355-6aad3703fd38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component">
+      <UniqueIdentifier>{02840870-3ffd-483e-b8a3-eafaa977cd4a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -329,6 +329,15 @@
     </ClCompile>
     <ClCompile Include="Source\Component\CameraInfo.cpp">
       <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\BlockToAlpha.cpp">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\XAPO.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\SoundGenerator.cpp">
+      <Filter>Source\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -629,6 +638,15 @@
     <ClInclude Include="Source\Component\CameraInfo.h">
       <Filter>Source\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\BlockToAlpha.h">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\XAPO.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SoundGenerator.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -667,6 +685,7 @@
     <None Include="HLSL\GBuffer.hlsli">
       <Filter>HLSL\GBuffer</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="HLSL\ImGuiPS.hlsl">
@@ -759,5 +778,11 @@
     <FxCompile Include="HLSL\MaskPS.hlsl">
       <Filter>HLSL\Post Effect</Filter>
     </FxCompile>
+    <FxCompile Include="HLSL\BlackToAlphaPS.hlsl">
+      <Filter>HLSL\Post Effect</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

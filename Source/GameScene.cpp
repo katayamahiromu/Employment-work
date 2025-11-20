@@ -16,11 +16,10 @@
 #include"Graphics/GaussianFiltering.h"
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
-#include"Graphics/RewidLine.h"
-
-#include"ResourceList/AuidoResourceList.h"
+#include"Graphics/BlockToAlpha.h"
 
 #include"system/TimeLapseManager.h"
+#include"../Source/ResourceList/AuidoResourceList.h"
 
 #include"imgui.h"
 // 初期化
@@ -51,11 +50,18 @@ void GameScene::initialize()
 	skymap = std::make_unique<Skymap>(L"Resources/Image/cuve.png");
 	
 	//ポストエフェクト
-	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	//PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects = std::make_unique<PostprocessingRenderer>();
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
 	PostEffects->addPostProcess(new ACES_Filmic);
+
+	uiPostEffects = std::make_unique<PostprocessingRenderer>();
+	uiPostEffects->addPostProcess(new LuminanceExtract);
+	//uiPostEffects->addPostProcess(new GaussianFilter);
+	uiPostEffects->addPostProcess(new ColorGrading);
+	uiPostEffects->addPostProcess(new BlackToAlpha);
 
 	//パーティクル
 	particleMgr = std::make_unique<ParticleManager>();
@@ -67,6 +73,16 @@ void GameScene::initialize()
 	AudioResourceList* list = AudioResourceList::instance();
 	list->loadResource("Resources\\data\\SceneGameAudioData.csv",true);
 	//list->getAudio("bgm")->play(true);
+
+	//シーン描画
+	scene = std::make_unique<Sprite>(deviceMgr->getDevice(), nullptr);
+	scene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);
+
+	//uiシーン
+	uiScene = std::make_unique<Sprite>(deviceMgr->getDevice(), nullptr);
+	uiScene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);
+
+	AudioResourceList::instance()->getAudio("bgm")->play(true);
 }
 
 // 終了処理
@@ -105,12 +121,12 @@ void GameScene::update(float elapsedTime)
 	TimeLapseManager::instance().update();
 
 	//ポストエフェクトの更新
-	PostprocessingRenderer::instance()->update(elapsedTime);
+	PostEffects->update(elapsedTime);
+	uiPostEffects->update(elapsedTime);
 }
 
 
-// 描画処理
-void GameScene::render()
+void GameScene::sceneRender()
 {
 	GraphicsManager* graphics = GraphicsManager::instance();
 	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
@@ -118,7 +134,6 @@ void GameScene::render()
 	Camera* camera = cameraCtrl->getCamera();
 	const DirectX::XMFLOAT4X4* view = camera->getView();
 	const DirectX::XMFLOAT4X4* proj = camera->getProjection();
-	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 
 	PostEffects->getPostProcess()->prepare(dc);
 	//スカイマップ
@@ -171,9 +186,48 @@ void GameScene::render()
 	}
 
 	PostEffects->getPostProcess()->clean(dc);
-	PostEffects->render();
 
-	// 2D 描画
+	PostEffects->execution();
+}
+
+void GameScene::UIRender()
+{
+	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
+	uiPostEffects->getPostProcess()->prepare(dc);
 	uiManager->render(dc);
-	PostEffects->debugGui();
+	uiPostEffects->getPostProcess()->clean(dc);
+	uiPostEffects->execution();
+}
+
+// 描画処理
+void GameScene::render()
+{
+
+	sceneRender();
+	UIRender();
+
+	GraphicsManager* graphics = GraphicsManager::instance();
+	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
+	// 2D 描画
+	graphics->SettingRenderContext([](ID3D11DeviceContext* dc, RenderContext* rc) {
+		// サンプラーステートの設定（リニア）
+		dc->PSSetSamplers(0, 1, rc->samplerStates[static_cast<uint32_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
+		// ブレンドステートの設定（アルファ）
+		dc->OMSetBlendState(rc->blendStates[static_cast<uint32_t>(BLEND_STATE::ALPHABLENDING)].Get(), nullptr, 0xFFFFFFFF);
+		// 深度ステンシルステートの設定（深度テストオフ、深度書き込みオフ）
+		dc->OMSetDepthStencilState(rc->depthStencilStates[static_cast<uint32_t>(DEPTH_STENCIL_STATE::OFF_OFF)].Get(), 0);
+		// ラスタライザステートの設定（ソリッド、裏面表示オフ）
+		dc->RSSetState(rc->rasterizerStates[static_cast<uint32_t>(RASTERIZER_STATE::SOLID_CULLNONE)].Get());
+		});
+	
+	DeviceManager::instance()->settingRender();
+	scene->setShaderResourceView(PostEffects->getCacheSrv());
+	//scene->render(dc, { posX,posY,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
+	scene->render(dc, {0.0f,0.0f,1280.0f,720.0f}, { 1,1,1,1 });
+
+	uiScene->setShaderResourceView(uiPostEffects->getCacheSrv());
+	//uiScene->render(dc, { 1280.0 / 2, 0.0f ,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
+	uiScene->render(dc, { 0.0f,0.0f,1280.0f,720.0f }, { 1,1,1,1 });
+
+	PostprocessingRendererManager::instance()->Gui();
 }

@@ -10,6 +10,9 @@
 #include<memory>
 
 #include"Graphics/Specturm.h"
+#include"system/PostprocessingRenderer.h"
+
+#include"Audio/SoundGenerator.h"
 
 //É^ÉCÉgÉãÉVÅ[Éì
 class TitleScene :public Scene
@@ -64,6 +67,8 @@ private:
 	std::unique_ptr<Audio>sampleRevers;
 	std::unique_ptr<Spectrum>spectrum;
 
+	std::unique_ptr<PostprocessingRenderer>PostEffects;
+
 	float rate = 1.0f;
 
 	//åüç∏
@@ -74,4 +79,29 @@ private:
 	float wetDryMix = 1.0; // 0.0f Å` 100.0f
 	float feedback = 0.0f; // -99.0f Å` 99.0f
 	float delay = 500.0f; // 1ms Å` 2000ms
+
+	IXAudio2SourceVoice* source = nullptr;
+	std::unique_ptr<SoundGenerator>soundGenerator;
+	std::unique_ptr<SoundMixer>soundMixer;
+
+	float frequency = 440;
+	float durationSeconds = 0.5;
+	float gain = 1.0f;
+
+	float modulationDepth = 1.0f;
+
+	int carrierIndex = 0;
+	int modIndex = 0;
+
+	enum class WaveType :int
+	{ 
+		Sine = 0, 
+		Saw, 
+		Triangle,
+		Square,
+		Noise,
+		Impact,
+		Count
+	};
+	WaveType uiState;
 };

@@ -5,7 +5,6 @@
 #include<xapofx.h>
 #include<vector>
 #include<memory>
-#include<xapobase.h>
 
 #include"SoundEffect.h"
 
@@ -28,24 +27,10 @@ public:
 	void applyEffect();
 
 	SoundEffect* getEffect(SoundEffectType type);
-protected:
-	void equalizer();
+
+	void Gui();
 private:
 	std::vector<XAUDIO2_EFFECT_DESCRIPTOR> descriptorArray;
 	std::vector<std::unique_ptr<SoundEffect>> effects;
 	IXAudio2SubmixVoice* pSubMixVoice = nullptr;
-};
-
-class TestXAPO : public CXAPOBase
-{
-public:
-	TestXAPO();
-	~TestXAPO();
-
-	
-private:
-	static XAPO_REGISTRATION_PROPERTIES xapoRegProp;//プロパティ
-	WAVEFORMAT inputFmt;
-	WAVEFORMAT outputFmt;
-	
 };

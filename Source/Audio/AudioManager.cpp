@@ -1,5 +1,6 @@
 #include "../Misc.h"
 #include "AudioManager.h"
+#include"imgui.h"
 
 // デストラクタ
 AudioManager::~AudioManager()
@@ -86,15 +87,13 @@ void AudioManager::update(float elapsedTime)
 std::unique_ptr<Audio> AudioManager::loadAudioSource(const char* filename)
 {
 	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);
-	return std::make_unique<Audio>(xaudio, resource);
+	return std::make_unique<Audio>(xaudio, resource,false);
 }
-
-Audio*AudioManager::AllLoadAudioSource(const char* filename)
+std::unique_ptr<Audio> AudioManager::loadAudioSourceEffect(const char* filename)
 {
 	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);
-	return new Audio(xaudio, resource);
+	return std::make_unique<Audio>(xaudio, resource, true);
 }
-
 
 std::unique_ptr<Audio3D> AudioManager::loadAudioSource3D(const char* filename, SoundEmitter* emitter)
 {
@@ -105,4 +104,11 @@ std::unique_ptr<Audio3D> AudioManager::loadAudioSource3D(const char* filename, S
 std::unique_ptr<SubMixVoice>AudioManager::createSubMixVoice()
 {
 	return std::make_unique<SubMixVoice>(xaudio);
+}
+
+void AudioManager::Gui()
+{
+	ImGui::Begin("Audio Preview");
+	smv->Gui();
+	ImGui::End();
 }

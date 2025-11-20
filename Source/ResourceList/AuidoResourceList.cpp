@@ -55,6 +55,14 @@ void AudioResourceList::allClear()
 	audioList.clear();
 }
 
+void AudioResourceList::allEffectClear()
+{
+	for (auto& audio : audioList)
+	{
+		audio.second.source->clearSubMixVoice();
+	}
+}
+
 Audio* AudioResourceList::getAudio(std::string name)
 {
 	auto it = audioList.find(name);

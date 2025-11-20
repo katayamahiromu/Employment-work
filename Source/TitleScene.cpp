@@ -7,7 +7,6 @@
 #include"imgui.h"
 #include"modelScene.h"
 
-#include"system/PostprocessingRenderer.h"
 #include"Graphics/LuminanceExtract.h"
 #include"Graphics/GaussianFiltering.h"
 #include"Graphics/ColorGrading.h"
@@ -15,6 +14,8 @@
 #include"Graphics/Mask.h"
 
 #include<algorithm>
+
+#include"Audio/SoundGenerator.h"
 
 //初期化処理
 void TitleScene::initialize()
@@ -72,7 +73,7 @@ void TitleScene::initialize()
 	controller = model->GetComponent<PlayerController>();
 
 	//ポストエフェクトの設定
-	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
+	PostEffects = std::make_unique<PostprocessingRenderer>();
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
@@ -80,8 +81,8 @@ void TitleScene::initialize()
 	
 	//idolのアニメーションを再生
 	animation->playAnimation(1, true);
-	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\グレート.wav");
-	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	sample = AudioManager::instance()->loadAudioSourceEffect("Resources\\Audio\\グレート.wav");
+	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
 	//sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
@@ -97,13 +98,29 @@ void TitleScene::initialize()
 			}
 		},
 		PlayerController::keyAllocation::key_A);
+
+	//試しに使うやつ
+	{
+		soundGenerator = std::make_unique<SoundGenerator>();
+		soundMixer = std::make_unique<SoundMixer>();
+		//soundGenerator->squareWave(440.0f, 2.0f);
+		//soundGenerator->whiteNoise(2.0f);
+		IXAudio2* audio = AudioManager::instance()->getIXAudio2();
+		audio->CreateSourceVoice(&source, &soundMixer->getWaveFormat());
+	}
 }
 
 //終了化
 void TitleScene::finalize()
 {
 	for (auto b : choices)delete b;
-	PostprocessingRenderer::instance()->clear();
+
+
+	if (source != nullptr)
+	{
+		source->DestroyVoice();
+		source = nullptr;
+	}
 }
 
 //更新処理
@@ -123,7 +140,7 @@ void TitleScene::update(float elapsedTime)
 	for (auto b : choices)b->replaceFlagOff();
 	choices.at(select)->replaceFlagOn();
 
-	PostprocessingRenderer::instance()->update(elapsedTime);
+	PostEffects->update(elapsedTime);
 }
 
 void TitleScene::Gui()
@@ -143,10 +160,6 @@ void TitleScene::Gui()
 		sample->DCPlay();
 	}
 
-	ImGui::SliderFloat("wetLevel", &wetLevel, 0.0f, 1.0f);
-	ImGui::SliderFloat("roomSize", &roomSize, 0.0f, 1.0f);
-	ImGui::SliderFloat("decayTime", &decayTime, 0.0f, 20.0f);
-
 	/*SubMixVoiceManager*smv = AudioManager::instance()->getSmv();
 	SoundEffect* SE1 = smv->getSubMixVoice(0)->getEffect(REVERB);
 	static_cast<Reverb*>(SE1)->setDecayTime(decayTime);
@@ -165,11 +178,116 @@ void TitleScene::Gui()
 	ImGui::InputInt("Audio Play Count", &count);
 	ImGui::End();
 
+
+	ImGui::Begin("Procedural Audio");
+
+	auto play = [&]()
+	{
+			XAUDIO2_BUFFER buffer{};
+			buffer.AudioBytes = soundMixer->getAudioBytes();
+			buffer.pAudioData = soundMixer->getAudioData();
+			source->SubmitSourceBuffer(&buffer);
+			source->Start();
+	};
+
+	static const char* WaveTypeNames[] = {
+		"Sine", "Saw", "Triangle", "Square", "Noise", "Impact"
+	};
+
+	ImGui::SliderFloat("frequency", &frequency, 0.0f, 1000.0f);
+	ImGui::SliderFloat("durationSeconds", &durationSeconds, 0.1f, 2.0f);
+	ImGui::SliderFloat("gain", &gain, 0.0f, 1.0f);
+	ImGui::SliderFloat("modulationDepth", &modulationDepth, 0.0f, 1.0f);
+
+	int current = static_cast<int>(uiState);
+	if (ImGui::Combo("Wave Type", &current, WaveTypeNames, IM_ARRAYSIZE(WaveTypeNames))) {
+		uiState = static_cast<WaveType>(current);
+	}
+
+	if(ImGui::Button("create wave data"))
+	{
+		std::vector<uint8_t>data;
+		switch (uiState)
+		{
+		case TitleScene::WaveType::Sine:
+			data = soundGenerator->sinWave(frequency, durationSeconds);
+			break;
+		case TitleScene::WaveType::Saw:
+			data = soundGenerator->sawtoothWave(frequency, durationSeconds);
+			break;
+		case TitleScene::WaveType::Triangle:
+			data = soundGenerator->triangleWave(frequency, durationSeconds);
+			break;
+		case TitleScene::WaveType::Square:
+			data = soundGenerator->squareWave(frequency, durationSeconds);
+			break;
+		case TitleScene::WaveType::Noise:
+			data = soundGenerator->whiteNoise(durationSeconds);
+			break;
+		case TitleScene::WaveType::Impact:
+			data = soundGenerator->impactSound(0.8f, durationSeconds);
+			break;
+		default:
+			break;
+		}
+		soundMixer->addWave(data,frequency,gain);
+	}
+	ImGui::SameLine();
+
+	if (ImGui::Button("Clear"))
+	{
+		soundMixer->clear();
+	}
+
+	if (ImGui::Button("all mix sound play"))
+	{
+		soundMixer->mix();
+		play();
+	}
+
+	int size = soundMixer->size();
+	ImGui::InputInt("wave count", &size);
+
+	int id = 0;
+	std::vector<int>eraseArray;
+	for (int i = 0;i < size;++i)
+	{
+		ImGui::PushID(id);
+		if (ImGui::Button("play id"))
+		{
+			soundMixer->selectData(id);
+			play();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("erase"))
+		{
+			eraseArray.emplace_back(id);
+		}
+		ImGui::Separator();
+		ImGui::PopID();
+		id++;
+	}
+
+	for (auto erase : eraseArray)soundMixer->erase(erase);
+	eraseArray.clear();
+
+	ImGui::SliderInt("carrierIndex", &carrierIndex, 0, size - 1);
+	ImGui::SliderInt("modIndex", &modIndex, 0, size - 1);
+	if (ImGui::Button("carrier and mod FM"))
+	{
+		soundMixer->applyFM(carrierIndex, modIndex, modulationDepth, gain);
+		play();
+	}
+
+	ImGui::End();
+
 	/*ImGui::Begin("Spectrum");
 	std::vector<float>data = *spectrum->getSpectrumData();
 	ImGui::PlotLines("FFT",data.data(), (int)data.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(0, 150));
 	spectrum->OnGUi();
 	ImGui::End();*/
+
+	AudioManager::instance()->Gui();
 }
 
 //描画処理
@@ -179,16 +297,7 @@ void TitleScene::render()
 	GraphicsManager* graphics = GraphicsManager::instance();
 
 	ID3D11DeviceContext* dc = mgr->getDeviceContext();
-	//ID3D11RenderTargetView* rtv = mgr->getRenderTargetView();
-	//ID3D11DepthStencilView* dsv = mgr->getDepthStencilView();
 
-	////画面クリア＆レンダーターゲットビュー設定
-	//FLOAT color[] = { 0.0f,0.0f,0.5f,1.0f };//RGBA(0.0f~1.0f)
-	//dc->ClearRenderTargetView(rtv, color);
-	//dc->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//dc->OMSetRenderTargets(1, &rtv, dsv);
-
-	PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 	PostEffects->getPostProcess()->prepare(dc);
 
 	// 2D背景
@@ -217,6 +326,7 @@ void TitleScene::render()
 
 	objManager->render(*view, *proj, cameraPos);
 	PostEffects->getPostProcess()->clean(dc);
+	PostEffects->execution();
 	PostEffects->render();
 
 	// 2D 描画設定

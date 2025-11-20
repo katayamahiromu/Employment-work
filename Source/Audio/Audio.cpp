@@ -4,7 +4,7 @@
 #include<x3daudio.h>
 
 // コンストラクタ
-Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource)
+Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool effect)
 	: resource(resource)
 {
 	HRESULT hr;
@@ -20,7 +20,10 @@ Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource)
 		callback.get());
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 
-	setSubmixVoice(AudioManager::instance()->getSmv()->getSubMixVoice(0));
+	if (effect)
+	{
+		setSubmixVoice(AudioManager::instance()->getSmv()->getSubMixVoice(0));
+	}
 }
 
 // デストラクタ

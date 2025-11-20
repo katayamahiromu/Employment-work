@@ -11,6 +11,8 @@ public:
 	void update();
 	void createSubMixVoice();
 	SubMixVoice* getSubMixVoice(int num) { return subMixVoiceArray.at(num).get(); }
+
+	void Gui();
 private:
 	std::vector<std::unique_ptr<SubMixVoice>>subMixVoiceArray;
 };

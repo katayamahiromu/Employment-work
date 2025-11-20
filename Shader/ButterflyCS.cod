@@ -51,89 +51,35 @@
 // -------------------- ----- ------ -------- -------- ------- ------
 // no Output
 cs_5_0
-dcl_globalFlags refactoringAllowed | skipOptimization
+dcl_globalFlags refactoringAllowed
 dcl_constantbuffer CB10[1], immediateIndexed
 dcl_resource_structured t0, 8
 dcl_uav_structured u0, 8
 dcl_input vThreadID.x
 dcl_temps 3
 dcl_thread_group 16, 1, 1
-//
-// Initial variable locations:
-//   vThreadID.x <- DTid.x; vThreadID.y <- DTid.y; vThreadID.z <- DTid.z
-//
-#line 11 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\ButterflyCS.hlsl"
-mov r0.x, vThreadID.x  // r0.x <- index
-
-#line 12
-mov r0.y, l(2)
-udiv r0.y, null, cb10[0].x, r0.y
-uge r0.y, r0.x, r0.y
-if_nz r0.y
-
-#line 13
+ushr r0.x, cb10[0].x, l(1)
+uge r0.x, vThreadID.x, r0.x
+if_nz r0.x
   ret 
 endif 
-
-#line 14
-mov r0.y, cb10[0].z
-ishl r0.y, l(1), r0.y  // r0.y <- halfSize
-
-#line 15
-mov r0.z, l(2)
-imul null, r0.z, r0.z, r0.y  // r0.z <- stepSize
-
-#line 16
-udiv r0.w, null, r0.x, r0.y  // r0.w <- block
-
-#line 17
-udiv null, r0.x, r0.x, r0.y  // r0.x <- j
-
-#line 18
-imul null, r0.w, r0.z, r0.w
-iadd r0.w, r0.x, r0.w  // r0.w <- i0
-
-#line 19
-iadd r0.y, r0.y, r0.w  // r0.y <- i1
-
-#line 20
-utof r0.x, r0.x
-mul r0.x, r0.x, l(-6.283185)
-utof r0.z, r0.z
-div r0.x, r0.x, r0.z  // r0.x <- angle
-
-#line 21
-sincos null, r0.z, r0.x  // r0.z <- w.x
-sincos r0.x, null, r0.x  // r0.x <- w.y
-
-#line 22
-ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r1.x, r0.w, l(0), t0.xxxx  // r1.x <- u.x
-ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r1.y, r0.w, l(4), t0.xxxx  // r1.y <- u.y
-
-#line 23
-ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r1.z, r0.y, l(0), t0.xxxx  // r1.z <- v.x
-ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r1.w, r0.y, l(4), t0.xxxx  // r1.w <- v.y
-
-#line 26
-mul r2.x, r0.z, r1.z
-mul r2.y, r0.x, r1.w
-mov r2.y, -r2.y
-add r2.x, r2.y, r2.x  // r2.x <- vw.x
-mul r0.x, r0.x, r1.z
-mul r0.z, r0.z, r1.w
-add r2.y, r0.z, r0.x  // r2.y <- vw.y
-
-#line 27
-add r0.xz, r1.xxyx, r2.xxyx
-store_structured u0.x, r0.w, l(0), r0.x
-store_structured u0.x, r0.w, l(4), r0.z
-
-#line 28
-mov r0.xz, -r2.xxyx
-add r0.xz, r0.xxzx, r1.xxyx
-store_structured u0.x, r0.y, l(0), r0.x
-store_structured u0.x, r0.y, l(4), r0.z
-
-#line 29
+ishl r0.xy, l(1, 2, 0, 0), cb10[0].zzzz
+udiv r1.x, r2.x, vThreadID.x, r0.x
+imad r0.z, r1.x, r0.y, r2.x
+iadd r0.x, r0.x, r0.z
+utof r0.w, r2.x
+mul r0.w, r0.w, l(-6.283185)
+utof r0.y, r0.y
+div r0.y, r0.w, r0.y
+sincos r1.x, r2.x, r0.y
+ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r0.yw, r0.z, l(0), t0.xxxy
+ld_structured_indexable(structured_buffer, stride=8)(mixed,mixed,mixed,mixed) r1.yz, r0.x, l(0), t0.xxyx
+mul r1.xw, r1.xxxx, r1.zzzy
+mad r1.x, r1.y, r2.x, -r1.x
+mad r1.y, r1.z, r2.x, r1.w
+add r1.zw, r0.yyyw, r1.xxxy
+store_structured u0.xy, r0.z, l(0), r1.zwzz
+add r0.yz, r0.yywy, -r1.xxyx
+store_structured u0.xy, r0.x, l(0), r0.yzyy
 ret 
-// Approximately 41 instruction slots used
+// Approximately 24 instruction slots used
