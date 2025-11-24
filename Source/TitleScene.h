@@ -12,7 +12,7 @@
 #include"Graphics/Specturm.h"
 #include"system/PostprocessingRenderer.h"
 
-#include"Audio/SoundGenerator.h"
+#include"Audio/SignalProcessor.h"
 
 //タイトルシーン
 class TitleScene :public Scene
@@ -81,8 +81,7 @@ private:
 	float delay = 500.0f; // 1ms ～ 2000ms
 
 	IXAudio2SourceVoice* source = nullptr;
-	std::unique_ptr<SoundGenerator>soundGenerator;
-	std::unique_ptr<SoundMixer>soundMixer;
+	std::unique_ptr<SignalProcesser>signalProcess;
 
 	float frequency = 440;
 	float durationSeconds = 0.5;
@@ -92,7 +91,7 @@ private:
 
 	int carrierIndex = 0;
 	int modIndex = 0;
-
+	float decay = 1.0f;
 	enum class WaveType :int
 	{ 
 		Sine = 0, 

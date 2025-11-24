@@ -15,7 +15,7 @@
 
 #include<algorithm>
 
-#include"Audio/SoundGenerator.h"
+#include"Audio/Oscillator.h"
 
 //初期化処理
 void TitleScene::initialize()
@@ -101,12 +101,9 @@ void TitleScene::initialize()
 
 	//試しに使うやつ
 	{
-		soundGenerator = std::make_unique<SoundGenerator>();
-		soundMixer = std::make_unique<SoundMixer>();
-		//soundGenerator->squareWave(440.0f, 2.0f);
-		//soundGenerator->whiteNoise(2.0f);
+		signalProcess = std::make_unique<SignalProcesser>();
 		IXAudio2* audio = AudioManager::instance()->getIXAudio2();
-		audio->CreateSourceVoice(&source, &soundMixer->getWaveFormat());
+		audio->CreateSourceVoice(&source,&signalProcess->getWaveFormat());
 	}
 }
 
@@ -184,8 +181,8 @@ void TitleScene::Gui()
 	auto play = [&]()
 	{
 			XAUDIO2_BUFFER buffer{};
-			buffer.AudioBytes = soundMixer->getAudioBytes();
-			buffer.pAudioData = soundMixer->getAudioData();
+			buffer.AudioBytes = signalProcess->getAudioBytes();
+			buffer.pAudioData = signalProcess->getAudioData();
 			source->SubmitSourceBuffer(&buffer);
 			source->Start();
 	};
@@ -198,7 +195,7 @@ void TitleScene::Gui()
 	ImGui::SliderFloat("durationSeconds", &durationSeconds, 0.1f, 2.0f);
 	ImGui::SliderFloat("gain", &gain, 0.0f, 1.0f);
 	ImGui::SliderFloat("modulationDepth", &modulationDepth, 0.0f, 1.0f);
-
+	ImGui::SliderFloat("Decay", &decay, 0.0f, 5.0f);
 	int current = static_cast<int>(uiState);
 	if (ImGui::Combo("Wave Type", &current, WaveTypeNames, IM_ARRAYSIZE(WaveTypeNames))) {
 		uiState = static_cast<WaveType>(current);
@@ -210,42 +207,49 @@ void TitleScene::Gui()
 		switch (uiState)
 		{
 		case TitleScene::WaveType::Sine:
-			data = soundGenerator->sinWave(frequency, durationSeconds);
+			data = Oscillator::instance()->sinWave(frequency, durationSeconds);
 			break;
 		case TitleScene::WaveType::Saw:
-			data = soundGenerator->sawtoothWave(frequency, durationSeconds);
+			data = Oscillator::instance()->sawtoothWave(frequency, durationSeconds);
 			break;
 		case TitleScene::WaveType::Triangle:
-			data = soundGenerator->triangleWave(frequency, durationSeconds);
+			data = Oscillator::instance()->triangleWave(frequency, durationSeconds);
 			break;
 		case TitleScene::WaveType::Square:
-			data = soundGenerator->squareWave(frequency, durationSeconds);
+			data = Oscillator::instance()->squareWave(frequency, durationSeconds);
 			break;
 		case TitleScene::WaveType::Noise:
-			data = soundGenerator->whiteNoise(durationSeconds);
+			data = Oscillator::instance()->whiteNoise(durationSeconds);
 			break;
 		case TitleScene::WaveType::Impact:
-			data = soundGenerator->impactSound(0.8f, durationSeconds);
+			data = Oscillator::instance()->impactSound(0.8f, durationSeconds);
 			break;
 		default:
 			break;
 		}
-		soundMixer->addWave(data,frequency,gain);
+		signalProcess->addWave(data,frequency,gain);
 	}
 	ImGui::SameLine();
 
+	if (ImGui::Button("modal wave"))
+	{
+		std::vector<uint8_t>data;
+		data = Oscillator::instance()->impactModes(caveRockModes, 4, durationSeconds, gain);
+		signalProcess->addWave(data, frequency, gain);
+	}
+
 	if (ImGui::Button("Clear"))
 	{
-		soundMixer->clear();
+		signalProcess->clear();
 	}
 
 	if (ImGui::Button("all mix sound play"))
 	{
-		soundMixer->mix();
+		signalProcess->Mix();
 		play();
 	}
 
-	int size = soundMixer->size();
+	int size = signalProcess->size();
 	ImGui::InputInt("wave count", &size);
 
 	int id = 0;
@@ -255,7 +259,7 @@ void TitleScene::Gui()
 		ImGui::PushID(id);
 		if (ImGui::Button("play id"))
 		{
-			soundMixer->selectData(id);
+			signalProcess->trySingleWave(id);
 			play();
 		}
 		ImGui::SameLine();
@@ -263,21 +267,39 @@ void TitleScene::Gui()
 		{
 			eraseArray.emplace_back(id);
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Decay"))
+		{
+			signalProcess->decayWave(id, decay);
+		}
 		ImGui::Separator();
 		ImGui::PopID();
 		id++;
 	}
 
-	for (auto erase : eraseArray)soundMixer->erase(erase);
+	for (auto erase : eraseArray)signalProcess->erase(erase);
 	eraseArray.clear();
 
 	ImGui::SliderInt("carrierIndex", &carrierIndex, 0, size - 1);
 	ImGui::SliderInt("modIndex", &modIndex, 0, size - 1);
-	if (ImGui::Button("carrier and mod FM"))
+	if (ImGui::Button("FM"))
 	{
-		soundMixer->applyFM(carrierIndex, modIndex, modulationDepth, gain);
+		signalProcess->applyFM(carrierIndex, modIndex, modulationDepth, gain);
 		play();
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("AM"))
+	{
+		signalProcess->applyAM(carrierIndex, modIndex, modulationDepth, gain);
+		play();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("RM"))
+	{
+		signalProcess->applyRM(carrierIndex, modIndex, modulationDepth, gain);
+		play();
+	}
+
 
 	ImGui::End();
 

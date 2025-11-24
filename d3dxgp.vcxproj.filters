@@ -73,6 +73,9 @@
     <Filter Include="Source\Component">
       <UniqueIdentifier>{02840870-3ffd-483e-b8a3-eafaa977cd4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Audio\PBSS">
+      <UniqueIdentifier>{31ad4d5a-f9d9-4241-9d17-eb949e92ae2f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework.cpp">
@@ -336,8 +339,20 @@
     <ClCompile Include="Source\Audio\XAPO.cpp">
       <Filter>Source\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Audio\SoundGenerator.cpp">
+    <ClCompile Include="Source\Audio\Oscillator.cpp">
       <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\SignalProcesser.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\SignalMixer.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\WaveShaper.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\ModalMode.cpp">
+      <Filter>Source\Audio\PBSS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -644,8 +659,26 @@
     <ClInclude Include="Source\Audio\XAPO.h">
       <Filter>Source\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Audio\SoundGenerator.h">
+    <ClInclude Include="Source\Audio\Oscillator.h">
       <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SignalProcessor.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SignalMixer.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\WaveData.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\WaveShaper.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\SoundHealper.h">
+      <Filter>Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\ModalMode.h">
+      <Filter>Source\Audio\PBSS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
