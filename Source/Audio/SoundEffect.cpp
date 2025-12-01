@@ -50,7 +50,7 @@ void Reverb::Gui()
 	if (ImGui::TreeNode("Reverb"))
 	{
 		ImGui::SliderFloat("diffusion", &diffusion, 0.0f, 1.0f);
-		ImGui::SliderFloat("roomSize", &roomSize, 0.1f, 1.0f);
+		ImGui::SliderFloat("roomSize", &roomSize, 0.0001f, 1.0f);
 
 		ImGui::TreePop();
 	}

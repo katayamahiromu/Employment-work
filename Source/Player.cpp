@@ -45,7 +45,10 @@ void Player::prepare()
     lister = getObject()->GetComponent<Audio3DListener>();
     collision = getObject()->GetComponent<CollisionComponent>();
     cameraInfo = getObject()->GetComponent<CameraInfo>();
-   
+
+    footSound = getObject()->GetComponent<ProceduralAudio>();
+    footSound->createModalWave(stoneModes, 6, 0.3f, 1.0f);
+
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
     //待機
@@ -65,6 +68,11 @@ void Player::prepare()
 
     //初期ステート設定
     stateMachine->changeState(CAST_INT(Action::Idel));
+
+    //メッシュの設定
+    collision->setMeshName("root");
+    collision->setBoneInfo("LeftToe",0.1f);
+    collision->setBoneInfo("RightToe", 0.1f);
 }
 
 void Player::update(float elapsedTime)
@@ -85,6 +93,9 @@ void Player::update(float elapsedTime)
 
     //巻き戻し時のエフェクト生成
     createRewindTime();
+
+    //足音
+    SoundPlay();
 }
 
 void Player::sendCameraData()
@@ -184,6 +195,29 @@ void Player::timeLapsNotice()
     TimeLapseManager::instance().setIsRecord(playerController->isButton(GamePad::BTN_A));
     TimeLapseManager::instance().setIsPushButton(playerController->isButtonDown(GamePad::BTN_A));
     TimeLapseManager::instance().setIsRelease(playerController->isButtonRelease(GamePad::BTN_A));
+}
+
+void Player::SoundPlay()
+{
+    //地面に立っているか
+    if (!movement->OnGrand())return;
+
+    //移動しているか
+    DirectX::XMFLOAT2 vel = { movement->getVelocity().x,movement->getVelocity().z };
+    DirectX::XMVECTOR velVec = DirectX::XMLoadFloat2(&vel);
+    DirectX::XMVECTOR length = DirectX::XMVector2Length(velVec);
+    float len = DirectX::XMVectorGetX(length);
+
+    //XZ方向のベクトルの長さが0なら動かない
+    if (len == 0.0f)return;
+
+    auto right = collision->getSphereInfo().at(0);
+    auto left = collision->getSphereInfo().at(1);
+
+    //足の高さから自分の足元の差が1以下の時地面を蹴ったと判定する
+    float posy = getObject()->getPosition()->y;
+    if(right.pos.y - posy < 1.0f)footSound->play(0);
+    if (left.pos.y - posy < 1.0f) footSound->play(1);
 }
 
 bool Player::inputAttack()

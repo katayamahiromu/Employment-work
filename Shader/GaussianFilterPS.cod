@@ -40,27 +40,51 @@
 // SV_TARGET                0   xyzw        0   TARGET   float   xyzw
 //
 ps_5_0
-dcl_globalFlags refactoringAllowed
+dcl_globalFlags refactoringAllowed | skipOptimization
 dcl_constantbuffer CB2[626], dynamicIndexed
 dcl_sampler s0, mode_default
 dcl_resource_texture2d (float,float,float,float) t0
 dcl_input_ps linear v1.xy
 dcl_output o0.xyzw
 dcl_temps 3
+//
+// Initial variable locations:
+//   v0.x <- pin.position.x; v0.y <- pin.position.y; v0.z <- pin.position.z; v0.w <- pin.position.w; 
+//   v1.x <- pin.texcoord.x; v1.y <- pin.texcoord.y; 
+//   o0.x <- <main return value>.x; o0.y <- <main return value>.y; o0.z <- <main return value>.z; o0.w <- <main return value>.w
+//
+#line 17 "C:\Users\2230160\Desktop\d3dxgp-conponet\HLSL\GaussianFilterPS.hlsl"
 sample_indexable(texture2d)(float,float,float,float) r0.xyz, v1.xyxx, t0.xyzw, s0
-mul r0.w, cb2[625].x, cb2[625].x
-mov r1.xyz, r0.xyzx
-mov r1.w, l(0)
+mov r0.xyz, r0.xyzx  // r0.x <- color.x; r0.y <- color.y; r0.z <- color.z
+
+#line 21
+mov r0.w, l(0)  // r0.w <- i
+mov r1.xyz, r0.xyzx  // r1.x <- color.x; r1.y <- color.y; r1.z <- color.z
+mov r1.w, r0.w  // r1.w <- i
 loop 
   itof r2.x, r1.w
-  ge r2.x, r2.x, r0.w
-  breakc_nz r2.x
-  mad r2.xy, cb2[625].yzyy, cb2[r1.w + 0].xyxx, v1.xyxx
-  sample_indexable(texture2d)(float,float,float,float) r2.xyz, r2.xyxx, t0.xyzw, s0
-  mad r1.xyz, r2.xyzx, cb2[r1.w + 0].zzzz, r1.xyzx
+  mul r2.y, cb2[625].x, cb2[625].x
+  lt r2.x, r2.x, r2.y
+  breakc_z r2.x
+
+#line 23
+  mul r2.xy, cb2[625].yzyy, cb2[r1.w + 0].xyxx  // r2.x <- offset.x; r2.y <- offset.y
+
+#line 24
+  mov r2.z, cb2[r1.w + 0].z  // r2.z <- weight
+
+#line 25
+  add r2.xy, r2.xyxx, v1.xyxx
+  sample_indexable(texture2d)(float,float,float,float) r2.xyw, r2.xyxx, t0.xywz, s0
+  mul r2.xyz, r2.zzzz, r2.xywx
+  add r1.xyz, r1.xyzx, r2.xyzx
+
+#line 26
   iadd r1.w, r1.w, l(1)
 endloop 
+
+#line 28
+itof o0.w, l(1)
 mov o0.xyz, r1.xyzx
-mov o0.w, l(1.000000)
 ret 
-// Approximately 16 instruction slots used
+// Approximately 21 instruction slots used

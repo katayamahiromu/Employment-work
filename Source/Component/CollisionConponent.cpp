@@ -45,13 +45,11 @@ void CollisionComponent::setMeshName(std::string name)
 
 void CollisionComponent::setBoneInfo(std::string name, float size)
 {
-
 	boneIndexArray.emplace_back(getObject()->getModel()->findBoneIndex(name.c_str()));
 	collisionSphereInfo info;
 	info.pos = { 0.0f,0.0f,0.0f };
 	info.size = size;
 	collisionSphereInfoArray.emplace_back(info);
-	
 }
 
 void CollisionComponent::meshCollisionSetting()

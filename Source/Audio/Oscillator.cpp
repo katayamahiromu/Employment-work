@@ -115,11 +115,9 @@ std::vector<uint8_t> Oscillator::impactModes(const ModalMode* modes, size_t mode
     int numSamples = static_cast<int>(durationSeconds * SamplingRate);
     if (numSamples <= 0) return std::vector<uint8_t>{};
 
-    // 出力バッファ（バイト列）。pushInt16LE で追加するので reserve しておく
     std::vector<uint8_t> samples;
     samples.reserve(static_cast<size_t>(numSamples) * 2);
 
-    // 各モードの事前計算（開始サンプル、角周波数、位相インクリメント）
     struct ModePrep {
         int startSample;
         double dphi;
@@ -130,53 +128,115 @@ std::vector<uint8_t> Oscillator::impactModes(const ModalMode* modes, size_t mode
 
     std::vector<ModePrep> prep;
     prep.reserve(modeCount);
+
+    // --- モードごとの事前計算 ---
     for (size_t i = 0; i < modeCount; ++i) {
         const ModalMode& m = modes[i];
         ModePrep p;
-        p.startSample = static_cast<int>(std::round(m.startSec * static_cast<float>(SamplingRate)));
-        p.dphi = DirectX::XM_2PI * static_cast<double>(m.frequency) / static_cast<double>(SamplingRate);
+        p.startSample = static_cast<int>(std::round(m.startSec * SamplingRate));
+
+        // 周波数に inharmonicity を反映
+        double freq = static_cast<double>(m.frequency) * (1.0 + static_cast<double>(m.inharmonicity));
+        p.dphi = DirectX::XM_2PI * freq / SamplingRate;
         p.phase0 = static_cast<double>(m.phase);
-        p.tau = max(1e-6, static_cast<double>(m.decayTime));
+
+        // decayTime にランダム揺らぎ
+        double decayRand = 1.0;
+        if (m.randomDecay > 0.0f) {
+            decayRand += ((double)rand() / RAND_MAX * 2.0 - 1.0) * m.randomDecay;
+        }
+        p.tau = max(1e-6, static_cast<double>(m.decayTime) * decayRand);
+
         p.mode = &m;
         prep.push_back(p);
     }
 
-    // サンプルごとに全モードを合成
-    for (int n = 0; n < numSamples; ++n)
-    {
+    // フィルタ用の状態変数
+    double prevSample = 0.0;
+
+    // --- サンプル生成ループ ---
+    for (int n = 0; n < numSamples; ++n) {
         double acc = 0.0;
 
-        for (const auto& p : prep)
-        {
+        // 各モードの合成
+        for (const auto& p : prep) {
             const ModalMode& m = *p.mode;
             if (m.amplitude <= 0.0f || m.gain == 0.0f) continue;
             if (n < p.startSample) continue;
 
             int idx = n - p.startSample;
-            double t = static_cast<double>(idx) / static_cast<double>(SamplingRate);
+            double t = static_cast<double>(idx) / SamplingRate;
 
-            // 指数減衰（1/e 時定数 tau）
+            // 指数減衰
             double env = static_cast<double>(m.amplitude) * std::exp(-t / p.tau);
-            if (env * std::abs(m.gain) < 1e-8) continue; // 十分小さければ無視
 
-            // 位相（初期位相 + インクリメント * サンプル数）
-            double phase = p.phase0 + p.dphi * static_cast<double>(idx);
+            // bandwidth による追加減衰
+            if (m.bandwidth > 0.0f) {
+                env *= std::exp(-m.bandwidth * t);
+            }
+
+            // harmonicMask による倍音削り
+            env *= static_cast<double>(m.harmonicMask);
+
+            if (env * std::abs(m.gain) < 1e-8) continue;
+
+            // 位相 + ランダム揺らぎ
+            double phaseJitter = 0.0;
+            if (m.randomPhase > 0.0f) {
+                phaseJitter = ((double)rand() / RAND_MAX * 2.0 - 1.0) * m.randomPhase;
+            }
+            double phase = p.phase0 + p.dphi * idx + phaseJitter;
+
             // サイン波
             double s = env * std::sin(phase);
 
-            // モードゲインを適用して 16bit スケールに寄せる（マスターゲインは最後にまとめても可）
-            acc += s * static_cast<double>(m.gain) * 32767.0;
+            // ノイズ成分を混ぜる
+            if (m.noiseMix > 0.0f) {
+                double noise = ((double)rand() / RAND_MAX) * 2.0 - 1.0;
+                s = (1.0 - m.noiseMix) * s + m.noiseMix * noise * env;
+            }
+
+            acc += s * m.gain;
         }
 
-        // マスターゲイン適用、クリップして int16 に
-        double v = acc * static_cast<double>(masterGain);
+        // --- 非線形処理（ソフトクリップ） ---
+        double clipAmount = (!prep.empty()) ? prep[0].mode->clipAmount : 0.0;
+        if (clipAmount > 0.0) {
+            acc = acc / (1.0 + clipAmount * std::abs(acc));
+        }
+
+        // --- フィルタリング ---
+        double filtered = acc;
+        if (!prep.empty()) {
+            const ModalMode& m = *prep[0].mode;
+
+            // ローパス (1次IIR近似)
+            if (m.lowpassCutoff > 0.0f) {
+                double rc = 1.0 / (2.0 * DirectX::XM_PI * m.lowpassCutoff);
+                double dt = 1.0 / SamplingRate;
+                double alpha = dt / (rc + dt);
+                filtered = prevSample + alpha * (acc - prevSample);
+            }
+
+            // ハイパス (1次IIR近似)
+            if (m.highpassCutoff > 0.0f) {
+                double rc = 1.0 / (2.0 * DirectX::XM_PI * m.highpassCutoff);
+                double dt = 1.0 / SamplingRate;
+                double alpha = rc / (rc + dt);
+                filtered = alpha * (prevSample + acc - prevSample);
+            }
+        }
+        prevSample = filtered;
+
+        // --- マスターゲイン適用、クリップ ---
+        double v = filtered * masterGain * 32767.0;
         if (v > 32767.0) v = 32767.0;
         if (v < -32768.0) v = -32768.0;
         int16_t outSample = static_cast<int16_t>(std::lround(v));
 
-        // PCM16LE にプッシュ（ヘルパー関数を使用）
         pushInt16LE(samples, outSample);
     }
 
     return samples;
+
 }

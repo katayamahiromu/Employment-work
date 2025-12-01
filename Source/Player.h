@@ -7,6 +7,7 @@
 #include"Component/Audio3DListener.h"
 #include"Component/CollisionConponent.h"
 #include"Component/CameraInfo.h"
+#include"Component/ProceduralAudio.h"
 
 #include"system/StateMachine.h"
 #include"Graphics/RewidLine.h"
@@ -48,6 +49,9 @@ private:
 	void createRewindTime();
 
 	void timeLapsNotice();
+
+	//音声の再生
+	void SoundPlay();
 private:
 	//待機ステート
 	void enterIdle();
@@ -95,6 +99,9 @@ private:
 	std::shared_ptr<PlayerController>playerController;
 	std::shared_ptr<Audio3DListener>lister;
 	std::shared_ptr<CollisionComponent>collision;
+	std::shared_ptr<ProceduralAudio>footSound;
 
+	DirectX::XMFLOAT3 rightFoot = { 0.0f,0.0f,0.0f };
+	DirectX::XMFLOAT3 leftFoot = { 0.0f,0.0f,0.0f };
 	std::unique_ptr<StateMachine>stateMachine;
 };

@@ -4,6 +4,7 @@
 #include"SceneManager.h"
 #include"GameScene.h"
 #include"LoadingScene.h"
+#include"AudioDemoScene.h"
 #include"imgui.h"
 #include"modelScene.h"
 
@@ -99,25 +100,12 @@ void TitleScene::initialize()
 		},
 		PlayerController::keyAllocation::key_A);
 
-	//試しに使うやつ
-	{
-		signalProcess = std::make_unique<SignalProcesser>();
-		IXAudio2* audio = AudioManager::instance()->getIXAudio2();
-		audio->CreateSourceVoice(&source,&signalProcess->getWaveFormat());
-	}
 }
 
 //終了化
 void TitleScene::finalize()
 {
 	for (auto b : choices)delete b;
-
-
-	if (source != nullptr)
-	{
-		source->DestroyVoice();
-		source = nullptr;
-	}
 }
 
 //更新処理
@@ -128,7 +116,6 @@ void TitleScene::update(float elapsedTime)
 	DirectX::XMFLOAT3 direction = { -360.0f,0.0f,-51.0f };
 	model->setRotation(direction);
 	objManager->update(elapsedTime);
-
 
 	//セレクト
 	updateSelector(elapsedTime);
@@ -148,6 +135,11 @@ void TitleScene::Gui()
 	{
 		SceneManager::instance()->changeScene(new ModelScene);
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("Audio Demo"))
+	{
+		SceneManager::instance()->changeScene(new AudioDemoScene);
+	}
 	ImGui::SliderFloat("animation rate", &rate,0.0f,1.0f);
 	animation->setAnimationRate(rate);
 	ImGui::InputInt("selct", &select);
@@ -156,151 +148,9 @@ void TitleScene::Gui()
 	{
 		sample->DCPlay();
 	}
-
-	/*SubMixVoiceManager*smv = AudioManager::instance()->getSmv();
-	SoundEffect* SE1 = smv->getSubMixVoice(0)->getEffect(REVERB);
-	static_cast<Reverb*>(SE1)->setDecayTime(decayTime);
-	static_cast<Reverb*>(SE1)->setRoomSize(roomSize);
-	static_cast<Reverb*>(SE1)->setWetLevel(wetLevel);
-
-	ImGui::SliderFloat("delay", &delay, 0.0f, 1.0f);
-	ImGui::SliderFloat("feedback", &feedback, 0.0f, 1.0f);
-	ImGui::SliderFloat("wetDryMix", &wetDryMix, 0.0f, 1.0f);
-	SoundEffect* SE2 = smv->getSubMixVoice(0)->getEffect(ECHO);
-	static_cast<Echo*>(SE2)->setDelay(delay);
-	static_cast<Echo*>(SE2)->setFeedback(feedback);
-	static_cast<Echo*>(SE2)->setWetDryMix(wetDryMix);*/
 	
 	int count = AudioManager::instance()->PlayAudioCount();
 	ImGui::InputInt("Audio Play Count", &count);
-	ImGui::End();
-
-
-	ImGui::Begin("Procedural Audio");
-
-	auto play = [&]()
-	{
-			XAUDIO2_BUFFER buffer{};
-			buffer.AudioBytes = signalProcess->getAudioBytes();
-			buffer.pAudioData = signalProcess->getAudioData();
-			source->SubmitSourceBuffer(&buffer);
-			source->Start();
-	};
-
-	static const char* WaveTypeNames[] = {
-		"Sine", "Saw", "Triangle", "Square", "Noise", "Impact"
-	};
-
-	ImGui::SliderFloat("frequency", &frequency, 0.0f, 1000.0f);
-	ImGui::SliderFloat("durationSeconds", &durationSeconds, 0.1f, 2.0f);
-	ImGui::SliderFloat("gain", &gain, 0.0f, 1.0f);
-	ImGui::SliderFloat("modulationDepth", &modulationDepth, 0.0f, 1.0f);
-	ImGui::SliderFloat("Decay", &decay, 0.0f, 5.0f);
-	int current = static_cast<int>(uiState);
-	if (ImGui::Combo("Wave Type", &current, WaveTypeNames, IM_ARRAYSIZE(WaveTypeNames))) {
-		uiState = static_cast<WaveType>(current);
-	}
-
-	if(ImGui::Button("create wave data"))
-	{
-		std::vector<uint8_t>data;
-		switch (uiState)
-		{
-		case TitleScene::WaveType::Sine:
-			data = Oscillator::instance()->sinWave(frequency, durationSeconds);
-			break;
-		case TitleScene::WaveType::Saw:
-			data = Oscillator::instance()->sawtoothWave(frequency, durationSeconds);
-			break;
-		case TitleScene::WaveType::Triangle:
-			data = Oscillator::instance()->triangleWave(frequency, durationSeconds);
-			break;
-		case TitleScene::WaveType::Square:
-			data = Oscillator::instance()->squareWave(frequency, durationSeconds);
-			break;
-		case TitleScene::WaveType::Noise:
-			data = Oscillator::instance()->whiteNoise(durationSeconds);
-			break;
-		case TitleScene::WaveType::Impact:
-			data = Oscillator::instance()->impactSound(0.8f, durationSeconds);
-			break;
-		default:
-			break;
-		}
-		signalProcess->addWave(data,frequency,gain);
-	}
-	ImGui::SameLine();
-
-	if (ImGui::Button("modal wave"))
-	{
-		std::vector<uint8_t>data;
-		data = Oscillator::instance()->impactModes(caveRockModes, 4, durationSeconds, gain);
-		signalProcess->addWave(data, frequency, gain);
-	}
-
-	if (ImGui::Button("Clear"))
-	{
-		signalProcess->clear();
-	}
-
-	if (ImGui::Button("all mix sound play"))
-	{
-		signalProcess->Mix();
-		play();
-	}
-
-	int size = signalProcess->size();
-	ImGui::InputInt("wave count", &size);
-
-	int id = 0;
-	std::vector<int>eraseArray;
-	for (int i = 0;i < size;++i)
-	{
-		ImGui::PushID(id);
-		if (ImGui::Button("play id"))
-		{
-			signalProcess->trySingleWave(id);
-			play();
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("erase"))
-		{
-			eraseArray.emplace_back(id);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Decay"))
-		{
-			signalProcess->decayWave(id, decay);
-		}
-		ImGui::Separator();
-		ImGui::PopID();
-		id++;
-	}
-
-	for (auto erase : eraseArray)signalProcess->erase(erase);
-	eraseArray.clear();
-
-	ImGui::SliderInt("carrierIndex", &carrierIndex, 0, size - 1);
-	ImGui::SliderInt("modIndex", &modIndex, 0, size - 1);
-	if (ImGui::Button("FM"))
-	{
-		signalProcess->applyFM(carrierIndex, modIndex, modulationDepth, gain);
-		play();
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("AM"))
-	{
-		signalProcess->applyAM(carrierIndex, modIndex, modulationDepth, gain);
-		play();
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("RM"))
-	{
-		signalProcess->applyRM(carrierIndex, modIndex, modulationDepth, gain);
-		play();
-	}
-
-
 	ImGui::End();
 
 	/*ImGui::Begin("Spectrum");

@@ -117,11 +117,13 @@ void Movement::updateVerticalMove(float elapsedTime)
 		{
 			pos.y = r.result.position.y;
 			velocity.y = 0.0f;
+			onGrand = true;
 		}
 		else
 		{
 			//‹ó’†‚É•‚‚¢‚Ä‚¢‚é
 			pos.y += moveY;
+			onGrand = false;
 		}
 	}
 	else if (moveY > 0.0f)

@@ -22,9 +22,6 @@
     <Filter Include="Utils\imgui">
       <UniqueIdentifier>{92701ab4-53bc-4b91-81b4-95c73d12805f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Scene">
-      <UniqueIdentifier>{2e6d931f-1f6c-4878-a9bd-8363c1132607}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Object">
       <UniqueIdentifier>{8454fa88-78a7-4825-9515-ba8e632cc5a4}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="Source\Audio\PBSS">
       <UniqueIdentifier>{31ad4d5a-f9d9-4241-9d17-eb949e92ae2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene">
+      <UniqueIdentifier>{2e6d931f-1f6c-4878-a9bd-8363c1132607}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -353,6 +353,12 @@
     </ClCompile>
     <ClCompile Include="Source\Audio\ModalMode.cpp">
       <Filter>Source\Audio\PBSS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\ProceduralAudio.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AudioDemoScene.cpp">
+      <Filter>Source\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -679,6 +685,15 @@
     </ClInclude>
     <ClInclude Include="Source\Audio\ModalMode.h">
       <Filter>Source\Audio\PBSS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Component\ProceduralAudio.h">
+      <Filter>Source\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AudioDemoScene.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\josn.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

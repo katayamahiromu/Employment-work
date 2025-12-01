@@ -28,6 +28,8 @@ public:
 	void setMaxMoveSpeed(float value) { maxMoveSpeed = value; }
 
 	DirectX::XMFLOAT3 getVelocity() { return velocity; }
+
+	bool OnGrand() { return onGrand; }
 private:
 	//‚’¼ˆÚ“®XVˆ—
 	void updateVerticalVelocity(float elapsedTime);
@@ -56,6 +58,8 @@ private:
 
 	//‘¬“x
 	DirectX::XMFLOAT3 velocity = { 0,0,0 };
+
+	bool onGrand = false;
 
 	std::function<bool(DirectX::XMFLOAT3,DirectX::XMFLOAT3,HitResult&)>raycast;
 };
