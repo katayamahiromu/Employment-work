@@ -17,6 +17,17 @@ Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, Sou
 	}
 }
 
+Audio3D::Audio3D(IXAudio2* xaudio, WAVEFORMATEX wfx, SoundEmitter* emitter):Audio(xaudio,wfx)
+{
+	if(emitter != nullptr)
+	{
+		this->emitter = emitter; // ’l‚Ì‚Ý‘ã“ü
+
+		dspSetting.srcChannelCount = wfx.nChannels;
+		dspSetting.dstChannelCount = 2;
+		dspSetting.outputMatrix = new float[dspSetting.srcChannelCount * dspSetting.dstChannelCount];
+	}
+}
 Audio3D::~Audio3D()
 {
 	//if (emitter)delete emitter;

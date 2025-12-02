@@ -26,6 +26,22 @@ Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool eff
 	}
 }
 
+Audio::Audio(IXAudio2* xaudio, WAVEFORMATEX wfx)
+{
+	HRESULT hr;
+
+	callback = std::make_unique<AudioCallback>();
+
+	//ソールボイスを生成
+	hr = xaudio->CreateSourceVoice(
+		&sourceVoice,
+		&wfx,
+		0,
+		XAUDIO2_DEFAULT_FREQ_RATIO,
+		callback.get());
+	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+}
+
 // デストラクタ
 Audio::~Audio()
 {
@@ -80,6 +96,26 @@ void Audio::play(bool loop)
 	buffer.AudioBytes = resource->getAudioBytes();
 	buffer.pAudioData = resource->getAudioData();
 	buffer.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0;
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.pContext = this;
+
+	sourceVoice->SubmitSourceBuffer(&buffer);
+
+	HRESULT hr = sourceVoice->Start();
+	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
+	sourceVoice->SetVolume(1.0f);
+}
+
+void Audio::play(SignalProcesser* signal)
+{
+	if (!signal)return;
+	stop();
+
+	// ソースボイスにデータを送信
+	XAUDIO2_BUFFER buffer = { 0 };
+	buffer.AudioBytes = signal->getAudioBytes();
+	buffer.pAudioData = signal->getAudioData();
+	buffer.LoopCount = 0;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 	buffer.pContext = this;
 

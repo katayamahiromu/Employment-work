@@ -45,6 +45,7 @@ class Audio3D : public Audio
 {
 public:
 	Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, SoundEmitter* emitter);
+	Audio3D(IXAudio2* xaudio, WAVEFORMATEX wfx,SoundEmitter* emitter);
 	~Audio3D();
 
 	void update(float volume);

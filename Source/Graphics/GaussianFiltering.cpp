@@ -20,7 +20,8 @@ GaussianFilter::~GaussianFilter()
 void GaussianFilter::update(float elapsedTime)
 {
 	gaussian = {};
-	gaussian.texcel = { 1280.0f, 720.0f };
+	data.kernelSize = 1;
+	data.textureSize = { 1280.0f, 720.0f };
 	calcGaussianFilterConstant(gaussian, data);
 }
 

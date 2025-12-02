@@ -1,0 +1,99 @@
+{
+    "modals": [
+        {
+            "frequency": 400.0,
+            "amplitude": 1.0,
+            "decayTime": 0.20,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 1.00,
+
+            "Bandwidth": 0.05,
+            "Inharmonicity": 0.01,
+            "Noise Mix": 0.10,
+            "Harmonic Mask": 0.9,
+
+            "Random Phase": 0.02,
+            "Random Decay": 0.05,
+            "Clip Amount": 0.25,
+            "lowpassCutoff": 2000.0,
+            "highpassCutoff": 80.0
+        },
+        {
+            "frequency": 950.0,
+            "amplitude": 0.7,
+            "decayTime": 0.30,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.80,
+
+            "Bandwidth": 0.08,
+            "Inharmonicity": 0.02,
+            "Noise Mix": 0.15,
+            "Harmonic Mask": 0.85,
+
+            "Random Phase": 0.03,
+            "Random Decay": 0.05,
+            "Clip Amount": 0.25,
+            "lowpassCutoff": 1800.0,
+            "highpassCutoff": 100.0
+        },
+        {
+            "frequency": 1800.0,
+            "amplitude": 0.5,
+            "decayTime": 0.25,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.70,
+
+            "Bandwidth": 0.10,
+            "Inharmonicity": 0.03,
+            "Noise Mix": 0.20,
+            "Harmonic Mask": 0.75,
+
+            "Random Phase": 0.04,
+            "Random Decay": 0.06,
+            "Clip Amount": 0.28,
+            "lowpassCutoff": 1500.0,
+            "highpassCutoff": 120.0
+        },
+        {
+            "frequency": 2600.0,
+            "amplitude": 0.3,
+            "decayTime": 0.20,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.60,
+
+            "Bandwidth": 0.12,
+            "Inharmonicity": 0.04,
+            "Noise Mix": 0.25,
+            "Harmonic Mask": 0.65,
+
+            "Random Phase": 0.05,
+            "Random Decay": 0.07,
+            "Clip Amount": 0.30,
+            "lowpassCutoff": 1200.0,
+            "highpassCutoff": 150.0
+        },
+        {
+            "frequency": 4200.0,
+            "amplitude": 0.2,
+            "decayTime": 0.12,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.40,
+
+            "Bandwidth": 0.15,
+            "Inharmonicity": 0.05,
+            "Noise Mix": 0.30,
+            "Harmonic Mask": 0.50,
+
+            "Random Phase": 0.06,
+            "Random Decay": 0.08,
+            "Clip Amount": 0.35,
+            "lowpassCutoff": 1000.0,
+            "highpassCutoff": 180.0
+        }
+    ]
+}

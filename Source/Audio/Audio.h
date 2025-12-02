@@ -7,6 +7,7 @@
 #include "AudioResource.h"
 #include "SubMixVoice.h"
 #include "AudioCallback.h"
+#include "SignalProcessor.h"
 
 enum Fliter_Type
 {
@@ -23,6 +24,7 @@ class Audio
 {
 public:
 	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool effect);
+	Audio(IXAudio2* xaudio, WAVEFORMATEX wfx);
 	~Audio();
 
 	std::string getName() { return resource->getName(); }
@@ -37,6 +39,7 @@ public:
 	/// </summary>
 	/// <param name="loop">true...ループ</param>
 	void play(bool loop);
+	void play(SignalProcesser*signal);
 
 	/// <summary>
 	/// オーディオの停止

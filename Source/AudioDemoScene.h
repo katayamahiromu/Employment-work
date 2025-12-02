@@ -3,7 +3,6 @@
 #include"Audio/AudioManager.h"
 #include"Audio/SignalProcessor.h"
 #include"Audio/ModalMode.h"
-#include"../Utils/josn.h"
 
 class AudioDemoScene : public Scene
 {
@@ -28,8 +27,8 @@ private:
 	void ProceduralAudioGui();
 	void importData();
 	void inputModalGui();
-private:
-	void toJson(json& j, const ModalMode& m);
+
+	void loadPreset(const char* file);
 private:
 	IXAudio2SourceVoice* source = nullptr;
 	std::unique_ptr<SignalProcesser>signalProcess;
@@ -55,16 +54,15 @@ private:
 	};
 	WaveType uiState;
 
-	enum class modalTyepe :int
-	{
-		preset1,
-		preset2,
-		preset3,
-		create,
-	};
-	modalTyepe modalState;
-
 	std::vector<ModalMode>modals;
 
+	struct preset
+	{
+		std::string name;
+		std::vector<ModalMode>modals;
+	};
+	std::vector<preset>modalPresets;
+	int modalCurrent;
 	char fileName[32];
+	char loadFileName[32];
 };

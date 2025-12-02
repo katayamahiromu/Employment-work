@@ -7,6 +7,7 @@
 #include"Player.h"
 
 #include"system/MessageData.h"
+#include"Audio/AudioManager.h"
 #include"system/Messenger.h"
 #include"system/TimeLapseManager.h"
 #include"math/Mathf.h"
@@ -30,6 +31,9 @@ Player::~Player()
         rewindEffect = nullptr;
     }
     Messenger::instance().removeReceiver(CollisionCylinderKey);
+
+    for (auto& audio : Audio3dArray)delete audio;
+    Audio3dArray.clear();
 }
 
 void Player::OnGUI()
@@ -46,8 +50,9 @@ void Player::prepare()
     collision = getObject()->GetComponent<CollisionComponent>();
     cameraInfo = getObject()->GetComponent<CameraInfo>();
 
-    footSound = getObject()->GetComponent<ProceduralAudio>();
-    footSound->createModalWave(stoneModes, 6, 0.3f, 1.0f);
+    footSound = std::make_unique<ProceduralAudio>(2);
+    //footSound->createModalWave(stoneModes, 6, 0.3f, 1.0f);
+    footSound->loadModalData("preset1.json", 0.3f, 1.0f);
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
@@ -96,6 +101,25 @@ void Player::update(float elapsedTime)
 
     //‘«‰¹
     SoundPlay();
+
+
+    std::vector<Audio3D*>remove;
+    for (auto& audio : Audio3dArray)
+    {
+        audio->update(1.0f);
+        if (!audio->isPlay())remove.emplace_back(audio);
+    }
+
+    for (auto* audio : remove)
+    {
+        delete audio;
+        auto it = std::find(Audio3dArray.begin(), Audio3dArray.end(), audio);
+        if (it != Audio3dArray.end())
+        {
+            Audio3dArray.erase(it);
+        }
+    }
+    remove.clear();
 }
 
 void Player::sendCameraData()
@@ -215,9 +239,48 @@ void Player::SoundPlay()
     auto left = collision->getSphereInfo().at(1);
 
     //‘«‚Ì‚‚³‚©‚çŽ©•ª‚Ì‘«Œ³‚Ì·‚ª1ˆÈ‰º‚ÌŽž’n–Ê‚ðR‚Á‚½‚Æ”»’è‚·‚é
-    float posy = getObject()->getPosition()->y;
-    if(right.pos.y - posy < 1.0f)footSound->play(0);
-    if (left.pos.y - posy < 1.0f) footSound->play(1);
+    DirectX::XMFLOAT3 pos = *getObject()->getPosition();
+
+    SoundEmitter emitter;
+    Audio3D* audio;
+
+    if (right.pos.y - pos.y < 1.0f && !footFlag[foot::right])
+    {
+        emitter.position = { pos.x,right.pos.y - pos.y,pos.z };
+        emitter.velocity = { 0.0f,0.0f,0.0f };
+        emitter.maxDistance = 10.0f;
+        emitter.minDistance = 0.0f;
+
+        audio = new Audio3D(AudioManager::instance()->getIXAudio2(), footSound->getSignalProcesser()->getWaveFormat(), &emitter);
+        audio->setDSPSetting(*AudioManager::instance()->findAudio(static_cast<int>(Lisner::PLAYER)));
+        audio->play(footSound->getSignalProcesser());
+        Audio3dArray.push_back(audio);
+        footFlag[foot::right] = true;
+    }
+    else
+    {
+        footFlag[foot::right] = false;
+    }
+
+
+    if (left.pos.y - pos.y < 1.0f && !footFlag[foot::left])
+    {
+        emitter.position = { pos.x,left.pos.y - pos.y,pos.z };
+        emitter.velocity = { 0.0f,0.0f,0.0f };
+        emitter.maxDistance = 10.0f;
+        emitter.minDistance = 0.0f;
+
+        audio = new Audio3D(AudioManager::instance()->getIXAudio2(), footSound->getSignalProcesser()->getWaveFormat(), &emitter);
+        audio->setDSPSetting(*AudioManager::instance()->findAudio(static_cast<int>(Lisner::PLAYER)));
+        audio->play(footSound->getSignalProcesser());
+        Audio3dArray.push_back(audio);
+        footFlag[foot::left] = true;
+    }
+    else
+    {
+        footFlag[foot::left] = false;
+    }
+
 }
 
 bool Player::inputAttack()

@@ -7,7 +7,7 @@
 #include"Component/Audio3DListener.h"
 #include"Component/CollisionConponent.h"
 #include"Component/CameraInfo.h"
-#include"Component/ProceduralAudio.h"
+#include"system/ProceduralAudio.h"
 
 #include"system/StateMachine.h"
 #include"Graphics/RewidLine.h"
@@ -99,9 +99,18 @@ private:
 	std::shared_ptr<PlayerController>playerController;
 	std::shared_ptr<Audio3DListener>lister;
 	std::shared_ptr<CollisionComponent>collision;
-	std::shared_ptr<ProceduralAudio>footSound;
+
+	std::unique_ptr<ProceduralAudio>footSound;
 
 	DirectX::XMFLOAT3 rightFoot = { 0.0f,0.0f,0.0f };
 	DirectX::XMFLOAT3 leftFoot = { 0.0f,0.0f,0.0f };
 	std::unique_ptr<StateMachine>stateMachine;
+	std::vector<Audio3D*>Audio3dArray;
+
+	enum foot
+	{
+		right,
+		left
+	};
+	bool footFlag[2] = {true,true};
 };

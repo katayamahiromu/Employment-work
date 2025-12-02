@@ -17,6 +17,9 @@
 
 #include"Graphics/DepthNormalTex.h"
 
+
+
+
 // ƒQ[ƒ€ƒV[ƒ“
 class GameScene : public Scene
 {

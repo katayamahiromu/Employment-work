@@ -171,7 +171,6 @@
     <ClCompile Include="Source\Audio\AudioCallback.cpp" />
     <ClCompile Include="Source\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Audio\AudioResource.cpp" />
-    <ClCompile Include="Source\Audio\ModalMode.cpp" />
     <ClCompile Include="Source\Audio\SignalMixer.cpp" />
     <ClCompile Include="Source\Audio\SignalProcesser.cpp" />
     <ClCompile Include="Source\Audio\SoundEffect.cpp" />
@@ -192,7 +191,6 @@
     <ClCompile Include="Source\Component\Movement.cpp" />
     <ClCompile Include="Source\Component\object.cpp" />
     <ClCompile Include="Source\Component\PlayerController.cpp" />
-    <ClCompile Include="Source\Component\ProceduralAudio.cpp" />
     <ClCompile Include="Source\Component\TimeLapse.cpp" />
     <ClCompile Include="Source\DebugCameraController.cpp" />
     <ClCompile Include="Source\DeviceManager.cpp" />
@@ -246,6 +244,7 @@
     <ClCompile Include="Source\system\CollisionSystem.cpp" />
     <ClCompile Include="Source\system\Messenger.cpp" />
     <ClCompile Include="Source\system\PostprocessingRenderer.cpp" />
+    <ClCompile Include="Source\system\ProceduralAudio.cpp" />
     <ClCompile Include="Source\system\StateMachine.cpp" />
     <ClCompile Include="Source\system\TimeLapseManager.cpp" />
     <ClCompile Include="Source\TitleScene.cpp" />
@@ -259,6 +258,7 @@
     <ClCompile Include="Utils\imgui\imgui_draw.cpp" />
     <ClCompile Include="Utils\imgui\imgui_ja_gryph_ranges.cpp" />
     <ClCompile Include="Utils\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Utils\libtinyfiledialogs-master\tinyfiledialogs.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AudioDemoScene.h" />
@@ -291,7 +291,6 @@
     <ClInclude Include="Source\Component\Movement.h" />
     <ClInclude Include="Source\Component\object.h" />
     <ClInclude Include="Source\Component\PlayerController.h" />
-    <ClInclude Include="Source\Component\ProceduralAudio.h" />
     <ClInclude Include="Source\Component\Status.h" />
     <ClInclude Include="Source\Component\TimeLapse.h" />
     <ClInclude Include="Source\DebugCameraController.h" />
@@ -351,6 +350,7 @@
     <ClInclude Include="Source\system\MessageData.h" />
     <ClInclude Include="Source\system\Messenger.h" />
     <ClInclude Include="Source\system\PostprocessingRenderer.h" />
+    <ClInclude Include="Source\system\ProceduralAudio.h" />
     <ClInclude Include="Source\system\State.h" />
     <ClInclude Include="Source\system\StateMachine.h" />
     <ClInclude Include="Source\system\TimeLapseManager.h" />
@@ -369,6 +369,7 @@
     <ClInclude Include="Utils\imgui\imstb_textedit.h" />
     <ClInclude Include="Utils\imgui\imstb_truetype.h" />
     <ClInclude Include="Utils\josn.h" />
+    <ClInclude Include="Utils\libtinyfiledialogs-master\tinyfiledialogs.h" />
     <ClInclude Include="Utils\Macro.h" />
     <ClInclude Include="Utils\RingBuffer.h" />
     <ClInclude Include="Utils\Singleton.h" />

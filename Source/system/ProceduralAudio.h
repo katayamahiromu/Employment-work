@@ -1,8 +1,8 @@
 #pragma once
-#include"Component.h"
 #include"Audio/SignalProcessor.h"
 #include"Audio/ModalMode.h"
 #include<xaudio2.h>
+#include<memory>
 
 struct AudioData
 {
@@ -42,21 +42,19 @@ struct AudioData
 	}
 };
 
-class ProceduralAudio : public Component
+class ProceduralAudio
 {
 public:
 	ProceduralAudio(int maxSourceCount);
 	~ProceduralAudio();
 
-	const char* getName() const override { return "Procedural Audio"; }
-
-	void update(float elapsedTime)override;
-
-	void OnGUI()override;
-
 	void play(int index);
 
 	void createModalWave(const ModalMode* modes, size_t modeCount, float durationSeconds, float masterGain);
+
+	void loadModalData(const char* filename, float durationSeconds, float masterGain);
+
+	SignalProcesser* getSignalProcesser(){ return signal.get(); }
 private:
 	std::unique_ptr<SignalProcesser> signal;
 	std::vector<AudioData>audioData;

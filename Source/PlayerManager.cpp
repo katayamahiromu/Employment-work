@@ -32,7 +32,6 @@ void PlayerManager::playerCreate(Camera* camera)
 	player->AddComponent<Audio3DListener>(static_cast<int>(Lisner::PLAYER));
 	player->AddComponent<CollisionComponent>(CollisionType::Mesh);
 	player->AddComponent<CameraInfo>(camera);
-	player->AddComponent<ProceduralAudio>(2);
 
 	attachmentCreate();
 }

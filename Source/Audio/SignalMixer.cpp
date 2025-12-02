@@ -185,7 +185,7 @@ std::vector<UINT8> SignalMixer::ringModulation(waveData& carrierData, waveData& 
         phaceC += dphiC;
         phaceM += dphiM;
 
-        double carrierSample = sin(phaceC)*modValue;
+        double carrierSample = sin(phaceC) * modValue;
         double modeSample = sin(phaceM);
 
         double sample = carrierSample * modeSample * 32767.0 * carrierData.gain * gain;

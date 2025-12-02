@@ -1,0 +1,61 @@
+{
+    "modals": [
+        {
+            "frequency": 200.0,
+            "amplitude": 0.9,
+            "decayTime": 0.05,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.95,
+
+            "Bandwidth": 0.10,
+            "Inharmonicity": 0.03,
+            "Noise Mix": 0.15,
+            "Harmonic Mask": 0.9,
+
+            "Random Phase": 0.03,
+            "Random Decay": 0.06,
+            "Clip Amount": 0.25,
+            "lowpassCutoff": 1500.0,
+            "highpassCutoff": 70.0
+        },
+        {
+            "frequency": 600.0,
+            "amplitude": 0.6,
+            "decayTime": 0.03,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.70,
+
+            "Bandwidth": 0.12,
+            "Inharmonicity": 0.04,
+            "Noise Mix": 0.20,
+            "Harmonic Mask": 0.75,
+
+            "Random Phase": 0.04,
+            "Random Decay": 0.07,
+            "Clip Amount": 0.30,
+            "lowpassCutoff": 1200.0,
+            "highpassCutoff": 90.0
+        },
+        {
+            "frequency": 1200.0,
+            "amplitude": 0.3,
+            "decayTime": 0.02,
+            "phase": 0.0,
+            "startSec": 0.0,
+            "gain": 0.50,
+
+            "Bandwidth": 0.15,
+            "Inharmonicity": 0.05,
+            "Noise Mix": 0.25,
+            "Harmonic Mask": 0.6,
+
+            "Random Phase": 0.05,
+            "Random Decay": 0.08,
+            "Clip Amount": 0.35,
+            "lowpassCutoff": 1000.0,
+            "highpassCutoff": 120.0
+        }
+    ]
+}

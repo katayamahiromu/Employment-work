@@ -59,7 +59,7 @@ void GameScene::initialize()
 
 	uiPostEffects = std::make_unique<PostprocessingRenderer>();
 	uiPostEffects->addPostProcess(new LuminanceExtract);
-	//uiPostEffects->addPostProcess(new GaussianFilter);
+	uiPostEffects->addPostProcess(new GaussianFilter);
 	uiPostEffects->addPostProcess(new ColorGrading);
 	uiPostEffects->addPostProcess(new BlackToAlpha);
 
@@ -188,6 +188,10 @@ void GameScene::sceneRender()
 	PostEffects->getPostProcess()->clean(dc);
 
 	PostEffects->execution();
+
+	ImGui::Begin("Return Title");
+	if (ImGui::Button("return title"))SceneManager::instance()->changeScene(new TitleScene);
+	ImGui::End();
 }
 
 void GameScene::UIRender()

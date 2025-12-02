@@ -21,7 +21,3 @@ struct ModalMode
 	float lowpassCutoff; // ローパスフィルタのカットオフ周波数（Hz）
 	float highpassCutoff;// ハイパスフィルタのカットオフ周波数（Hz）
 };
-
-extern ModalMode stoneModes[];
-extern ModalMode leatherShoeModes[];
-extern ModalMode caveRockModes[];

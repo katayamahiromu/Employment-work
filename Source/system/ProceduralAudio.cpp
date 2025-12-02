@@ -1,6 +1,7 @@
 #include"ProceduralAudio.h"
 #include"Audio/AudioManager.h"
 #include"Audio/Oscillator.h"
+#include"Audio/SoundHealper.h"
 
 ProceduralAudio::ProceduralAudio(int maxSourceCount) : maxSourceCount(maxSourceCount)
 {
@@ -20,16 +21,6 @@ ProceduralAudio::~ProceduralAudio()
 	}
 }
 
-void ProceduralAudio::update(float elapsedTime)
-{
-
-}
-
-void ProceduralAudio::OnGUI()
-{
-
-}
-
 void ProceduralAudio::play(int index)
 {
 	//どれかのデータが使用中なら次へ
@@ -46,4 +37,10 @@ void ProceduralAudio::createModalWave(const ModalMode* modes, size_t modeCount, 
 	data = Oscillator::instance()->impactModes(modes, modeCount, durationSeconds, masterGain);
 	signal->addWave(data);
 	signal->trySingleWave(0);
+}
+
+void ProceduralAudio::loadModalData(const char* filename ,float durationSeconds, float masterGain)
+{
+	std::vector<ModalMode>modals = loadModalDataJson(filename);
+	createModalWave(modals.data(), modals.size(), durationSeconds, masterGain);
 }

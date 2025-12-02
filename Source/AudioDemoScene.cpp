@@ -4,6 +4,13 @@
 #include"DeviceManager.h"
 #include"Graphics/GraphicsManager.h"
 #include"../AudioFile/AudioFile.h"
+#include"Audio/SoundHealper.h"
+#include"SceneManager.h"
+#include"TitleScene.h"
+
+extern "C" {
+#include"../Utils/libtinyfiledialogs-master/tinyfiledialogs.h"
+}
 
 AudioDemoScene::AudioDemoScene()
 {
@@ -20,6 +27,10 @@ void AudioDemoScene::initialize()
 	signalProcess = std::make_unique<SignalProcesser>();
 	IXAudio2* audio = AudioManager::instance()->getIXAudio2();
 	audio->CreateSourceVoice(&source, &signalProcess->getWaveFormat());
+	loadPreset("preset1.json");
+	loadPreset("preset2.json");
+	loadPreset("preset3.json");
+	modals = modalPresets.at(0).modals;
 }
 
 void AudioDemoScene::finalize()
@@ -32,34 +43,9 @@ void AudioDemoScene::update(float elapsedTime)
 
 }
 
-void AudioDemoScene::toJson(json& j, const ModalMode& m)
-{
-	j = json
-	{
-		{"frequency", m.frequency},
-		{"amplitude", m.amplitude},
-		{"decayTime", m.decayTime},
-		{"phase", m.phase},
-		{"startSec", m.startSec},
-		{"gain", m.gain},
-		{"Bandwidth", m.bandwidth},
-		{"Inharmonicity", m.inharmonicity},
-		{"Noise Mix", m.noiseMix},
-		{"Harmonic Mask", m.harmonicMask},
-		{"Random Phase", m.randomPhase},
-		{"Random Decay", m.randomDecay},
-		{"Clip Amount", m.clipAmount}
-	};
-}
-
 void AudioDemoScene::render()
 {
-	DeviceManager* mgr = DeviceManager::instance();
-	GraphicsManager* graphics = GraphicsManager::instance();
-
-	ID3D11DeviceContext* dc = mgr->getDeviceContext();
-	mgr->settingRender();
-
+	DeviceManager::instance()->settingRender();
 	gui();
 }
 
@@ -87,11 +73,7 @@ void AudioDemoScene::ProceduralAudioGui()
 		"Sine", "Saw", "Triangle", "Square", "Noise", "Impact"
 	};
 
-	static const char* modalPreset[] = {
-		"Preset1", "Preset2", "Preset3","create",
-	};
-
-	ImGui::SliderFloat("frequency", &frequency, 0.0f, 1000.0f);
+	ImGui::SliderFloat("frequency", &frequency, 20.0f, 1000.0f);
 	ImGui::SliderFloat("durationSeconds", &durationSeconds, 0.1f, 2.0f);
 	ImGui::SliderFloat("gain", &gain, 0.0f, 1.0f);
 	ImGui::SliderFloat("modulationDepth", &modulationDepth, 0.0f, 1.0f);
@@ -99,12 +81,6 @@ void AudioDemoScene::ProceduralAudioGui()
 	int current = static_cast<int>(uiState);
 	if (ImGui::Combo("Wave Type", &current, WaveTypeNames, IM_ARRAYSIZE(WaveTypeNames))) {
 		uiState = static_cast<WaveType>(current);
-	}
-
-	int modalCurrent = static_cast<int>(modalState);
-	if (ImGui::Combo("Modal Type", &modalCurrent, modalPreset, IM_ARRAYSIZE(modalPreset)))
-	{
-		modalState = static_cast<modalTyepe>(modalCurrent);
 	}
 
 	if (ImGui::Button("create wave data"))
@@ -135,28 +111,18 @@ void AudioDemoScene::ProceduralAudioGui()
 		}
 		signalProcess->addWave(data, frequency, gain);
 	}
-	ImGui::SameLine();
+
+	std::vector<const char*> names;
+	for (auto& p : modalPresets) names.push_back(p.name.c_str());
+	if (ImGui::Combo("Modal Type", &modalCurrent, names.data(), names.size()))
+	{
+		modals = modalPresets.at(modalCurrent).modals;
+	}
 
 	if (ImGui::Button("modal wave"))
 	{
 		std::vector<uint8_t>data;
-		switch (modalState)
-		{
-		case modalTyepe::preset1:
-			data = Oscillator::instance()->impactModes(stoneModes, 5, durationSeconds, gain);
-			break;
-		case modalTyepe::preset2:
-			data = Oscillator::instance()->impactModes(leatherShoeModes, 5, durationSeconds, gain);
-			break;
-		case modalTyepe::preset3:
-			data = Oscillator::instance()->impactModes(caveRockModes, 4, durationSeconds, gain);
-			break;
-		case  modalTyepe::create:
-			data = Oscillator::instance()->impactModes(modals.data(), modals.size(), durationSeconds, gain);
-			break;
-		default:
-			break;
-		}
+		data = Oscillator::instance()->impactModes(modals.data(), modals.size(), durationSeconds, gain);
 		signalProcess->addWave(data, frequency, gain);
 	}
 
@@ -228,9 +194,8 @@ void AudioDemoScene::ProceduralAudioGui()
 void AudioDemoScene::importData()
 {
 
-	ImGui::Begin("Import");
-	ImGui::InputText("File Name", fileName, IM_ARRAYSIZE(fileName));
-	if (ImGui::Button("import Wave file"))
+	ImGui::Begin("data managment");
+	if (ImGui::Button("Export Wave file"))
 	{
 		int channels = signalProcess->getWaveFormat().nChannels;
 		int samples = signalProcess->getAudioBytes() / (signalProcess->getWaveFormat().wBitsPerSample / 8) / channels;
@@ -258,30 +223,68 @@ void AudioDemoScene::importData()
 		audio.setBitDepth(16);
 
 		std::string extension = ".wav";
-		std::string file = fileName + extension;
-		audio.save(file);
+		std::string file = modalPresets.at(modalCurrent).name + extension;
+
+		// すでに存在するかチェック
+		if (!std::filesystem::exists(file)) {
+			audio.save(file);
+		}
 	}
 
 	ImGui::SameLine();
 
-	if (ImGui::Button("Import Json"))
+	if (ImGui::Button("Export Json"))
 	{
 
-		json root;
-		json modeArray = json::array();
+		nlohmann::json root;
+		nlohmann::json modeArray = nlohmann::json::array();
 		for (const auto& m : modals)
 		{
-			json jm;
-			toJson(jm, m);
+			nlohmann::json jm;
+			toModalJson(jm, m);
 			modeArray.emplace_back(jm);
 		}
 		root["modals"] = modeArray;
 
 		std::string extension = ".json";
-		std::string file = fileName + extension;
+		std::string file = modalPresets.at(modalCurrent).name + extension;
 
-		std::ofstream ofs(file);
-		ofs << root.dump(4);
+		if (!std::filesystem::exists(file))
+		{
+			std::ofstream ofs(file);
+			ofs << root.dump(4);
+		}
+	}
+
+	
+	if (ImGui::Button("load josn data"))
+	{
+		const char* filePath = tinyfd_openFileDialog(
+			"Select jsonFile",
+			"",
+			0,
+			nullptr,
+			nullptr,
+			0
+		);
+
+		if (filePath) {
+			std::string pathStr = filePath;
+
+			// 拡張子チェック（小文字化して比較）
+			std::string lower = pathStr;
+			std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+
+			if (lower.size() >= 5 && lower.substr(lower.size() - 5) == ".json") {
+				loadPreset(filePath);
+			}
+		}
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Button("return title"))
+	{
+		SceneManager::instance()->changeScene(new TitleScene);
 	}
 	ImGui::End();
 }
@@ -337,7 +340,19 @@ void AudioDemoScene::inputModalGui()
 	{
 		modals.clear();
 	}
-
+	ImGui::InputText("new create modals name", fileName, IM_ARRAYSIZE(fileName));
+	if (ImGui::Button("new create modals"))
+	{
+		if (fileName[0] != '\0')
+		{
+			preset p;
+			p.name = fileName;
+			modalPresets.emplace_back(p);
+			modalCurrent = static_cast<int>(modalPresets.size()-1);
+			modals = modalPresets.at(modalCurrent).modals;
+			fileName[0] = '\0';
+		}
+	}
 	ImGui::Separator();
 	ImGui::Text("Modal List");
 	ImGui::Separator();
@@ -386,4 +401,23 @@ void AudioDemoScene::inputModalGui()
 	}
 
 	ImGui::End();
+}
+
+void AudioDemoScene::loadPreset(const char* filePath)
+{
+	preset p;
+	p.modals = loadModalDataJson(filePath);
+	// ファイル名からプリセット名を生成
+	std::string filename = filePath;
+	size_t lastSlash = filename.find_last_of("/\\");
+	if (lastSlash != std::string::npos)
+		filename = filename.substr(lastSlash + 1);
+
+	size_t extPos = filename.rfind(".json");
+	if (extPos != std::string::npos)
+		filename = filename.substr(0, extPos);
+
+	p.name = filename;
+
+	modalPresets.push_back(std::move(p));
 }
