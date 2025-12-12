@@ -14,6 +14,7 @@
 
 #include"Graphics/GraphicsManager.h"
 #include"SceneManager.h"
+#include"system/PostprocessingRenderer.h"
 
 
 Player::Player()
@@ -99,27 +100,27 @@ void Player::update(float elapsedTime)
     //巻き戻し時のエフェクト生成
     createRewindTime();
 
-    //足音
-    SoundPlay();
+    ////足音
+    //SoundPlay();
 
 
-    std::vector<Audio3D*>remove;
-    for (auto& audio : Audio3dArray)
-    {
-        audio->update(1.0f);
-        if (!audio->isPlay())remove.emplace_back(audio);
-    }
+    //std::vector<Audio3D*>remove;
+    //for (auto& audio : Audio3dArray)
+    //{
+    //    audio->update(1.0f);
+    //    if (!audio->isPlay())remove.emplace_back(audio);
+    //}
 
-    for (auto* audio : remove)
-    {
-        delete audio;
-        auto it = std::find(Audio3dArray.begin(), Audio3dArray.end(), audio);
-        if (it != Audio3dArray.end())
-        {
-            Audio3dArray.erase(it);
-        }
-    }
-    remove.clear();
+    //for (auto* audio : remove)
+    //{
+    //    delete audio;
+    //    auto it = std::find(Audio3dArray.begin(), Audio3dArray.end(), audio);
+    //    if (it != Audio3dArray.end())
+    //    {
+    //        Audio3dArray.erase(it);
+    //    }
+    //}
+    //remove.clear();
 }
 
 void Player::sendCameraData()

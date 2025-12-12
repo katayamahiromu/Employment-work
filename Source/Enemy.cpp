@@ -70,7 +70,7 @@ void Enemy::update(float elapsedTime)
 {
 	receiveCollision.clear();
 
-	stateMachine->update(elapsedTime);
+	//stateMachine->update(elapsedTime);
 
 	//エミターの更新
 	emitter->play(static_cast<int>(Lisner::PLAYER));

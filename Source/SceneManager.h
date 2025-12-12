@@ -1,14 +1,13 @@
 #pragma once
 
 #include"Scene.h"
-#include"system/PostprocessingRenderer.h"
 
 //ƒV[ƒ“ŠÇ—
 class SceneManager
 {
 private:
 	SceneManager(){}
-	~SceneManager() { clear(); }
+	~SceneManager() {}
 public:
 	static SceneManager* instance()
 	{

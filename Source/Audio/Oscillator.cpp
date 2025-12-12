@@ -236,7 +236,5 @@ std::vector<uint8_t> Oscillator::impactModes(const ModalMode* modes, size_t mode
 
         pushInt16LE(samples, outSample);
     }
-
     return samples;
-
 }

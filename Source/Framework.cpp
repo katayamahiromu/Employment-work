@@ -111,6 +111,7 @@ int Framework::run()
 			render(elapsedTime);
 		}
 	}
+	SceneManager::instance()->clear();
 	return static_cast<int>(msg.wParam);
 }
 

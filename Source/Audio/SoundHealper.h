@@ -102,7 +102,7 @@ inline static std::vector<ModalMode> loadModalDataJson(const char* filePath)
     }
 
     std::vector<ModalMode> modals;
-    modals.reserve(j["modals"].size()); // パフォーマンス
+    modals.reserve(j["modals"].size());
     for (auto& jm : j["modals"]) {
         ModalMode m;
         fromModalJson(jm, m);
