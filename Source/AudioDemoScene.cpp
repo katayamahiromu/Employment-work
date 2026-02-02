@@ -6,7 +6,10 @@
 #include"../AudioFile/AudioFile.h"
 #include"Audio/SoundHealper.h"
 #include"SceneManager.h"
-#include"TitleScene.h"
+#include"LoadingScene.h"
+#include"GameScene.h"
+#include"../Utils/FunctionTime.h"
+#include"Audio/WaveShaper.h"
 
 extern "C" {
 #include"../Utils/libtinyfiledialogs-master/tinyfiledialogs.h"
@@ -31,6 +34,92 @@ void AudioDemoScene::initialize()
 	loadPreset("preset2.json");
 	loadPreset("preset3.json");
 	modals = modalPresets.at(0).modals;
+
+
+	/*auto [samples, elapsedMs] = MeasureExecutionTimeWithResult([&]() {
+		return Oscillator::instance()->triangleWave(440, 1.0f);
+		});
+	exitTimes[0] = static_cast<float>(elapsedMs);
+	signalProcess->addWave(samples, 1.0f, 44100);
+
+	auto [samplesSIMD, elapsedMsSIMD] = MeasureExecutionTimeWithResult([&]() {
+		return Oscillator::instance()->triangleWaveSIMD(440, 1.0f);
+		});
+	exitTimes[1] = static_cast<float>(elapsedMsSIMD);
+	signalProcess->addWave(samplesSIMD, 1.0f, 44100);*/
+
+	//signalProcess->addWave(Oscillator::instance()->whiteNoise(1.0f));
+
+	signalProcess->addWave(Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f));
+	AudioManager::instance()->CreateWaveData(
+		[&] {signalProcess->addWave(
+			WaveShaper::instance()->WindHissSIMD(signalProcess->getWData(0),
+			0.2f,      // St
+			0.005f,    // D（5mm）
+			25.0f,     // U0
+			0.985f,    // rQ
+			30.0f));}// windRange
+	);
+
+	AudioManager::instance()->CreateWaveData(
+		[&]() {
+			auto samples = Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f);
+			waveData data  = signalProcess->createData(samples);
+			samples = WaveShaper::instance()->WindHissSIMD(
+				data,
+				0.2f,
+				0.005f,
+				25.0f,
+				0.985f,
+				30.0f);
+			signalProcess->addWave(samples,44100.0f,1.0f,0);
+		}
+	);
+
+	//signalProcess->addWave(WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
+	//	0.2f,
+	//	0.005f,    // D（5mm）
+	//	25.0f,     // U0
+	//	0.985f,    // rQ
+	//	30.0f
+	//));
+
+	//auto [samples, elapsedMs] = MeasureExecutionTimeWithResult([&]() {
+	//	return WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
+	//		0.2f,
+	//		0.005f,    // D（5mm）
+	//		25.0f,     // U0
+	//		0.985f,    // rQ
+	//		30.0f
+	//		);
+	//	});
+	//exitTimes[0] = static_cast<float>(elapsedMs);
+	//signalProcess->addWave(samples, 1.0f, 44100);
+
+	//auto [samplesSIMD, elapsedMsSIMD] = MeasureExecutionTimeWithResult([&]() {
+	//	return WaveShaper::instance()->WindHissSIMD(signalProcess->getWData(0),
+	//		0.2f,
+	//		0.005f,    // D（5mm）
+	//		25.0f,     // U0
+	//		0.985f,    // rQ
+	//		30.0f
+	//		);
+	//	});
+	//exitTimes[1] = static_cast<float>(elapsedMsSIMD);
+
+	//signalProcess->addWave(WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
+	//	0.2f,
+	//	0.03f,     // D（3cm）
+	//	12.0f,     // U0（ゆっくり）
+	//	0.970f,    // rQ（太い）
+	//	5.0f       // windRange
+	//));
+
+	//帯域事に分けてLowPassをかける
+	/*signalProcess->BandPass(0, 800.0f, 3000.0f);
+	signalProcess->LowPass(2, 3500.0f, 0.0f);
+	signalProcess->BandPass(0, 3000.0f, 7000.0f);
+	signalProcess->LowPass(3, 7000.0f, 0.0f);*/
 }
 
 void AudioDemoScene::finalize()
@@ -89,10 +178,11 @@ void AudioDemoScene::ProceduralAudioGui()
 		switch (uiState)
 		{
 		case WaveType::Sine:
-			data = Oscillator::instance()->sinWave(frequency, durationSeconds);
+			data = Oscillator::instance()->sinWaveSIMD(frequency, durationSeconds);
+			//signalProcess->setWaveTypeData(WaveTypeInfo::Sin, frequency, durationSeconds);
 			break;
 		case WaveType::Saw:
-			data = Oscillator::instance()->sawtoothWave(frequency, durationSeconds);
+			data = Oscillator::instance()->sawtoothWaveSIMD(frequency, durationSeconds);
 			break;
 		case WaveType::Triangle:
 			data = Oscillator::instance()->triangleWave(frequency, durationSeconds);
@@ -109,6 +199,8 @@ void AudioDemoScene::ProceduralAudioGui()
 		default:
 			break;
 		}
+
+		//レンダリングした波形データを追加
 		signalProcess->addWave(data, frequency, gain);
 	}
 
@@ -282,9 +374,12 @@ void AudioDemoScene::importData()
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("return title"))
+	ImGui::End();
+
+	ImGui::Begin("Use Procedural Audio Scene");
+	if (ImGui::Button("Change Scene"))
 	{
-		SceneManager::instance()->changeScene(new TitleScene);
+		SceneManager::instance()->changeScene(new LoadingScene(new GameScene));
 	}
 	ImGui::End();
 }

@@ -65,4 +65,6 @@ private:
 	int modalCurrent;
 	char fileName[32];
 	char loadFileName[32];
+
+	float exitTimes[2];
 };

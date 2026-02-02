@@ -7,6 +7,13 @@
 CollisionComponent::CollisionComponent(CollisionType type):type(type)
 {
 	Messenger::instance().sendData(MessageData::REGISTER_COLLISIO_COMPONENT, this);
+
+	switch (type)
+	{
+	case Mesh:func = { [&]() {meshCollisionSetting();} };break;
+	case None:func = { [&]() {noneCollisionSetting();} };break;
+	default:break;
+	}
 }
 
 CollisionComponent::~CollisionComponent()
@@ -21,12 +28,7 @@ void CollisionComponent::prepare()
 
 void CollisionComponent::update(float elapsedTime)
 {
-	switch (type)
-	{
-	case Mesh:meshCollisionSetting();break;
-	case None:noneCollisionSetting();break;
-	default:break;
-	}
+	func();
 }
 
 void CollisionComponent::OnGUI()

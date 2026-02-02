@@ -83,8 +83,8 @@ void TitleScene::initialize()
 	//idolのアニメーションを再生
 	animation->playAnimation(1, true);
 	sample = AudioManager::instance()->loadAudioSourceEffect("Resources\\Audio\\グレート.wav");
-	//sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
-	//sample->play(true);
+	sample = AudioManager::instance()->loadAudioSource("Resources\\Audio\\04 checkpoint.wav");
+	sample->play(true);
 
 	spectrum = std::make_unique<Spectrum>(DeviceManager::instance()->getDevice(), 512);
 
@@ -111,7 +111,7 @@ void TitleScene::finalize()
 //更新処理
 void TitleScene::update(float elapsedTime)
 {
-	//spectrum->update(sample.get());
+	spectrum->update(sample.get());
 
 	DirectX::XMFLOAT3 direction = { -360.0f,0.0f,-51.0f };
 	model->setRotation(direction);
@@ -153,11 +153,11 @@ void TitleScene::Gui()
 	ImGui::InputInt("Audio Play Count", &count);
 	ImGui::End();
 
-	/*ImGui::Begin("Spectrum");
+	ImGui::Begin("Spectrum");
 	std::vector<float>data = *spectrum->getSpectrumData();
 	ImGui::PlotLines("FFT",data.data(), (int)data.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(0, 150));
 	spectrum->OnGUi();
-	ImGui::End();*/
+	ImGui::End();
 
 	AudioManager::instance()->Gui();
 }

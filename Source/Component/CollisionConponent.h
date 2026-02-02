@@ -1,6 +1,6 @@
 #pragma once
 #include"Component.h"
-
+#include <functional>
 enum CollisionType
 {
 	Mesh,
@@ -36,4 +36,6 @@ private:
 	std::vector<collisionSphereInfo>collisionSphereInfoArray;
 	std::vector<int> meshIndexArray;
 	std::vector<int>boneIndexArray;
+
+	std::function<void()>func;
 };

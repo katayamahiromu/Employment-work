@@ -52,7 +52,7 @@ void Enemy::prepare()
 	targetPosition = *owner->getPosition();
 
 	//別の顔のマテリアルをロード
-	int maxReserveMaterial = 4;
+	/*int maxReserveMaterial = 4;
 	int count = 2;
 	std::wstring extension = L".png";
 	std::wstring name = L"Face";
@@ -63,7 +63,7 @@ void Enemy::prepare()
 		const std::wstring texName = filePath + name + L"0" + std::to_wstring(count) + extension;
 		meshTexChange->loadTexture(texName.c_str());
 		count++;
-	}
+	}*/
 }
 
 void Enemy::update(float elapsedTime)

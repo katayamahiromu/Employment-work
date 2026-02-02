@@ -54,3 +54,49 @@ void AudioCallback::OnVoiceError(void* pBufferContext, HRESULT Error) noexcept
 {
 
 }
+
+//プロシージャルオーディオ用のコールバック処理
+ProceduralAudioCallback::ProceduralAudioCallback()
+{
+
+}
+
+ProceduralAudioCallback::~ProceduralAudioCallback()
+{
+
+}
+
+void ProceduralAudioCallback::OnStreamEnd()noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnVoiceProcessingPassEnd()noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnVoiceProcessingPassStart(UINT32 SamplesRequired)noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnBufferEnd(void* pBufferContext)noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnBufferStart(void* pBufferContext)noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnLoopEnd(void* pBufferContext)noexcept
+{
+
+}
+
+void ProceduralAudioCallback::OnVoiceError(void* pBufferContext, HRESULT Error)noexcept
+{
+
+}

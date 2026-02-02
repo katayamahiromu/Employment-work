@@ -13,8 +13,8 @@ CollisionSystem::CollisionSystem()
 
 CollisionSystem::~CollisionSystem()
 {
-	componentArray.clear();
 	Messenger::instance().removeReceiver(REGISTERKEY);
+	componentArray.clear();
 }
 
 void CollisionSystem::update()

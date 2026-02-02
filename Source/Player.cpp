@@ -1,4 +1,4 @@
-#include"Component/object.h"
+ï»¿#include"Component/object.h"
 #include"system/MessageData.h"
 #include"imgui.h"
 #include"../Utils/Macro.h"
@@ -14,7 +14,11 @@
 
 #include"Graphics/GraphicsManager.h"
 #include"SceneManager.h"
+
+
 #include"system/PostprocessingRenderer.h"
+#include"Audio/WaveShaper.h"
+#include"Audio/Oscillator.h"
 
 
 Player::Player()
@@ -39,6 +43,29 @@ Player::~Player()
 
 void Player::OnGUI()
 {
+    ImGui::SliderFloat("windowSpeed", &windowSpeed, 0.0f, 10.0f);
+    ImGui::SliderFloat("gustAmount", &gustAmount, 0.0f, 1.0f);
+    ImGui::SliderFloat("brightness", &brightness, 0.0f, 1.0f);
+    ImGui::SliderFloat("St (Strouhal)",
+        &St,
+        0.1f, 0.6f, "%.3f");
+
+    ImGui::SliderFloat("D (Gap Size m)",
+        &D,
+        0.001f, 0.05f, "%.4f m");   // 1mmã€œ50mm
+
+    ImGui::SliderFloat("U0 (Wind Speed m/s)",
+        &U0,
+        0.0f, 60.0f, "%.1f m/s");
+
+    ImGui::SliderFloat("rQ (Resonance Q)",
+        &rQ,
+        0.1f, 5.0f, "%.3f");
+
+    ImGui::SliderFloat("Wind Range (m/s)",
+        &windRange,
+        0.0f, 50.0f, "%.1f m/s");
+
 }
 
 void Player::prepare()
@@ -51,31 +78,59 @@ void Player::prepare()
     collision = getObject()->GetComponent<CollisionComponent>();
     cameraInfo = getObject()->GetComponent<CameraInfo>();
 
-    footSound = std::make_unique<ProceduralAudio>(2);
     //footSound->createModalWave(stoneModes, 6, 0.3f, 1.0f);
-    footSound->loadModalData("preset1.json", 0.3f, 1.0f);
+
+    windowSound = std::make_unique<ProceduralAudio>(2);
+
+    //é¢¨ã®éŸ³ã®ç”Ÿæˆå‘½ä»¤
+    auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5f, SamplingRate, windowSpeed, gustAmount, brightness);
+    waveData data = windowSound->getSignalProcesser()->createData(samples);
+    samples = WaveShaper::instance()->WindHissSIMD(
+        data,
+        St,
+        D,
+        U0,
+        rQ,
+        windRange);
+    windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, playIndex);
+
+    AudioManager::instance()->CreateWaveData(
+        [&]() {
+            auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5, SamplingRate, windowSpeed, gustAmount, brightness);
+            waveData data = windowSound->getSignalProcesser()->createData(samples);
+            samples = WaveShaper::instance()->WindHissSIMD(
+                data,
+                St,
+                D,
+                U0,
+                rQ,
+                windRange);
+            windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, genIndex);
+        }
+    );
+    windowSound->play(playIndex);
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
-    //‘Ò‹@
+    //å¾…æ©Ÿ
     stateMachine->registerState(
         CAST_INT(Action::Idel),
         new State(FUNC_SET_0(enterIdle), FUNC_SET_FLOAT(executeIdle), nullptr));
 
-    //ˆÚ“®
+    //ç§»å‹•
     stateMachine->registerState(
         CAST_INT(Action::Run),
         new State(FUNC_SET_0(enterMove), FUNC_SET_FLOAT(executeMove), nullptr));
 
-    //UŒ‚
+    //æ”»æ’ƒ
     stateMachine->registerState(
         CAST_INT(Action::Attack),
         new State(FUNC_SET_0(enterAttack), FUNC_SET_FLOAT(executeAttack), nullptr));
 
-    //‰ŠúƒXƒe[ƒgİ’è
+    //åˆæœŸã‚¹ãƒ†ãƒ¼ãƒˆè¨­å®š
     stateMachine->changeState(CAST_INT(Action::Idel));
 
-    //ƒƒbƒVƒ…‚Ìİ’è
+    //ãƒ¡ãƒƒã‚·ãƒ¥ã®è¨­å®š
     collision->setMeshName("root");
     collision->setBoneInfo("LeftToe",0.1f);
     collision->setBoneInfo("RightToe", 0.1f);
@@ -85,47 +140,50 @@ void Player::update(float elapsedTime)
 {
     stateMachine->update(elapsedTime);
 
-    //ƒŠƒXƒi[‚Ìî•ñXV
+    //ãƒªã‚¹ãƒŠãƒ¼ã®æƒ…å ±æ›´æ–°
     lister->setVelocity(movement->getVelocity());
 
-    //ƒ^ƒCƒ€ƒ‰ƒvƒX‘¤‚É’Ê’m
+    //ã‚¿ã‚¤ãƒ ãƒ©ãƒ—ã‚¹å´ã«é€šçŸ¥
     timeLapsNotice();
 
-    //ƒJƒƒ‰‚Éî•ñ‚ğ‘—‚é
+    //ã‚«ãƒ¡ãƒ©ã«æƒ…å ±ã‚’é€ã‚‹
     sendCameraData();
 
-    //ƒfƒoƒbƒNƒvƒŠƒ~ƒeƒBƒu‚Ì•`‰æ
+    //ãƒ‡ãƒãƒƒã‚¯ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ã®æç”»
     debugDrawPrimitive();
 
-    //Šª‚«–ß‚µ‚ÌƒGƒtƒFƒNƒg¶¬
+    //å·»ãæˆ»ã—æ™‚ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆç”Ÿæˆ
     createRewindTime();
 
-    ////‘«‰¹
-    //SoundPlay();
+    if (!windowSound->isPlay(playIndex))
+    {
+        // å†ç”Ÿçµ‚äº† â†’ ã‚¹ãƒ¯ãƒƒãƒ—
+        std::swap(playIndex, genIndex);
 
+        // å†ç”Ÿé–‹å§‹
+        windowSound->play(playIndex);
 
-    //std::vector<Audio3D*>remove;
-    //for (auto& audio : Audio3dArray)
-    //{
-    //    audio->update(1.0f);
-    //    if (!audio->isPlay())remove.emplace_back(audio);
-    //}
-
-    //for (auto* audio : remove)
-    //{
-    //    delete audio;
-    //    auto it = std::find(Audio3dArray.begin(), Audio3dArray.end(), audio);
-    //    if (it != Audio3dArray.end())
-    //    {
-    //        Audio3dArray.erase(it);
-    //    }
-    //}
-    //remove.clear();
+        //é¢¨ã®éŸ³ã®ç”Ÿæˆå‘½ä»¤
+        AudioManager::instance()->CreateWaveData(
+            [&]() {
+                auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5f, SamplingRate, windowSpeed, gustAmount, brightness);
+                waveData data = windowSound->getSignalProcesser()->createData(samples);
+                samples = WaveShaper::instance()->WindHissSIMD(
+                    data,
+                    St,
+                    D,
+                    U0,
+                    rQ,
+                    windRange);
+                windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, genIndex);
+            }
+        );
+    }
 }
 
 void Player::sendCameraData()
 {
-    //ƒJƒƒ‰‚Éî•ñ‚ğ‘—‚é
+    //ã‚«ãƒ¡ãƒ©ã«æƒ…å ±ã‚’é€ã‚‹
     std::shared_ptr<Object> o = getObject();
     MessageData::CAMERACHANGEFREEMODEDATA p = { *o->getPosition(),*o->getRotation() };
     p.target.y += 1.0f;
@@ -135,7 +193,7 @@ void Player::sendCameraData()
 
 void Player::playerVSEnemy(void* data)
 {
-    //ƒƒbƒZ[ƒW‚Ìó‚¯æ‚è
+    //ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å—ã‘å–ã‚Š
     MessageData::CylinderInfo* ci = Messenger::instance().getMessageData<MessageData::CylinderInfo>(data);
     DirectX::XMFLOAT3 outVec;
     if (Collision::intersectCylinderAndCylinder(
@@ -163,18 +221,18 @@ void Player::debugDrawPrimitive()
 
 DirectX::XMFLOAT3 Player::getMoveVec()const
 {  
-    // “ü—Íî•ñ‚ğæ“¾
+    // å…¥åŠ›æƒ…å ±ã‚’å–å¾—
     DirectX::XMFLOAT2 leftStick = playerController->getLeftStick();
-    // ƒJƒƒ‰•ûŒü‚ğæ“¾
+    // ã‚«ãƒ¡ãƒ©æ–¹å‘ã‚’å–å¾—
     Camera* camera = cameraInfo->getCamera();
     const DirectX::XMFLOAT3* cameraFront = camera->getFront();
     const DirectX::XMFLOAT3* cameraRight = camera->getRight();
 
-    // ƒJƒƒ‰‘O•ûŒüƒxƒNƒgƒ‹‚ğ XZ ’PˆÊƒxƒNƒgƒ‹‚É•ÏŠ·
+    // ã‚«ãƒ¡ãƒ©å‰æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’ XZ å˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«å¤‰æ›
     float cameraFrontX = cameraFront->x;
     float cameraFrontZ = cameraFront->z;
 
-    // ƒJƒƒ‰‘O•ûŒüƒxƒNƒgƒ‹‚ğ’PˆÊƒxƒNƒgƒ‹‰»
+    // ã‚«ãƒ¡ãƒ©å‰æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’å˜ä½ãƒ™ã‚¯ãƒˆãƒ«åŒ–
     float cameraFrontLength = sqrtf(cameraFrontX * cameraFrontX + cameraFrontZ * cameraFrontZ);
     if (cameraFrontLength > 0.0f)
     {
@@ -182,7 +240,7 @@ DirectX::XMFLOAT3 Player::getMoveVec()const
         cameraFrontZ = cameraFrontZ / cameraFrontLength;
     }
 
-    //ƒJƒƒ‰‰E•ûŒüƒxƒNƒgƒ‹‚ğXZ’PˆÊƒxƒNƒgƒ‹‚É•ÏŠ·
+    //ã‚«ãƒ¡ãƒ©å³æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’XZå˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«å¤‰æ›
     float cameraRightX = cameraRight->x;
     float cameraRightZ = cameraRight->z;
     float cameraRightLength = sqrtf(cameraRightX * cameraRightX + cameraRightZ * cameraRightZ);
@@ -192,12 +250,12 @@ DirectX::XMFLOAT3 Player::getMoveVec()const
         cameraRightZ = cameraRightZ / cameraRightLength;
     }
 
-    // ‚’¼“ü—Í’l‚ğƒJƒƒ‰‘O•ûŒü‚ÉA…•½•ûŒü‚ğƒJƒƒ‰‰E•ûŒü‚É”½‰f‚µisƒxƒNƒgƒ‹‚ğŒvZ‚·‚é
+    // å‚ç›´å…¥åŠ›å€¤ã‚’ã‚«ãƒ¡ãƒ©å‰æ–¹å‘ã«ã€æ°´å¹³æ–¹å‘ã‚’ã‚«ãƒ¡ãƒ©å³æ–¹å‘ã«åæ˜ ã—é€²è¡Œãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—ã™ã‚‹
     DirectX::XMFLOAT3 vec;
     vec.x = cameraFrontX * leftStick.y + cameraRightX * leftStick.x;
     vec.z = cameraFrontZ * leftStick.y + cameraRightZ * leftStick.x;
 
-    // Y ²•ûŒü‚É‚ÍˆÚ“®‚µ‚È‚¢B
+    // Y è»¸æ–¹å‘ã«ã¯ç§»å‹•ã—ãªã„ã€‚
     vec.y = 0.0f;
 
     return vec;
@@ -206,9 +264,9 @@ DirectX::XMFLOAT3 Player::getMoveVec()const
 bool Player::inputMove(float elapsedTime)
 {
     DirectX::XMFLOAT3 vec = getMoveVec();
-    //ˆÚ“®ˆ—
+    //ç§»å‹•å‡¦ç†
     movement->move(vec, elapsedTime);
-    //‰ñ“]ˆ—
+    //å›è»¢å‡¦ç†
     movement->turn(vec, elapsedTime);
 
     return(vec.x != 0.0f || vec.z != 0.0f) ? true : false;
@@ -216,72 +274,10 @@ bool Player::inputMove(float elapsedTime)
 
 void Player::timeLapsNotice()
 {
-    //ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©‚Ìó‘Ô‚ğ‘—M
+    //ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹ã®çŠ¶æ…‹ã‚’é€ä¿¡
     TimeLapseManager::instance().setIsRecord(playerController->isButton(GamePad::BTN_A));
     TimeLapseManager::instance().setIsPushButton(playerController->isButtonDown(GamePad::BTN_A));
     TimeLapseManager::instance().setIsRelease(playerController->isButtonRelease(GamePad::BTN_A));
-}
-
-void Player::SoundPlay()
-{
-    //’n–Ê‚É—§‚Á‚Ä‚¢‚é‚©
-    if (!movement->OnGrand())return;
-
-    //ˆÚ“®‚µ‚Ä‚¢‚é‚©
-    DirectX::XMFLOAT2 vel = { movement->getVelocity().x,movement->getVelocity().z };
-    DirectX::XMVECTOR velVec = DirectX::XMLoadFloat2(&vel);
-    DirectX::XMVECTOR length = DirectX::XMVector2Length(velVec);
-    float len = DirectX::XMVectorGetX(length);
-
-    //XZ•ûŒü‚ÌƒxƒNƒgƒ‹‚Ì’·‚³‚ª0‚È‚ç“®‚©‚È‚¢
-    if (len == 0.0f)return;
-
-    auto right = collision->getSphereInfo().at(0);
-    auto left = collision->getSphereInfo().at(1);
-
-    //‘«‚Ì‚‚³‚©‚ç©•ª‚Ì‘«Œ³‚Ì·‚ª1ˆÈ‰º‚Ì’n–Ê‚ğR‚Á‚½‚Æ”»’è‚·‚é
-    DirectX::XMFLOAT3 pos = *getObject()->getPosition();
-
-    SoundEmitter emitter;
-    Audio3D* audio;
-
-    if (right.pos.y - pos.y < 1.0f && !footFlag[foot::right])
-    {
-        emitter.position = { pos.x,right.pos.y - pos.y,pos.z };
-        emitter.velocity = { 0.0f,0.0f,0.0f };
-        emitter.maxDistance = 10.0f;
-        emitter.minDistance = 0.0f;
-
-        audio = new Audio3D(AudioManager::instance()->getIXAudio2(), footSound->getSignalProcesser()->getWaveFormat(), &emitter);
-        audio->setDSPSetting(*AudioManager::instance()->findAudio(static_cast<int>(Lisner::PLAYER)));
-        audio->play(footSound->getSignalProcesser());
-        Audio3dArray.push_back(audio);
-        footFlag[foot::right] = true;
-    }
-    else
-    {
-        footFlag[foot::right] = false;
-    }
-
-
-    if (left.pos.y - pos.y < 1.0f && !footFlag[foot::left])
-    {
-        emitter.position = { pos.x,left.pos.y - pos.y,pos.z };
-        emitter.velocity = { 0.0f,0.0f,0.0f };
-        emitter.maxDistance = 10.0f;
-        emitter.minDistance = 0.0f;
-
-        audio = new Audio3D(AudioManager::instance()->getIXAudio2(), footSound->getSignalProcesser()->getWaveFormat(), &emitter);
-        audio->setDSPSetting(*AudioManager::instance()->findAudio(static_cast<int>(Lisner::PLAYER)));
-        audio->play(footSound->getSignalProcesser());
-        Audio3dArray.push_back(audio);
-        footFlag[foot::left] = true;
-    }
-    else
-    {
-        footFlag[foot::left] = false;
-    }
-
 }
 
 bool Player::inputAttack()
@@ -342,10 +338,10 @@ void Player::createRewindTime()
 {
     PostprocessingRenderer* postEffect = PostprocessingRendererManager::instance()->at(0);
 
-    //ƒ{ƒ^ƒ“‚ğ‰Ÿ‚³‚ê‚Ä‚¢‚é‚©
+    //ãƒœã‚¿ãƒ³ã‚’æŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹
     if (playerController->isButton(GamePad::BTN_A))
     {
-        //ˆê“x‚¾‚¯¶¬
+        //ä¸€åº¦ã ã‘ç”Ÿæˆ
         if (!isRewindEffect)
         {
             rewindEffect = new RewindLine;

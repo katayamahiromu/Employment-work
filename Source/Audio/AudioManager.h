@@ -5,13 +5,14 @@
 #include "Audio3DSystem.h"
 #include "SubMixVoiceManager.h"
 #include <unordered_map>
+#include"AudioWorker.h"
 #include"../Utils/RingBuffer.h"
 
 // オーディオ管理
 class AudioManager
 {
 private:
-	AudioManager() {}
+	AudioManager() {};
 	~AudioManager();
 
 public:
@@ -59,6 +60,9 @@ public:
 
 	int PlayAudioCount() { return static_cast<int>(audioSources.size()); }
 
+	//別スレッドで計算によるデータ作成
+	void CreateWaveData(AudioWorker::Task task) { worker->PushTask(task); }
+
 	void Gui();
 private:
 	IXAudio2*				xaudio = nullptr;
@@ -74,4 +78,6 @@ private:
 
 	//破棄リスト
 	std::vector<Audio*>removeSources;
+
+	std::unique_ptr<AudioWorker>worker;
 };

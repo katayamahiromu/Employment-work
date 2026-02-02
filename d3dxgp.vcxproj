@@ -171,6 +171,7 @@
     <ClCompile Include="Source\Audio\AudioCallback.cpp" />
     <ClCompile Include="Source\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Audio\AudioResource.cpp" />
+    <ClCompile Include="Source\Audio\AudioWorker.cpp" />
     <ClCompile Include="Source\Audio\SignalMixer.cpp" />
     <ClCompile Include="Source\Audio\SignalProcesser.cpp" />
     <ClCompile Include="Source\Audio\SoundEffect.cpp" />
@@ -228,6 +229,7 @@
     <ClCompile Include="Source\LoadingScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\math\Collision.cpp" />
+    <ClCompile Include="Source\math\DSPMath.cpp" />
     <ClCompile Include="Source\math\FFT-Cooley-Tukey.cpp" />
     <ClCompile Include="Source\math\Mathf.cpp" />
     <ClCompile Include="Source\modelScene.cpp" />
@@ -267,6 +269,7 @@
     <ClInclude Include="Source\Audio\AudioManager.h" />
     <ClInclude Include="Source\Audio\AudioResource.h" />
     <ClInclude Include="Source\Audio\AudioCallback.h" />
+    <ClInclude Include="Source\Audio\AudioWorker.h" />
     <ClInclude Include="Source\Audio\ModalMode.h" />
     <ClInclude Include="Source\Audio\SignalProcessor.h" />
     <ClInclude Include="Source\Audio\Oscillator.h" />
@@ -330,6 +333,7 @@
     <ClInclude Include="Source\Input\Mouse.h" />
     <ClInclude Include="Source\LoadingScene.h" />
     <ClInclude Include="Source\math\Collision.h" />
+    <ClInclude Include="Source\math\DSPMath.h" />
     <ClInclude Include="Source\math\FFT-Cooley-Tukey.h" />
     <ClInclude Include="Source\math\Mathf.h" />
     <ClInclude Include="Source\misc.h" />
@@ -362,6 +366,7 @@
     <ClInclude Include="Utils\convertStrings.h" />
     <ClInclude Include="Utils\DirectXTK-main\Inc\DDSTextureLoader.h" />
     <ClInclude Include="Utils\DirectXTK-main\Inc\WICTextureLoader.h" />
+    <ClInclude Include="Utils\FunctionTime.h" />
     <ClInclude Include="Utils\imgui\imconfig.h" />
     <ClInclude Include="Utils\imgui\imgui.h" />
     <ClInclude Include="Utils\imgui\imgui_internal.h" />

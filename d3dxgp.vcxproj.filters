@@ -363,6 +363,12 @@
     <ClCompile Include="Source\system\ProceduralAudio.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\math\DSPMath.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\AudioWorker.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Framework.h">
@@ -700,6 +706,15 @@
     </ClInclude>
     <ClInclude Include="Source\system\ProceduralAudio.h">
       <Filter>Source\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\FunctionTime.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\math\DSPMath.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\AudioWorker.h">
+      <Filter>Source\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

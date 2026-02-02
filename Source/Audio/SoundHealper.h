@@ -31,8 +31,9 @@ inline static std::vector<UINT8> EncodePCM16LE(std::vector<int>& buf)
     for (size_t i = 0; i < maxSamples; ++i) {
         float scaled = buf[i] * norm;
         // クリッピング
-        if (scaled > 32767.0f) scaled = 32767.0f;
-        if (scaled < -32768.0f) scaled = -32768.0f;
+       /* if (scaled > 32767.0f) scaled = 32767.0f;
+        if (scaled < -32768.0f) scaled = -32768.0f;*/
+        scaled = std::clamp(scaled, -32768.0f, 32768.0f);
         int16_t s = static_cast<int16_t>(lround(scaled));
         data[i * 2] = static_cast<uint8_t>(s & 0xFF);
         data[i * 2 + 1] = static_cast<uint8_t>((s >> 8) & 0xFF);
@@ -110,3 +111,22 @@ inline static std::vector<ModalMode> loadModalDataJson(const char* filePath)
     }
     return modals;
 }
+
+//inline std::vector<int16_t>convertData8to16(const std::vector<uint8_t>& data)
+//{
+//    //端数切捨て
+//    size_t byteCount = data.size() & ~static_cast<size_t>(1);
+//    size_t samplesCount = byteCount / 2;
+//
+//    std::vector<int16_t> samples;
+//    samples.resize(samplesCount);
+//
+//    for (size_t i = 0; i < samplesCount; ++i)
+//    {
+//        uint16_t lo = static_cast<uint8_t>(data[i * 2]);
+//        uint16_t hi = static_cast<uint8_t>(data[i * 2 + 1]);
+//        uint16_t u = static_cast<uint16_t>(lo | (hi << 8));
+//        samples[i] = static_cast<int16_t>(u);
+//    }
+//    return samples;
+//}

@@ -29,8 +29,9 @@ public:
 
 	float getDuration()const;
 
-	//
 	std::vector<UINT8> allData() { return data; }
+private:
+	void loadWave(const char* filename);
 private:
 	// RIFFƒwƒbƒ_
 	struct Riff

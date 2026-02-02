@@ -4,7 +4,7 @@
 #include "Component/object.h"
 #include "Camera.h"
 
-#include "TitleScene.h"
+#include "AudioDemoScene.h"
 #include "SceneManager.h"
 #include "Input/InputManager.h"
 #include "math/Mathf.h"
@@ -57,11 +57,11 @@ void GameScene::initialize()
 	PostEffects->addPostProcess(new ColorGrading);
 	PostEffects->addPostProcess(new ACES_Filmic);
 
-	uiPostEffects = std::make_unique<PostprocessingRenderer>();
+	/*uiPostEffects = std::make_unique<PostprocessingRenderer>();
 	uiPostEffects->addPostProcess(new LuminanceExtract);
 	uiPostEffects->addPostProcess(new GaussianFilter);
 	uiPostEffects->addPostProcess(new ColorGrading);
-	uiPostEffects->addPostProcess(new BlackToAlpha);
+	uiPostEffects->addPostProcess(new BlackToAlpha);*/
 
 	//パーティクル
 	particleMgr = std::make_unique<ParticleManager>();
@@ -79,10 +79,10 @@ void GameScene::initialize()
 	scene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);
 
 	//uiシーン
-	uiScene = std::make_unique<Sprite>(deviceMgr->getDevice(), nullptr);
-	uiScene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);
+	/*uiScene = std::make_unique<Sprite>(deviceMgr->getDevice(), nullptr);
+	uiScene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);*/
 
-	AudioResourceList::instance()->getAudio("bgm")->play(true);
+	//AudioResourceList::instance()->getAudio("bgm")->play(true);
 }
 
 // 終了処理
@@ -109,7 +109,7 @@ void GameScene::update(float elapsedTime)
 	objManager->update(elapsedTime);
 
 	//UI更新
-	uiManager->update(elapsedTime);
+	//uiManager->update(elapsedTime);
 
 	//パーティクルシステム更新
 	particleMgr->update(elapsedTime);
@@ -122,7 +122,7 @@ void GameScene::update(float elapsedTime)
 
 	//ポストエフェクトの更新
 	PostEffects->update(elapsedTime);
-	uiPostEffects->update(elapsedTime);
+	//uiPostEffects->update(elapsedTime);
 }
 
 
@@ -190,7 +190,7 @@ void GameScene::sceneRender()
 	PostEffects->execution();
 
 	ImGui::Begin("Return Title");
-	if (ImGui::Button("return title"))SceneManager::instance()->changeScene(new TitleScene);
+	if (ImGui::Button("return title"))SceneManager::instance()->changeScene(new AudioDemoScene);
 	ImGui::End();
 }
 
@@ -208,7 +208,7 @@ void GameScene::render()
 {
 
 	sceneRender();
-	UIRender();
+	//UIRender();
 
 	GraphicsManager* graphics = GraphicsManager::instance();
 	ID3D11DeviceContext* dc = DeviceManager::instance()->getDeviceContext();
@@ -229,9 +229,9 @@ void GameScene::render()
 	//scene->render(dc, { posX,posY,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
 	scene->render(dc, {0.0f,0.0f,1280.0f,720.0f}, { 1,1,1,1 });
 
-	uiScene->setShaderResourceView(uiPostEffects->getCacheSrv());
+	//uiScene->setShaderResourceView(uiPostEffects->getCacheSrv());
 	//uiScene->render(dc, { 1280.0 / 2, 0.0f ,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
-	uiScene->render(dc, { 0.0f,0.0f,1280.0f,720.0f }, { 1,1,1,1 });
+	//uiScene->render(dc, { 0.0f,0.0f,1280.0f,720.0f }, { 1,1,1,1 });
 
 	PostprocessingRendererManager::instance()->Gui();
 }

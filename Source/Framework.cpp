@@ -3,7 +3,7 @@
 #include <d3d11.h>
 
 #include "Framework.h"
-#include "TitleScene.h"
+#include"AudioDemoScene.h"
 #include "Graphics/GraphicsManager.h"
 #include "SceneManager.h"
 
@@ -26,7 +26,8 @@ Framework::Framework(HWND hwnd) : hwnd(hwnd)
 	imguiRenderer = std::make_unique<ImGuiRenderer>(hwnd, deviceMgr->getDevice());
 	
 	// シーンの作成
-	SceneManager::instance()->changeScene(new TitleScene);
+	SceneManager::instance()->changeScene(new AudioDemoScene);
+	//SceneManager::instance()->changeScene(new TitleScene);
 }
 
 // デストラクタ

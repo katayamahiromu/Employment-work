@@ -1,10 +1,14 @@
 #pragma once
 #include"WaveData.h"
+#include"math/DSPMath.h"
+#include<random>
 
 class WaveShaper
 {
 private:
-	WaveShaper(){}
+	WaveShaper(){
+        rng.state = _mm256_set_epi32(1, 2, 3, 4, 5, 6, 7, 8);
+    }
 	~WaveShaper(){}
 public:
     static WaveShaper* instance()
@@ -14,4 +18,25 @@ public:
     }
 
     std::vector<UINT8> Decay(waveData& wave, float decay);
+    std::vector<UINT8> LowPass(waveData& wave,float baseCutoff, float depth);
+    std::vector<UINT8> BandPass(waveData& wave, float lowCut, float highCut);
+    std::vector<UINT8> WindHiss(waveData& wave, float St,     // ストローハル数
+        float D,      // 物体サイズ（隙間）
+        float U0,     // 基本風速
+        float rQ,     // 共鳴の鋭さ
+        float windRange); // 風速揺らぎ幅)
+
+    std::vector<UINT8>WindHissSIMD(waveData& wave, float St,     // ストローハル数
+        float D,      // 物体サイズ（隙間）
+        float U0,     // 基本風速
+        float rQ,     // 共鳴の鋭さ
+        float windRange); // 風速揺らぎ幅
+private:
+    //WindHissに必要なパラメータ
+    float y1 = 0.0f, y2 = 0.0f;
+    float a1 = 0.0f, a2 = 0.0f, b0 = 0.0f;
+    float a1_t = 0.0f, a2_t = 0.0f, b0_t = 0.0f;
+    int counter = 0;
+    float wind = 0.0f;
+    DSP::XorShift32x8 rng;
 };

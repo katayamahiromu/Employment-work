@@ -23,15 +23,12 @@ uint64_t Messenger::addReceiver(const std::string& identifier, Receiver receiver
 
 void Messenger::removeReceiver(uint64_t key)
 {
-	auto it = receivers.begin();
-	auto itE = receivers.begin();
-	while (it != itE)
+	for (auto it = receivers.begin(); it != receivers.end(); ++it)
 	{
 		if (it->second.key == key)
 		{
 			receivers.erase(it);
-			break;
+			return;
 		}
-		it++;
 	}
 }

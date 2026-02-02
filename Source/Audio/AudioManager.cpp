@@ -50,6 +50,7 @@ AudioManager* AudioManager::initialize()
 	smv = new SubMixVoiceManager;
 	smv->createSubMixVoice();
 
+	worker = std::make_unique<AudioWorker>();
 	return this;
 }
 

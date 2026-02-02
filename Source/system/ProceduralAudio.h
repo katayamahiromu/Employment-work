@@ -45,16 +45,23 @@ struct AudioData
 class ProceduralAudio
 {
 public:
+	using function = std::function<std::vector<UINT8>()>;
+
 	ProceduralAudio(int maxSourceCount);
 	~ProceduralAudio();
 
 	void play(int index);
+	void erase(int index);
+	bool isPlay(int index);
 
 	void createModalWave(const ModalMode* modes, size_t modeCount, float durationSeconds, float masterGain);
 
 	void loadModalData(const char* filename, float durationSeconds, float masterGain);
 
 	SignalProcesser* getSignalProcesser(){ return signal.get(); }
+
+	//指定したインデックスに波形データを格納
+	void registerWaveData(function f,int index);
 private:
 	std::unique_ptr<SignalProcesser> signal;
 	std::vector<AudioData>audioData;
