@@ -302,3 +302,37 @@ std::vector<UINT8> WaveShaper::WindHissSIMD(
 
     return samples;
 }
+
+std::vector<UINT8> WaveShaper::AmplitudeJitter(waveData& wave,
+    float jitterAmount)
+{
+    std::vector<UINT8> samples;
+
+    if (wave.samples.empty()) return {};
+
+    size_t numSamples = wave.samples.size();
+    samples.reserve(numSamples * 2);
+
+    std::mt19937 rng{ 98765 };
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+    for (size_t i = 0; i < numSamples; ++i)
+    {
+        // int16_t の PCM をそのまま取得
+        float x = static_cast<float>(wave.samples[i]);
+
+        // ジッター係数
+        float jitter = 1.0f + dist(rng) * jitterAmount;
+
+        // 振幅ジッター適用
+        x *= jitter;
+
+        // 16bit に収める
+        int16_t v = static_cast<int16_t>(std::clamp(x, -32768.0f, 32767.0f));
+
+        // 出力へ書き込み（16bit LE）
+        pushInt16LE(samples, v);
+    }
+
+    return samples;
+}

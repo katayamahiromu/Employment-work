@@ -5,11 +5,14 @@
 #include"Graphics/GraphicsManager.h"
 #include"../AudioFile/AudioFile.h"
 #include"Audio/SoundHealper.h"
+#include"../Utils/FunctionTime.h"
+#include"Audio/WaveShaper.h"
+
+
 #include"SceneManager.h"
 #include"LoadingScene.h"
 #include"GameScene.h"
-#include"../Utils/FunctionTime.h"
-#include"Audio/WaveShaper.h"
+#include"instrumentScene.h"
 
 extern "C" {
 #include"../Utils/libtinyfiledialogs-master/tinyfiledialogs.h"
@@ -32,10 +35,10 @@ void AudioDemoScene::initialize()
 	audio->CreateSourceVoice(&source, &signalProcess->getWaveFormat());
 	loadPreset("preset1.json");
 	loadPreset("preset2.json");
-	loadPreset("preset3.json");
+	//loadPreset("preset3.json");
 	modals = modalPresets.at(0).modals;
 
-
+	Oscillator* osc = Oscillator::instance();
 	/*auto [samples, elapsedMs] = MeasureExecutionTimeWithResult([&]() {
 		return Oscillator::instance()->triangleWave(440, 1.0f);
 		});
@@ -50,76 +53,26 @@ void AudioDemoScene::initialize()
 
 	//signalProcess->addWave(Oscillator::instance()->whiteNoise(1.0f));
 
-	signalProcess->addWave(Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f));
-	AudioManager::instance()->CreateWaveData(
-		[&] {signalProcess->addWave(
-			WaveShaper::instance()->WindHissSIMD(signalProcess->getWData(0),
-			0.2f,      // St
-			0.005f,    // D（5mm）
-			25.0f,     // U0
-			0.985f,    // rQ
-			30.0f));}// windRange
-	);
+	//signalProcess->addWave(Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f));
 
-	AudioManager::instance()->CreateWaveData(
-		[&]() {
-			auto samples = Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f);
-			waveData data  = signalProcess->createData(samples);
-			samples = WaveShaper::instance()->WindHissSIMD(
-				data,
-				0.2f,
-				0.005f,
-				25.0f,
-				0.985f,
-				30.0f);
-			signalProcess->addWave(samples,44100.0f,1.0f,0);
-		}
-	);
+	auto samples = Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f);
+	waveData data = signalProcess->createData(samples);
+	samples = WaveShaper::instance()->WindHissSIMD(data, 0.2f, 0.005f, 25.0f, 0.985f, 30.0f);
+	waveData data1 = signalProcess->createData(samples);
+	auto s2 = WaveShaper::instance()->AmplitudeJitter(data1, 0.1f);
+	signalProcess->addWave(s2, 44100.0f, 1.0f, 0);
 
-	//signalProcess->addWave(WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
-	//	0.2f,
-	//	0.005f,    // D（5mm）
-	//	25.0f,     // U0
-	//	0.985f,    // rQ
-	//	30.0f
-	//));
+	auto baseFlow = osc->pinkNoise(1.0f, SamplingRate, 12000);
+	auto heavyFlow = osc->brownNoise(1.0f, SamplingRate, 8000);
+	auto sparkle = osc->bandpassNoise(1.0f, SamplingRate, 3000, 2.0f, 5000);
+	auto bubbles = osc->bubbleNoise(1.0f,SamplingRate, 20, 0.4f);
+	auto resonance = osc->resonanceNoise(1.0f,SamplingRate,{ 250, 400, 650 }, 1.5f, 6000);
 
-	//auto [samples, elapsedMs] = MeasureExecutionTimeWithResult([&]() {
-	//	return WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
-	//		0.2f,
-	//		0.005f,    // D（5mm）
-	//		25.0f,     // U0
-	//		0.985f,    // rQ
-	//		30.0f
-	//		);
-	//	});
-	//exitTimes[0] = static_cast<float>(elapsedMs);
-	//signalProcess->addWave(samples, 1.0f, 44100);
-
-	//auto [samplesSIMD, elapsedMsSIMD] = MeasureExecutionTimeWithResult([&]() {
-	//	return WaveShaper::instance()->WindHissSIMD(signalProcess->getWData(0),
-	//		0.2f,
-	//		0.005f,    // D（5mm）
-	//		25.0f,     // U0
-	//		0.985f,    // rQ
-	//		30.0f
-	//		);
-	//	});
-	//exitTimes[1] = static_cast<float>(elapsedMsSIMD);
-
-	//signalProcess->addWave(WaveShaper::instance()->WindHiss(signalProcess->getWData(0),
-	//	0.2f,
-	//	0.03f,     // D（3cm）
-	//	12.0f,     // U0（ゆっくり）
-	//	0.970f,    // rQ（太い）
-	//	5.0f       // windRange
-	//));
-
-	//帯域事に分けてLowPassをかける
-	/*signalProcess->BandPass(0, 800.0f, 3000.0f);
-	signalProcess->LowPass(2, 3500.0f, 0.0f);
-	signalProcess->BandPass(0, 3000.0f, 7000.0f);
-	signalProcess->LowPass(3, 7000.0f, 0.0f);*/
+	signalProcess->addWave(baseFlow, 0.0f, 1.0f);
+	signalProcess->addWave(heavyFlow, 0.0f, 1.0f);
+	signalProcess->addWave(sparkle, 0.0f, 1.0f);
+	signalProcess->addWave(bubbles, 0.0f, 1.0f);
+	signalProcess->addWave(resonance, 0.0f, 1.0f);
 }
 
 void AudioDemoScene::finalize()
@@ -175,10 +128,11 @@ void AudioDemoScene::ProceduralAudioGui()
 	if (ImGui::Button("create wave data"))
 	{
 		std::vector<uint8_t>data;
+		float phase = 0.0f;
 		switch (uiState)
 		{
 		case WaveType::Sine:
-			data = Oscillator::instance()->sinWaveSIMD(frequency, durationSeconds);
+			data = Oscillator::instance()->sinWaveSIMD(frequency, durationSeconds, phase);
 			//signalProcess->setWaveTypeData(WaveTypeInfo::Sin, frequency, durationSeconds);
 			break;
 		case WaveType::Saw:
@@ -191,7 +145,7 @@ void AudioDemoScene::ProceduralAudioGui()
 			data = Oscillator::instance()->squareWave(frequency, durationSeconds);
 			break;
 		case WaveType::Noise:
-			data = Oscillator::instance()->whiteNoise(durationSeconds);
+			data = Oscillator::instance()->whiteNoiseSIMD(durationSeconds);
 			break;
 		case WaveType::Impact:
 			data = Oscillator::instance()->impactSound(0.8f, durationSeconds);
@@ -373,13 +327,19 @@ void AudioDemoScene::importData()
 		}
 	}
 
-	ImGui::SameLine();
+	/*ImGui::InputFloat("scalar time", &exitTimes[0]);
+	ImGui::InputFloat("simd time", &exitTimes[1]);*/
 	ImGui::End();
 
 	ImGui::Begin("Use Procedural Audio Scene");
 	if (ImGui::Button("Change Scene"))
 	{
 		SceneManager::instance()->changeScene(new LoadingScene(new GameScene));
+	}
+	
+	if (ImGui::Button("instrument"))
+	{
+		SceneManager::instance()->changeScene(new InstrumentScene);
 	}
 	ImGui::End();
 }
@@ -422,8 +382,6 @@ void AudioDemoScene::inputModalGui()
 
 	ImGui::InputFloat("Lowpass Cutoff (Hz)", &temp.lowpassCutoff);
 	ImGui::InputFloat("Highpass Cutoff (Hz)", &temp.highpassCutoff);
-
-
 
 	if (ImGui::Button("add modal"))
 	{

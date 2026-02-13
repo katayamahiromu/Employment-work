@@ -9,4 +9,5 @@ struct waveData
 	std::vector<int16_t>samples;//PCM
 	float gain = 1.0f; //ƒ{ƒŠƒ…[ƒ€
 	float frequency = 0.0f;//ü”g”
+	float phase = 0.0f; //ˆÊ‘Š
 };

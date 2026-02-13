@@ -15,6 +15,7 @@ class Oscillator
 {
 private:
     Oscillator() {
+        //乱数生成
         std::seed_seq seq{ 1234567, 891011, 12131415, 16171819 };
         std::array<uint32_t, 8> seeds{};
         seq.generate(seeds.begin(), seeds.end());
@@ -33,7 +34,7 @@ public:
 
     //サイン波
     std::vector<uint8_t> sinWave(float frequency, float durationSeconds, int sampleRate = 44100);
-    std::vector<uint8_t> sinWaveSIMD(float frequency, float durationSeconds, int sampleRate = 44100);
+    std::vector<uint8_t> sinWaveSIMD(float frequency, float durationSeconds, float& phase, int sampleRate = 44100);
 
     //ノコギリ波
     std::vector<uint8_t> sawtoothWave(float frequency, float durationSeconds, int sampleRate = 44100);
@@ -74,12 +75,37 @@ public:
         float brightness      // 高域の出やすさ（0.0〜1.0）
     );
 
-    std::vector<uint8_t> whooshWind(
+    //ブラウンノイズ
+    std::vector<uint8_t> brownNoise(float durationSeconds, int sampleRate, float gain);
+    
+    //ピンクノイズ
+    std::vector<uint8_t> pinkNoise(float durationSeconds, int sampleRate, float gain);
+
+    //バンドパスノイズ
+    std::vector<uint8_t> bandpassNoise(
         float durationSeconds,
         int sampleRate,
-        float intensity,   // 0.0〜1.0：風の強さ
-        float brightness   // 0.0〜1.0：サラサラ感
+        float centerFreq,
+        float Q,
+        float gain);
+
+    //バブル粒子
+    std::vector<uint8_t> bubbleNoise(
+        float durationSeconds,
+        int sampleRate,
+        float density,      // 1秒あたりの泡の数
+        float maxAmp        // 最大振幅
     );
+
+    //レゾナンスノイズ
+    std::vector<uint8_t> resonanceNoise(
+        float durationSeconds,
+        int sampleRate,
+        const std::vector<float>& freqs, // 共鳴周波数のリスト
+        float Q,
+        float gain
+    );
+
 private:
     float pinkPrev = 0.0f;
     float lpPrev = 0.0f;

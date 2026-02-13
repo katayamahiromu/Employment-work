@@ -26,11 +26,15 @@ public:
         float rQ,     // 共鳴の鋭さ
         float windRange); // 風速揺らぎ幅)
 
-    std::vector<UINT8>WindHissSIMD(waveData& wave, float St,     // ストローハル数
+    std::vector<UINT8>WindHissSIMD(waveData& wave,
+        float St,     // ストローハル数
         float D,      // 物体サイズ（隙間）
         float U0,     // 基本風速
         float rQ,     // 共鳴の鋭さ
         float windRange); // 風速揺らぎ幅
+
+    std::vector<UINT8>AmplitudeJitter(waveData& wave,
+        float jitterAmount); // ±何％揺らすか
 private:
     //WindHissに必要なパラメータ
     float y1 = 0.0f, y2 = 0.0f;
@@ -39,4 +43,4 @@ private:
     int counter = 0;
     float wind = 0.0f;
     DSP::XorShift32x8 rng;
-};
+}; 

@@ -35,7 +35,7 @@ AudioManager* AudioManager::initialize()
 
 	UINT32 createFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-	//createFlags |= XAUDIO2_DEBUG_ENGINE;
+	createFlags |= XAUDIO2_DEBUG_ENGINE;
 #endif
 
 	// XAudioèâä˙âª

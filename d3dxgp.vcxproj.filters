@@ -79,6 +79,9 @@
     <Filter Include="Utils\tinyfiledialogs">
       <UniqueIdentifier>{8e8d8aa5-36f9-4441-a654-7abd2febdd51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\MusicData">
+      <UniqueIdentifier>{9688609e-9fa9-450c-a59a-67f3c5268b8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework.cpp">
@@ -368,6 +371,18 @@
     </ClCompile>
     <ClCompile Include="Source\Audio\AudioWorker.cpp">
       <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\system\windowSoundSystem.cpp">
+      <Filter>Source\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\instrumentScene.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\system\RiverSoundSystem.cpp">
+      <Filter>Source\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\RainLine.cpp">
+      <Filter>Source\Graphics\Post Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -716,6 +731,24 @@
     <ClInclude Include="Source\Audio\AudioWorker.h">
       <Filter>Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="Source\system\windowSoundSystem.h">
+      <Filter>Source\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\instrumentScene.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MusicData\musicData1.h">
+      <Filter>Source\MusicData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MusicData\freqTabel.h">
+      <Filter>Source\MusicData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\system\RiverSoundSystem.h">
+      <Filter>Source\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\RainLine.h">
+      <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\ImGui.hlsli">
@@ -848,6 +881,9 @@
       <Filter>HLSL\Post Effect</Filter>
     </FxCompile>
     <FxCompile Include="HLSL\BlackToAlphaPS.hlsl">
+      <Filter>HLSL\Post Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\RainPS.hlsl">
       <Filter>HLSL\Post Effect</Filter>
     </FxCompile>
   </ItemGroup>

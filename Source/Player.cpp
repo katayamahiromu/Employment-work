@@ -43,28 +43,6 @@ Player::~Player()
 
 void Player::OnGUI()
 {
-    ImGui::SliderFloat("windowSpeed", &windowSpeed, 0.0f, 10.0f);
-    ImGui::SliderFloat("gustAmount", &gustAmount, 0.0f, 1.0f);
-    ImGui::SliderFloat("brightness", &brightness, 0.0f, 1.0f);
-    ImGui::SliderFloat("St (Strouhal)",
-        &St,
-        0.1f, 0.6f, "%.3f");
-
-    ImGui::SliderFloat("D (Gap Size m)",
-        &D,
-        0.001f, 0.05f, "%.4f m");   // 1mm〜50mm
-
-    ImGui::SliderFloat("U0 (Wind Speed m/s)",
-        &U0,
-        0.0f, 60.0f, "%.1f m/s");
-
-    ImGui::SliderFloat("rQ (Resonance Q)",
-        &rQ,
-        0.1f, 5.0f, "%.3f");
-
-    ImGui::SliderFloat("Wind Range (m/s)",
-        &windRange,
-        0.0f, 50.0f, "%.1f m/s");
 
 }
 
@@ -79,36 +57,6 @@ void Player::prepare()
     cameraInfo = getObject()->GetComponent<CameraInfo>();
 
     //footSound->createModalWave(stoneModes, 6, 0.3f, 1.0f);
-
-    windowSound = std::make_unique<ProceduralAudio>(2);
-
-    //風の音の生成命令
-    auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5f, SamplingRate, windowSpeed, gustAmount, brightness);
-    waveData data = windowSound->getSignalProcesser()->createData(samples);
-    samples = WaveShaper::instance()->WindHissSIMD(
-        data,
-        St,
-        D,
-        U0,
-        rQ,
-        windRange);
-    windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, playIndex);
-
-    AudioManager::instance()->CreateWaveData(
-        [&]() {
-            auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5, SamplingRate, windowSpeed, gustAmount, brightness);
-            waveData data = windowSound->getSignalProcesser()->createData(samples);
-            samples = WaveShaper::instance()->WindHissSIMD(
-                data,
-                St,
-                D,
-                U0,
-                rQ,
-                windRange);
-            windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, genIndex);
-        }
-    );
-    windowSound->play(playIndex);
 
     playerController->registerFunc([]() {TimeLapseManager::instance().outputRecordInformation();}, PlayerController::keyAllocation::key_A);
 
@@ -142,7 +90,8 @@ void Player::update(float elapsedTime)
 
     //リスナーの情報更新
     lister->setVelocity(movement->getVelocity());
-
+    lister->setPosition(*getObject()->getPosition());
+   
     //タイムラプス側に通知
     timeLapsNotice();
 
@@ -154,31 +103,6 @@ void Player::update(float elapsedTime)
 
     //巻き戻し時のエフェクト生成
     createRewindTime();
-
-    if (!windowSound->isPlay(playIndex))
-    {
-        // 再生終了 → スワップ
-        std::swap(playIndex, genIndex);
-
-        // 再生開始
-        windowSound->play(playIndex);
-
-        //風の音の生成命令
-        AudioManager::instance()->CreateWaveData(
-            [&]() {
-                auto samples = Oscillator::instance()->turbulenceNoiseSIMD(0.5f, SamplingRate, windowSpeed, gustAmount, brightness);
-                waveData data = windowSound->getSignalProcesser()->createData(samples);
-                samples = WaveShaper::instance()->WindHissSIMD(
-                    data,
-                    St,
-                    D,
-                    U0,
-                    rQ,
-                    windRange);
-                windowSound->getSignalProcesser()->addWave(samples, 44100.0f, 1.0f, genIndex);
-            }
-        );
-    }
 }
 
 void Player::sendCameraData()

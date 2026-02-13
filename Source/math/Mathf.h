@@ -31,11 +31,30 @@ public:
 	static float calcDistanceSqXZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b);
 
 	//姿勢行列を位置、拡大、回転に分解
-	static void transformDecomposition(DirectX::XMFLOAT4X4&transform, DirectX::XMFLOAT3&pos, DirectX::XMFLOAT3&scale,DirectX::XMFLOAT4&rotation);
+	static void transformDecomposition(
+		DirectX::XMFLOAT4X4&transform, 
+		DirectX::XMFLOAT3&pos, 
+		DirectX::XMFLOAT3&scale,
+		DirectX::XMFLOAT4&rotation);
 
 	//角度正規化
 	static float normalizeAngle(float angle);
 
 	//クォータニオンからヨー角の値を取得
 	static float getYawFromQuaternion(const DirectX::XMFLOAT4& q);
+
+	//線分と点を比べ一番近い点を算出
+	static DirectX::XMFLOAT3 ClosestPointOnSegment(
+		const DirectX::XMFLOAT3& p0,
+		const DirectX::XMFLOAT3& p1,
+		const DirectX::XMFLOAT3& point);
+
+	//スプライン上の点を求める
+	static DirectX::XMFLOAT3 CatmullRom(
+		const DirectX::XMFLOAT3& p0,
+		const DirectX::XMFLOAT3& p1,
+		const DirectX::XMFLOAT3& p2,
+		const DirectX::XMFLOAT3& p3,
+		float t);
+
 };

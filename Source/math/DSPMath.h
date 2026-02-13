@@ -111,7 +111,6 @@ namespace DSP
 	//SIMDでの範囲ラップ
 	__forceinline Sample8F WrapPhaseGE(Sample8F phase, Sample8F wrapValue)
 	{
-		// if (phase >= wrapValue) phase -= wrapValue;
 		return _mm256_sub_ps(
 			phase,
 			_mm256_and_ps(

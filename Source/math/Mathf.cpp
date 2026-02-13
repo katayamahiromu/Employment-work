@@ -1,5 +1,6 @@
 #include"Mathf.h"
 #include<stdlib.h>
+#include<algorithm>
 
 float Mathf::Leap(float a, float b, float t)
 {
@@ -86,4 +87,55 @@ float Mathf::getYawFromQuaternion(const DirectX::XMFLOAT4& q)
 
     // atan2(forward.x, forward.z) ‚Å Yaw ‚ðŽæ“¾
     return std::atan2(forward.x, forward.z);
+}
+
+DirectX::XMFLOAT3 Mathf::ClosestPointOnSegment(
+    const DirectX::XMFLOAT3& p0,
+    const DirectX::XMFLOAT3& p1,
+    const DirectX::XMFLOAT3& point)
+{
+    DirectX::XMVECTOR P0 = DirectX::XMLoadFloat3(&p0);
+    DirectX::XMVECTOR P1 = DirectX::XMLoadFloat3(&p1);
+    DirectX::XMVECTOR Point = DirectX::XMLoadFloat3(&point);
+
+    DirectX::XMVECTOR LineVec = DirectX::XMVectorSubtract(P1, P0);
+    DirectX::XMVECTOR PtoP1Vec = DirectX::XMVectorSubtract(Point, P0);
+
+    //’·‚³‚ðŽæ“¾
+    float pLenSq = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(LineVec));
+
+    if (pLenSq <= 0.0001f)
+    {
+        return p0; // ü•ª‚ª“_‚Ìê‡
+    }
+
+    //ŽË‰eŒW”
+    float t = DirectX::XMVectorGetX(DirectX::XMVector3Dot(PtoP1Vec, LineVec)) / pLenSq;
+
+    t = std::clamp(t, 0.0f, 1.0f);
+    DirectX::XMVECTOR Closest = DirectX::XMVectorAdd(P0, DirectX::XMVectorScale(LineVec,t));
+
+    DirectX::XMFLOAT3 result;
+    XMStoreFloat3(&result, Closest);
+    return result;
+}
+
+DirectX::XMFLOAT3 Mathf::CatmullRom(
+    const DirectX::XMFLOAT3& p0,
+    const DirectX::XMFLOAT3& p1,
+    const DirectX::XMFLOAT3& p2,
+    const DirectX::XMFLOAT3& p3,
+    float t)
+{
+    DirectX::XMVECTOR P0 = DirectX::XMLoadFloat3(&p0);
+    DirectX::XMVECTOR P1 = DirectX::XMLoadFloat3(&p1);
+    DirectX::XMVECTOR P2 = DirectX::XMLoadFloat3(&p2);
+    DirectX::XMVECTOR P3 = DirectX::XMLoadFloat3(&p3);
+
+    DirectX::XMVECTOR result =
+        DirectX::XMVectorCatmullRom(P0, P1, P2, P3, t);
+
+    DirectX::XMFLOAT3 out;
+    XMStoreFloat3(&out, result);
+    return out;
 }

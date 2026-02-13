@@ -1,5 +1,6 @@
 #include"AudioCallback.h"
 #include"AudioManager.h"
+#include"../system/ProceduralAudio.h"
 
 AudioCallback::AudioCallback()
 {
@@ -83,12 +84,12 @@ void ProceduralAudioCallback::OnVoiceProcessingPassStart(UINT32 SamplesRequired)
 
 void ProceduralAudioCallback::OnBufferEnd(void* pBufferContext)noexcept
 {
-
+	static_cast<AudioData*>(pBufferContext)->playing = false;
 }
 
 void ProceduralAudioCallback::OnBufferStart(void* pBufferContext)noexcept
 {
-
+	//static_cast<AudioData*>(pBufferContext)->playing = true;
 }
 
 void ProceduralAudioCallback::OnLoopEnd(void* pBufferContext)noexcept

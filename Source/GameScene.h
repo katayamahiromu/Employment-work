@@ -17,7 +17,8 @@
 
 #include"Graphics/DepthNormalTex.h"
 
-
+#include"system/windowSoundSystem.h"
+#include"system/RiverSoundSystem.h"
 
 
 // ÉQÅ[ÉÄÉVÅ[Éì
@@ -56,6 +57,10 @@ private:
 	std::unique_ptr<PostprocessingRenderer>uiPostEffects;
 
 	std::unique_ptr<Skymap>skymap;
+
+	//âπ
+	std::unique_ptr<WindowSoundSystem>windowSoundSystem;
+	std::unique_ptr<RiverSoundSystem>river;
 
 	std::unique_ptr<Sprite>scene;
 	std::unique_ptr<Sprite>uiScene;

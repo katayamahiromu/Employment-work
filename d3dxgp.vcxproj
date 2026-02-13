@@ -215,6 +215,7 @@
     <ClCompile Include="Source\Graphics\Mask.cpp" />
     <ClCompile Include="Source\Graphics\MrtAttachment.cpp" />
     <ClCompile Include="Source\Graphics\PostProcessing.cpp" />
+    <ClCompile Include="Source\Graphics\RainLine.cpp" />
     <ClCompile Include="Source\Graphics\RewidLine.cpp" />
     <ClCompile Include="Source\Graphics\SkinnedMesh.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
@@ -226,6 +227,7 @@
     <ClCompile Include="Source\Input\GamePad.cpp" />
     <ClCompile Include="Source\Input\InputManager.cpp" />
     <ClCompile Include="Source\Input\Mouse.cpp" />
+    <ClCompile Include="Source\instrumentScene.cpp" />
     <ClCompile Include="Source\LoadingScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\math\Collision.cpp" />
@@ -247,8 +249,10 @@
     <ClCompile Include="Source\system\Messenger.cpp" />
     <ClCompile Include="Source\system\PostprocessingRenderer.cpp" />
     <ClCompile Include="Source\system\ProceduralAudio.cpp" />
+    <ClCompile Include="Source\system\RiverSoundSystem.cpp" />
     <ClCompile Include="Source\system\StateMachine.cpp" />
     <ClCompile Include="Source\system\TimeLapseManager.cpp" />
+    <ClCompile Include="Source\system\windowSoundSystem.cpp" />
     <ClCompile Include="Source\TitleScene.cpp" />
     <ClCompile Include="Source\UIManager.cpp" />
     <ClCompile Include="Source\Weapon.cpp" />
@@ -319,6 +323,7 @@
     <ClInclude Include="Source\Graphics\Mask.h" />
     <ClInclude Include="Source\Graphics\MrtAttachment.h" />
     <ClInclude Include="Source\Graphics\PostProcessing.h" />
+    <ClInclude Include="Source\Graphics\RainLine.h" />
     <ClInclude Include="Source\Graphics\RewidLine.h" />
     <ClInclude Include="Source\Graphics\SkinnedMesh.h" />
     <ClInclude Include="Source\Graphics\Shader.h" />
@@ -331,6 +336,7 @@
     <ClInclude Include="Source\Input\GamePad.h" />
     <ClInclude Include="Source\Input\InputManager.h" />
     <ClInclude Include="Source\Input\Mouse.h" />
+    <ClInclude Include="Source\instrumentScene.h" />
     <ClInclude Include="Source\LoadingScene.h" />
     <ClInclude Include="Source\math\Collision.h" />
     <ClInclude Include="Source\math\DSPMath.h" />
@@ -338,6 +344,8 @@
     <ClInclude Include="Source\math\Mathf.h" />
     <ClInclude Include="Source\misc.h" />
     <ClInclude Include="Source\modelScene.h" />
+    <ClInclude Include="Source\MusicData\freqTabel.h" />
+    <ClInclude Include="Source\MusicData\musicData1.h" />
     <ClInclude Include="Source\particle\Particle.h" />
     <ClInclude Include="Source\particle\ParticleManager.h" />
     <ClInclude Include="Source\particle\particle_system.h" />
@@ -355,9 +363,11 @@
     <ClInclude Include="Source\system\Messenger.h" />
     <ClInclude Include="Source\system\PostprocessingRenderer.h" />
     <ClInclude Include="Source\system\ProceduralAudio.h" />
+    <ClInclude Include="Source\system\RiverSoundSystem.h" />
     <ClInclude Include="Source\system\State.h" />
     <ClInclude Include="Source\system\StateMachine.h" />
     <ClInclude Include="Source\system\TimeLapseManager.h" />
+    <ClInclude Include="Source\system\windowSoundSystem.h" />
     <ClInclude Include="Source\TitleScene.h" />
     <ClInclude Include="Source\UI.h" />
     <ClInclude Include="Source\UIManager.h" />
@@ -539,6 +549,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\MaskPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="HLSL\RainPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

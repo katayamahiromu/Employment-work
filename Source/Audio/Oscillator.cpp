@@ -22,14 +22,13 @@ std::vector<uint8_t> Oscillator::sinWave(float frequency, float durationSeconds,
     return samples;
 }
 
-std::vector<uint8_t> Oscillator::sinWaveSIMD(float frequency, float durationSeconds, int sampleRate)
+std::vector<uint8_t> Oscillator::sinWaveSIMD(float frequency, float durationSeconds, float& phase,int sampleRate)
 {
     const int numSamples = static_cast<int>(durationSeconds * sampleRate);
     std::vector<uint8_t> samples(numSamples * 2);
 
     // 位相は float ベースで管理
     const float w = DirectX::XM_2PI * frequency / static_cast<float>(sampleRate);
-    float phase = 0.0f;
 
     uint8_t* dst = samples.data();
 
@@ -52,27 +51,11 @@ std::vector<uint8_t> Oscillator::sinWaveSIMD(float frequency, float durationSeco
         phase8_base = DSP::UpdatePhase2PI(phase8_base,w8);
     }
 
-    //// --- 端数処理（スカラ） ---
-    //for (; i < numSamples; ++i)
-    //{
-    //    float v = std::sin(phase) * 30000.0f;
+    alignas(32) float phaseArray[8];
+    _mm256_store_ps(phaseArray, phase8_base);
+    phase = phaseArray[7]; //最後の位相を返す
 
-    //    if (v > 32760.0f)  v = 32760.0f;
-    //    if (v < -32760.0f) v = -32760.0f;
-
-    //    int16_t s = static_cast<int16_t>(std::lrintf(v));
-
-    //    dst[0] = static_cast<uint8_t>(s & 0xFF);
-    //    dst[1] = static_cast<uint8_t>((s >> 8) & 0xFF);
-    //    dst += 2;
-
-    //    phase += w;
-    //    if (phase >= DirectX::XM_2PI)
-    //        phase -= DirectX::XM_2PI;
-    //    else if (phase < 0.0f)
-    //        phase += DirectX::XM_2PI;
-    //}
-
+  
     return samples;
 }
 
@@ -130,25 +113,6 @@ std::vector<uint8_t> Oscillator::sawtoothWaveSIMD(float frequency, float duratio
         base4d = DSP::UpdatePhase4d(base4d, inc4d);
     }
 
-    //// 端数（スカラ double）
-    //for (; i < numSamples; ++i)
-    //{
-    //    double value = 2.0 * (phaseBase - 0.5);
-    //    double v = value * 30000.0;
-
-    //    if (v > 32760.0)  v = 32760.0;
-    //    if (v < -32760.0) v = -32760.0;
-
-    //    int16_t s = static_cast<int16_t>(std::lrint(v));
-    //    dst[0] = s & 0xFF;
-    //    dst[1] = (s >> 8) & 0xFF;
-    //    dst += 2;
-
-    //    phaseBase += phaseInc;
-    //    if (phaseBase >= 1.0)
-    //        phaseBase -= 1.0;
-    //}
-
     return samples;
 }
 
@@ -200,21 +164,6 @@ std::vector<uint8_t> Oscillator::triangleWaveSIMD(float frequency, float duratio
         DSP::StorePCMData(dst, wave, 16);
         phase8 = DSP::UpdatePhase(phase8, inc8);
     }
-
-
-
-
-    /*float phaseScalar = i * w;
-    for (; i < numSamples; ++i)
-    {
-        float tri = 2.0f * std::fabs(2.0f * (phaseScalar - std::floor(phaseScalar + 0.5f))) - 1.0f;
-        int16_t s = static_cast<int16_t>(tri * 30000.0f);
-        pushInt16LE(samples, s);
-
-        phaseScalar += w;
-        if (phaseScalar >= 1.0f)
-            phaseScalar -= 1.0f;
-    }*/
 
     return samples;
 }
@@ -348,20 +297,8 @@ std::vector<uint8_t> Oscillator::whiteNoiseSIMD(float durationSeconds, int sampl
         // ±30000 にスケール
         __m256 scaled = _mm256_mul_ps(rf, DSP::scale8);
 
-       /* DSP::Avx2SClampedF32To16(dst, scaled);
-        dst += 16;*/
         DSP::StorePCMData(dst, scaled, 16);
     }
-
-    //// tail
-    //std::mt19937 gen(123456);
-    //std::uniform_int_distribution<int> dist(-30000, 30000);
-
-    //for (; i < numSamples; ++i)
-    //{
-    //    int16_t s = static_cast<int16_t>(dist(gen));
-    //    pushInt16LE(samples, s);
-    //}
 
     return samples;
 }
@@ -655,59 +592,246 @@ std::vector<uint8_t> Oscillator::turbulenceNoiseSIMD(
     return samples;
 }
 
-std::vector<uint8_t> Oscillator::whooshWind(
-    float durationSeconds,
-    int sampleRate,
-    float intensity,   // 0.0〜1.0：風の強さ
-    float brightness   // 0.0〜1.0：サラサラ感
-)
+std::vector<uint8_t> Oscillator::brownNoise(float durationSeconds, int sampleRate, float gain)
 {
     int numSamples = static_cast<int>(durationSeconds * sampleRate);
-    std::vector<uint8_t> samples;
-    samples.reserve(numSamples * 2);
+    std::vector<uint8_t> samples(numSamples * 2);
 
-    std::mt19937 rng{ std::random_device{}() };
+    std::random_device rd;
+    std::default_random_engine gen(rd());
     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
-    float bp1 = 0.0f, bp2 = 0.0f;
-
-    float fc = 3000.0f + brightness * 1500.0f; 
-    float Q = 6.0f;                        
-
-    float w0 = 2.0f * DirectX::XM_PI * fc / sampleRate;
-    float alpha = sin(w0) / (2.0f * Q);
-
-    float b0 = alpha;
-    float b1 = 0.0f;
-    float b2 = -alpha;
-    float a0 = 1.0f + alpha;
-    float a1 = -2.0f * cos(w0);
-    float a2 = 1.0f - alpha;
-
-    b0 /= a0; b1 /= a0; b2 /= a0;
-    a1 /= a0; a2 /= a0;
+    float brown = 0.0f;
 
     for (int i = 0; i < numSamples; ++i)
     {
-        float t = (float)i / numSamples;
+        brown += dist(gen) * 0.02f;     // 積分
+        brown = std::clamp(brown, -1.0f, 1.0f);
 
-   
-        float attack = min(1.0f, t * 25.0f); // ゆっくり立ち上げる
-        float decay = std::exp(-t * 3.0f);
-        float env = attack * decay;
-
-        // --- ホワイトノイズ ---
-        float x = dist(rng) * 0.4f; // 振幅を小さく
-
-        float y = b0 * x + b1 * bp1 + b2 * bp2 - a1 * bp1 - a2 * bp2;
-        bp2 = bp1;
-        bp1 = y;
-
-        float out = y * env * intensity;
-
-        int16_t s = static_cast<int16_t>(std::clamp(out * 20000.0f, -32768.0f, 32767.0f));
+        int16_t s = static_cast<int16_t>(brown * gain);
         pushInt16LE(samples, s);
     }
 
     return samples;
 }
+
+std::vector<uint8_t> Oscillator::pinkNoise(float durationSeconds, int sampleRate, float gain)
+{
+    int numSamples = static_cast<int>(durationSeconds * sampleRate);
+    std::vector<uint8_t> samples(numSamples * 2);
+
+    const int numRows = 16;
+    int rows[numRows] = { 0 };
+    int counter = 0;
+
+    std::random_device rd;
+    std::default_random_engine gen(rd());
+    std::uniform_int_distribution<int> dist(-30000, 30000);
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        int lastCounter = counter;
+        counter++;
+
+        int sum = 0;
+
+        for (int r = 0; r < numRows; ++r)
+        {
+            if ((counter & (1 << r)) != (lastCounter & (1 << r)))
+            {
+                rows[r] = dist(gen);
+            }
+            sum += rows[r];
+        }
+
+        int16_t s = static_cast<int16_t>((sum / numRows) * gain / 30000.0f);
+        pushInt16LE(samples, s);
+    }
+
+    return samples;
+}
+
+std::vector<uint8_t> Oscillator::bandpassNoise(
+    float durationSeconds,
+    int sampleRate,
+    float centerFreq,
+    float Q,
+    float gain)
+{
+    int numSamples = static_cast<int>(durationSeconds * sampleRate);
+    std::vector<uint8_t> samples(numSamples * 2);
+
+    // ホワイトノイズ生成器
+    std::random_device rd;
+    std::default_random_engine gen(rd());
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+    // BPF 設計
+    float w0 = 2.0f * 3.14159265f * centerFreq / sampleRate;
+    float alpha = sinf(w0) / (2.0f * Q);
+
+    float b0 = alpha;
+    float b1 = 0.0f;
+    float b2 = -alpha;
+    float a0 = 1.0f + alpha;
+    float a1 = -2.0f * cosf(w0);
+    float a2 = 1.0f - alpha;
+
+    // 正規化
+    b0 /= a0; b1 /= a0; b2 /= a0;
+    a1 /= a0; a2 /= a0;
+
+    float x1 = 0, x2 = 0;
+    float y1 = 0, y2 = 0;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float x0 = dist(gen);
+
+        float y0 = b0 * x0 + b1 * x1 + b2 * x2
+            - a1 * y1 - a2 * y2;
+
+        x2 = x1; x1 = x0;
+        y2 = y1; y1 = y0;
+
+        int16_t s = static_cast<int16_t>(y0 * gain);
+        pushInt16LE(samples, s);
+    }
+
+    return samples;
+}
+
+std::vector<uint8_t> Oscillator::bubbleNoise(
+    float durationSeconds,
+    int sampleRate,
+    float density,      // 1秒あたりの泡の数
+    float maxAmp        // 最大振幅
+)
+{
+    int numSamples = static_cast<int>(durationSeconds * sampleRate);
+
+    // まず全サンプルを 0 で埋める
+    std::vector<int16_t> temp(numSamples, 0);
+
+    std::random_device rd;
+    std::default_random_engine gen(rd());
+    std::uniform_real_distribution<float> ampDist(0.1f, maxAmp);
+    std::uniform_real_distribution<float> timeDist(0.0f, durationSeconds);
+    std::uniform_real_distribution<float> durDist(0.001f, 0.005f); // 1〜5ms
+
+    int numBubbles = static_cast<int>(durationSeconds * density);
+
+    for (int b = 0; b < numBubbles; ++b)
+    {
+        float startTime = timeDist(gen);
+        float bubbleDur = durDist(gen);
+        float amp = ampDist(gen);
+
+        int startSample = static_cast<int>(startTime * sampleRate);
+        int bubbleSamples = static_cast<int>(bubbleDur * sampleRate);
+
+        for (int i = 0; i < bubbleSamples; ++i)
+        {
+            int idx = startSample + i;
+            if (idx >= numSamples) break;
+
+            float env = 1.0f - (float)i / bubbleSamples; // 短い減衰
+            float s = amp * env;
+
+            int16_t v = static_cast<int16_t>(s * 30000);
+
+            // temp にミックス（加算）
+            temp[idx] = std::clamp<int>(temp[idx] + v, -32768, 32767);
+        }
+    }
+
+    // 最後に pushInt16LE でバイト列に変換
+    std::vector<uint8_t> samples;
+    samples.reserve(numSamples * 2);
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        pushInt16LE(samples, temp[i]);
+    }
+
+    return samples;
+}
+
+std::vector<uint8_t> Oscillator::resonanceNoise(
+    float durationSeconds,
+    int sampleRate,
+    const std::vector<float>& freqs, // 共鳴周波数のリスト
+    float Q,
+    float gain
+)
+{
+    int numSamples = static_cast<int>(durationSeconds * sampleRate);
+    std::vector<uint8_t> samples(numSamples * 2);
+
+    // ホワイトノイズ生成器
+    std::random_device rd;
+    std::default_random_engine gen(rd());
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+    // 各フィルタの状態
+    struct BPFState { float x1 = 0, x2 = 0, y1 = 0, y2 = 0; };
+    std::vector<BPFState> states(freqs.size());
+
+    // フィルタ係数を事前計算
+    struct BPF { float b0, b1, b2, a1, a2; };
+    std::vector<BPF> filters;
+
+    for (float f : freqs)
+    {
+        float w0 = 2.0f * 3.14159265f * f / sampleRate;
+        float alpha = sinf(w0) / (2.0f * Q);
+
+        float b0 = alpha;
+        float b1 = 0.0f;
+        float b2 = -alpha;
+        float a0 = 1.0f + alpha;
+        float a1 = -2.0f * cosf(w0);
+        float a2 = 1.0f - alpha;
+
+        filters.push_back({
+            b0 / a0, b1 / a0, b2 / a0,
+            a1 / a0, a2 / a0
+            });
+    }
+
+    // LFO（ゆっくり揺らす）
+    float lfoPhase = 0.0f;
+    float lfoSpeed = 0.3f; // Hz
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float x = dist(gen);
+
+        float out = 0.0f;
+
+        // LFO
+        float lfo = 0.5f + 0.5f * sinf(lfoPhase);
+        lfoPhase += (2.0f * 3.14159265f * lfoSpeed) / sampleRate;
+
+        // 各共鳴フィルタを通す
+        for (size_t k = 0; k < filters.size(); ++k)
+        {
+            auto& f = filters[k];
+            auto& st = states[k];
+
+            float y = f.b0 * x + f.b1 * st.x1 + f.b2 * st.x2
+                - f.a1 * st.y1 - f.a2 * st.y2;
+
+            st.x2 = st.x1; st.x1 = x;
+            st.y2 = st.y1; st.y1 = y;
+
+            out += y * lfo; // LFOで揺らす
+        }
+
+        int16_t s = static_cast<int16_t>(out * gain);
+        pushInt16LE(samples, s);
+    }
+
+    return samples;
+}
+

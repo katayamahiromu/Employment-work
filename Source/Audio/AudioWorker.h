@@ -14,6 +14,8 @@ public:
 	~AudioWorker();
 
 	void PushTask(Task task);
+
+	int TaskCount() { return static_cast<int>(tasks.size()); }
 private:
 	void Run();
 private:

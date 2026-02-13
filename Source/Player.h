@@ -99,20 +99,4 @@ private:
 
 	std::unique_ptr<StateMachine>stateMachine;
 	std::vector<Audio3D*>Audio3dArray;
-
-
-	//風の音関係
-	std::unique_ptr<ProceduralAudio>windowSound;
-	float windowSpeed = 0.5f;
-	float gustAmount = 0.6f;
-	float brightness = 1.0f;
-
-	float St = 0.2f;     // ストローハル数
-	float D = 0.005f;      // 物体サイズ（隙間）
-	float U0 = 25.0f;     // 基本風速
-	float rQ = 0.985f;    // 共鳴の鋭さ
-	float windRange = 30.0f; // 風速揺らぎ幅
-
-	int playIndex = 0;
-	int genIndex = 1;
 };

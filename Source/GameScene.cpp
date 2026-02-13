@@ -17,6 +17,7 @@
 #include"Graphics/ColorGrading.h"
 #include"Graphics/ACES_Filmic.h"
 #include"Graphics/BlockToAlpha.h"
+#include"Graphics/RainLine.h"
 
 #include"system/TimeLapseManager.h"
 #include"../Source/ResourceList/AuidoResourceList.h"
@@ -45,23 +46,17 @@ void GameScene::initialize()
 
 	uiManager = std::make_unique<UIManager>();
 	uiManager->registerUi(new RewindTimeUI(*playerManager->getPlayer()->GetComponent<TimeLapse>()));
-	//uiManager->registerUi(new HPBar(&Hp));
 
-	skymap = std::make_unique<Skymap>(L"Resources/Image/cuve.png");
+	skymap = std::make_unique<Skymap>(L"Resources/Image/back.jpg");
 	
 	//ポストエフェクト
 	//PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 	PostEffects = std::make_unique<PostprocessingRenderer>();
+	PostEffects->addPostProcess(new RainLine);
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
 	PostEffects->addPostProcess(new ACES_Filmic);
-
-	/*uiPostEffects = std::make_unique<PostprocessingRenderer>();
-	uiPostEffects->addPostProcess(new LuminanceExtract);
-	uiPostEffects->addPostProcess(new GaussianFilter);
-	uiPostEffects->addPostProcess(new ColorGrading);
-	uiPostEffects->addPostProcess(new BlackToAlpha);*/
 
 	//パーティクル
 	particleMgr = std::make_unique<ParticleManager>();
@@ -83,6 +78,11 @@ void GameScene::initialize()
 	uiScene->resizeTextureSize(deviceMgr->getDevice(), 1280, 720);*/
 
 	//AudioResourceList::instance()->getAudio("bgm")->play(true);
+
+	windowSoundSystem = std::make_unique<WindowSoundSystem>();
+	windowSoundSystem->start();
+
+	river = std::make_unique<RiverSoundSystem>();
 }
 
 // 終了処理
@@ -123,6 +123,12 @@ void GameScene::update(float elapsedTime)
 	//ポストエフェクトの更新
 	PostEffects->update(elapsedTime);
 	//uiPostEffects->update(elapsedTime);
+
+	//風の音
+	windowSoundSystem->update();
+
+	//川の音
+	river->update();
 }
 
 
@@ -155,6 +161,8 @@ void GameScene::sceneRender()
 
 		//デバック用のレンダラー表示
 		collisionSystem->debugRender();
+
+		river->debugRender();
 
 		// ラインレンダラ描画実行
 		graphics->getLineRenderer()->render(dc, *view, *proj);
@@ -192,6 +200,8 @@ void GameScene::sceneRender()
 	ImGui::Begin("Return Title");
 	if (ImGui::Button("return title"))SceneManager::instance()->changeScene(new AudioDemoScene);
 	ImGui::End();
+
+	windowSoundSystem->gui();
 }
 
 void GameScene::UIRender()
@@ -228,10 +238,6 @@ void GameScene::render()
 	scene->setShaderResourceView(PostEffects->getCacheSrv());
 	//scene->render(dc, { posX,posY,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
 	scene->render(dc, {0.0f,0.0f,1280.0f,720.0f}, { 1,1,1,1 });
-
-	//uiScene->setShaderResourceView(uiPostEffects->getCacheSrv());
-	//uiScene->render(dc, { 1280.0 / 2, 0.0f ,1280.0 / 2,720 / 2 }, { 1,1,1,1 });
-	//uiScene->render(dc, { 0.0f,0.0f,1280.0f,720.0f }, { 1,1,1,1 });
 
 	PostprocessingRendererManager::instance()->Gui();
 }

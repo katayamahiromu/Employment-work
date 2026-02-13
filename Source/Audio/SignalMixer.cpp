@@ -44,7 +44,7 @@ std::vector<UINT8> SignalMixer::frequencyModulation(waveData& carrier, waveData&
 
     std::vector<int> buf(numSamples, 0);
 
-    double phaseC = 0.0;
+    double phaseC = carrier.phase;
     double baseFreq = carrier.frequency;
     // 基本の位相増分（ラジアン/サンプル）
     double baseDphi = (baseFreq > 0.0) ? twoPi * baseFreq / sr : 0.0;
@@ -97,11 +97,11 @@ std::vector<UINT8> SignalMixer::amplitudeModulation(waveData& carrierData, waveD
 
     std::vector<int> buf(numSamples, 0);
 
-    double phaseC = 0.0;
+    double phaseC = carrierData.phase;
     double dphiC = (carrierData.frequency > 0.0) ? twoPi * static_cast<double>(carrierData.frequency) / sr : 0.0;
 
     // モジュレータ位相と増分（modData.frequency を利用）
-    double phaseM = 0.0;
+    double phaseM = modData.phase;
     double dphiM = (msize > 0 && modData.frequency > 0.0f) ? twoPi * static_cast<double>(modData.frequency) / sr : 0.0;
 
     for (size_t n = 0; n < numSamples; ++n)
@@ -164,12 +164,12 @@ std::vector<UINT8> SignalMixer::ringModulation(waveData& carrierData, waveData& 
     std::vector<int> buf(numSamples, 0);
 
     //キャリア位相と基本位相増分
-    double phaceC = 0.0f;
-    double dphiC = (carrierFreq > 0.0f) ? 2.0 * DirectX::XM_PI * static_cast<double>(carrierFreq) / SamplingRate : 0.0;
+    double phaceC = carrierData.phase;
+    double dphiC = (carrierFreq > 0.0f) ? DirectX::XM_2PI * static_cast<double>(carrierFreq) / SamplingRate : 0.0;
 
     //モジュレータ位相
-    double phaceM = 0.0f;
-    double dphiM = (modFreq > 0.0f) ? 2.0 * DirectX::XM_PI * static_cast<double>(modFreq) / SamplingRate : 0.0;
+    double phaceM = modData.phase;
+    double dphiM = (modFreq > 0.0f) ? DirectX::XM_2PI * static_cast<double>(modFreq) / SamplingRate : 0.0;
 
     //ループでモジュレータを使用
     for (size_t n = 0;n < numSamples;++n)
@@ -178,7 +178,7 @@ std::vector<UINT8> SignalMixer::ringModulation(waveData& carrierData, waveData& 
         double modValue = 0.0;
         if (msize > 0) {
             size_t idx = n % msize;
-            modValue = static_cast<double>(modData.samples[idx] / 32767.0 * modData.gain);
+            modValue = (static_cast<double>(modData.samples[idx]) / 32767.0) * modData.gain;
         }
 
         //振幅を変調

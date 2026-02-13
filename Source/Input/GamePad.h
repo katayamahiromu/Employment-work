@@ -23,6 +23,16 @@ public:
 	static const GamePadButton BTN_LEFT_TRIGGER		= (1 << 14);
 	static const GamePadButton BTN_RIGHT_TRIGGER	= (1 << 15);
 
+	//ƒ{ƒ^ƒ“1~7‚É“ü—Í‰Â”\‚É‚·‚é
+	static const GamePadButton BTN_1 = (1 << 16);
+	static const GamePadButton BTN_2 = (1 << 17);
+	static const GamePadButton BTN_3 = (1 << 18);
+	static const GamePadButton BTN_4 = (1 << 19);
+	static const GamePadButton BTN_5 = (1 << 20);
+	static const GamePadButton BTN_6 = (1 << 21);
+	static const GamePadButton BTN_7 = (1 << 22);
+	static const GamePadButton BTN_8 = (1 << 23);
+
 public:
 	GamePad() {}
 	~GamePad() {}

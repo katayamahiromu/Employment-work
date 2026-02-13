@@ -1,7 +1,8 @@
-#include"SignalProcessor.h"
+ï»¿#include"SignalProcessor.h"
 #include"SignalMixer.h"
 #include"WaveShaper.h"
 #include"Oscillator.h"
+#include <algorithm>
 
 #define Mixer SignalMixer::instance()
 #define Shaper WaveShaper::instance()
@@ -35,8 +36,8 @@ SignalProcesser::~SignalProcesser()
 
 void SignalProcesser::addWave(const std::vector<uint8_t>& data, float frequency, float gain)
 {
-    // ƒoƒCƒg”‚ªŠï”‚È‚ç–³‹‚·‚é
-    // ÅŒã‚ÌƒoƒCƒg‚ğØ‚é
+    // ãƒã‚¤ãƒˆæ•°ãŒå¥‡æ•°ãªã‚‰ç„¡è¦–ã™ã‚‹
+    // æœ€å¾Œã®ãƒã‚¤ãƒˆã‚’åˆ‡ã‚‹
     size_t byteCount = data.size() & ~static_cast<size_t>(1);
     size_t samplesCount = byteCount / 2;
 
@@ -98,23 +99,55 @@ waveData SignalProcesser::createData(const std::vector<uint8_t>& data)
 
     return wave;
 }
+
+waveData SignalProcesser::createData(const std::vector<uint8_t>& data, float frequency,float phase)
+{
+    size_t byteCount = data.size() & ~static_cast<size_t>(1);
+    size_t samplesCount = byteCount / 2;
+
+    waveData wave;
+    wave.gain = 1.0f;
+    wave.frequency = frequency;
+    wave.phase = phase;
+    wave.samples.resize(samplesCount);
+
+    for (size_t i = 0; i < samplesCount; ++i)
+    {
+        uint16_t lo = static_cast<uint8_t>(data[i * 2]);
+        uint16_t hi = static_cast<uint8_t>(data[i * 2 + 1]);
+        uint16_t u = static_cast<uint16_t>(lo | (hi << 8));
+        wave.samples[i] = static_cast<int16_t>(u);
+    }
+
+    return wave;
+}
+
 void SignalProcesser::trySingleWave(int num)
 {
-    //”ÍˆÍƒ`ƒFƒbƒN
-    if (num < 0 || num >= static_cast<int>(waveArray.size())) return;
+    // ç¯„å›²ãƒã‚§ãƒƒã‚¯
+    if (num < 0 || num >= static_cast<int>(waveArray.size()))
+        return;
 
     const auto& wave = waveArray[num];
+
+    // ã‚µãƒ³ãƒ—ãƒ«æ•°ãŒã‚¼ãƒ­ãªã‚‰ä½•ã‚‚ã—ãªã„
+    if (wave.samples.empty()) {
+        data.clear();
+        return;
+    }
+
+    // ãƒã‚¤ãƒˆæ•°è¨ˆç®—
     const size_t numSamples = wave.samples.size();
     const size_t requiredBytes = numSamples * sizeof(int16_t);
 
-    if (data.size() < requiredBytes)
-        data.resize(requiredBytes);
+    data.resize(requiredBytes);
 
-    UINT8* __restrict dst = data.data();
-    const UINT8* __restrict src =
-        reinterpret_cast<const UINT8*>(wave.samples.data());
-
-    std::memcpy(dst, src, requiredBytes);
+    // ã‚³ãƒ”ãƒ¼ï¼ˆãƒã‚¤ãƒˆå˜ä½ï¼‰
+    std::memcpy(
+        data.data(),
+        reinterpret_cast<const uint8_t*>(wave.samples.data()),
+        requiredBytes
+    );
 }
 
 void SignalProcesser::Mix()
@@ -122,44 +155,23 @@ void SignalProcesser::Mix()
     data = Mixer->mix(waveArray);
 }
 
-void SignalProcesser::render(float durationSeconds)
-{
-    switch (WaveInfoData.type)
-    {
-    case WaveTypeInfo::Sin:
-        //Oscillator->sinWaveSIMD(WaveInfoData.frequency, durationSeconds);
-        Oscillator->sinWave(WaveInfoData.frequency, durationSeconds);
-        break;
-    case WaveTypeInfo::Saw:
-        break;
-    case WaveTypeInfo::Triangle:
-        break;
-    case WaveTypeInfo::Squere:
-        break;
-    case WaveTypeInfo::Noise:
-        break;
-    default:
-        break;
-    }
-}
-
 void SignalProcesser::applyFM(int carriarIndex, int modIndex,float modulationDepth, float gain)
 {
-    //”z—ñŠOƒ`ƒFƒbƒN
+    //é…åˆ—å¤–ãƒã‚§ãƒƒã‚¯
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
     data = Mixer->frequencyModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
 }
 
 void SignalProcesser::applyAM(int carriarIndex, int modIndex, float modulationDepth, float gain)
 {
-    //”z—ñŠOƒ`ƒFƒbƒN
+    //é…åˆ—å¤–ãƒã‚§ãƒƒã‚¯
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
     data = Mixer->amplitudeModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
 }
 
 void SignalProcesser::applyRM(int carriarIndex, int modIndex, float modulationDepth, float gain)
 {
-    //”z—ñŠOƒ`ƒFƒbƒN
+    //é…åˆ—å¤–ãƒã‚§ãƒƒã‚¯
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
     data = Mixer->ringModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
 }

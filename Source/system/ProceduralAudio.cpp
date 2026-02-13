@@ -22,15 +22,19 @@ ProceduralAudio::~ProceduralAudio()
 	}
 }
 
-void ProceduralAudio::play(int index)
+void ProceduralAudio::play(int index, bool tryS)
 {
-	//どれかのデータが使用中なら次へ
 	if (audioData.at(0).isPlay())return;
 
-	signal->trySingleWave(index);
+	if(tryS) signal->trySingleWave(index);
 
 	//再生させたらすぐに抜ける
 	audioData.at(0).play(*signal.get());
+}
+
+void ProceduralAudio::stop(int index)
+{
+	audioData.at(0).stop();
 }
 
 void ProceduralAudio::erase(int index)
@@ -41,6 +45,14 @@ void ProceduralAudio::erase(int index)
 bool ProceduralAudio::isPlay(int index)
 {
 	return audioData.at(0).isPlay();
+}
+
+void ProceduralAudio::pan(float pan, float frontBack)
+{
+	for (auto& data : audioData)
+	{
+		data.Pan(pan,frontBack);
+	}
 }
 
 void ProceduralAudio::createModalWave(const ModalMode* modes, size_t modeCount, float durationSeconds, float masterGain)

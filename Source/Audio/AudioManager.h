@@ -33,6 +33,7 @@ public:
 	/// <returns>作成したオーディオ</returns>
 	std::unique_ptr<Audio> loadAudioSource(const char* filename);
 	std::unique_ptr<Audio> loadAudioSourceEffect(const char* filename);
+
 	/// <summary>
 	/// 3D音響用の読み込み
 	/// </summary>
@@ -62,7 +63,7 @@ public:
 
 	//別スレッドで計算によるデータ作成
 	void CreateWaveData(AudioWorker::Task task) { worker->PushTask(task); }
-
+	int taskCount() { return worker->TaskCount(); }
 	void Gui();
 private:
 	IXAudio2*				xaudio = nullptr;

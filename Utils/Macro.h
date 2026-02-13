@@ -6,3 +6,5 @@
 
 //ŠÖ”‚ð’¼Ú“n‚·cˆø”float
 #define FUNC_SET_FLOAT(func)[this](float x) { this->func(x); }
+
+#define CAST(T) static_cast<T>
