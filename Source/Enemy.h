@@ -47,10 +47,8 @@ private:
 	Object* owner;
 	std::shared_ptr<Movement>movement;
 	std::shared_ptr<Animation>animation;
-	std::shared_ptr<TimeLapse>timeLaps;
 	std::shared_ptr<Audio3DEmitter>emitter;
 	std::shared_ptr<CollisionComponent>collision;
-	std::shared_ptr<MeshTexChange>meshTexChange;
 
 	std::unique_ptr<StateMachine>stateMachine;
 

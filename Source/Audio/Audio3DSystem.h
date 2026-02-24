@@ -6,7 +6,7 @@
 enum class Lisner:int
 {
 	PLAYER,
-	CAERA
+	CAMERA
 };
 
 //‰¹Œ¹

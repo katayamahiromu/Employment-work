@@ -106,7 +106,7 @@ frc r1.x, r1.x  // r1.x <- <hash return value>
 mov r1.x, r1.x  // r1.x <- n
 
 #line 41
-mul r2.z, r2.y, l(0.100000)  // r2.z <- gv.y
+mul r2.z, r2.y, l(0.002000)  // r2.z <- gv.y
 
 #line 44
 mov r1.y, -r1.x

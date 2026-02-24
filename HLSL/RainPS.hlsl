@@ -38,7 +38,7 @@ float rainStreak(float2 uv, float t)
     float n = hash(id);
     
     //縦方向にストリークを伸ばす
-    gv.y *= 0.1;
+    gv.y *= 0.002;
     
     // 雨粒の中心をランダムにずらす
     float d = length(gv + float2(0.0, -n * 0.8));

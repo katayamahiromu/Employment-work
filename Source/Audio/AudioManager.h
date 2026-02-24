@@ -32,6 +32,7 @@ public:
 	/// <param name="filename">読み込むファイル名</param>
 	/// <returns>作成したオーディオ</returns>
 	std::unique_ptr<Audio> loadAudioSource(const char* filename);
+	std::unique_ptr<Audio> loadAudioSource(SignalProcesser&signal);
 	std::unique_ptr<Audio> loadAudioSourceEffect(const char* filename);
 
 	/// <summary>

@@ -106,26 +106,6 @@ void Audio::play(bool loop)
 	sourceVoice->SetVolume(1.0f);
 }
 
-void Audio::play(SignalProcesser* signal)
-{
-	if (!signal)return;
-	stop();
-
-	// ソースボイスにデータを送信
-	XAUDIO2_BUFFER buffer = { 0 };
-	buffer.AudioBytes = signal->getAudioBytes();
-	buffer.pAudioData = signal->getAudioData();
-	buffer.LoopCount = 0;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	buffer.pContext = this;
-
-	sourceVoice->SubmitSourceBuffer(&buffer);
-
-	HRESULT hr = sourceVoice->Start();
-	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
-	sourceVoice->SetVolume(1.0f);
-}
-
 // 停止
 void Audio::stop()
 {
@@ -260,6 +240,92 @@ void Audio::setPan(float pan)
 	sourceVoice->SetOutputMatrix(AudioManager::instance()->getMasteringVoice(), sourceDetails.InputChannels, masterDetails.InputChannels, outputPan);
 }
 
+void Audio::setPan(float pan, float frontBack)
+{
+	pan = std::clamp(pan, -1.0f, 1.0f);
+	frontBack = std::clamp(frontBack, 0.0f, 1.0f);
+
+	if (this->pan == pan && this->frontBack == frontBack)return;
+	this->pan = pan;
+	this->frontBack = frontBack;
+
+	float outputPan[8] = {};
+
+	XAUDIO2_VOICE_DETAILS sourceDetails;
+	sourceVoice->GetVoiceDetails(&sourceDetails);
+
+	XAUDIO2_VOICE_DETAILS masterDetails;
+	auto* mv = AudioManager::instance()->getMasteringVoice();
+	mv->GetVoiceDetails(&masterDetails);
+
+	float backGain = 1.0f - 0.3f * frontBack;
+
+	float minGain = 0.4f;
+	float left = minGain + (1.0f - minGain) * (0.5f - pan * 0.5f) * backGain;
+	float right = minGain + (1.0f - minGain) * (0.5f + pan * 0.5f) * backGain;
+
+	DWORD mask{};
+	mv->GetChannelMask(&mask);
+
+	switch (mask)
+	{
+	case SPEAKER_MONO:
+		outputPan[0] = 1.0f;
+		break;
+	case SPEAKER_STEREO:
+	case SPEAKER_2POINT1:
+	case SPEAKER_SURROUND:
+		outputPan[0] = left;   // FL
+		outputPan[1] = right;  // FR
+		break;
+	case SPEAKER_QUAD:
+		outputPan[0] = outputPan[4] = left;   // FL, BL
+		outputPan[1] = outputPan[5] = right;  // FR, BR
+		break;
+
+	case SPEAKER_4POINT1:
+		outputPan[0] = outputPan[4] = left;   // FL, BL
+		outputPan[1] = outputPan[5] = right;  // FR, BR
+		break;
+
+	case SPEAKER_5POINT1:
+	case SPEAKER_5POINT1_SURROUND:
+		outputPan[0] = left;   // FL
+		outputPan[1] = right;  // FR
+		outputPan[4] = left;   // SL
+		outputPan[5] = right;  // SR
+		break;
+
+	case SPEAKER_7POINT1:
+	case SPEAKER_7POINT1_SURROUND:
+		outputPan[0] = left;   // FL
+		outputPan[1] = right;  // FR
+		outputPan[4] = left;   // BL
+		outputPan[5] = right;  // BR
+		outputPan[6] = left;   // SL
+		outputPan[7] = right;  // SR
+		break;
+	}
+
+	sourceVoice->SetOutputMatrix(
+		mv,
+		sourceDetails.InputChannels,
+		masterDetails.InputChannels,
+		outputPan
+	);
+
+	float frontCutoff = 20000.0f;
+	float backCutoff = 1500.0f;
+
+	float cutoff = frontCutoff + (backCutoff - frontCutoff) * frontBack;
+
+	XAUDIO2_FILTER_PARAMETERS filter{};
+	filter.Type = LowPassFilter;
+	filter.Frequency = cutoff / SamplingRate;
+	filter.OneOverQ = 0.5f;
+
+	sourceVoice->SetFilterParameters(&filter);
+}
 
 //ピッチのリセット
 void Audio::resetPitch()
@@ -347,6 +413,8 @@ float Audio::getPlayTime()
 
 void Audio::setSubmixVoice(SubMixVoice* sv)
 {
+
+	if (sv == nullptr)return;
 	HRESULT hr;
 	//サブミックスボイスを登録する
 	XAUDIO2_SEND_DESCRIPTOR send = { 0,sv->getSubMiXVoice()};

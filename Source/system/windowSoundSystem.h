@@ -1,6 +1,7 @@
 #pragma once
 #include<memory>
 #include"ProceduralAudio.h"
+#include"../Camera.h"
 
 class WindowSoundSystem
 {
@@ -12,12 +13,15 @@ public:
 	void stop();
 	void update();
 	void gui();
+
+	void calcPan(Camera& camera);
 private:
-	void create(int index);
+	std::vector<uint8_t> create();
 private:
 	float pan = 0.0f;
 	float frontBack = 0.0f;
 	std::unique_ptr<ProceduralAudio>windowSound;
+
 	float windowSpeed = 0.5f;
 	float gustAmount = 0.6f;
 	float brightness = 1.0f;
@@ -28,8 +32,7 @@ private:
 	float rQ = 0.985f;    // ‹¤–Â‚Ì‰s‚³
 	float windRange = 30.0f; // •—‘¬—h‚ç‚¬•
 
-	int playIndex = 0;	 //¶¬”Ô†
-	int genIndex = 1; //Ä¶”Ô†
-
 	float generateInterval = 0.5f;
+	float smoothedSpeed = 0.0f;
+	float speedSmoothFactor = 0.05f;
 };

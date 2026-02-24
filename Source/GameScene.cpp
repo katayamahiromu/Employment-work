@@ -83,6 +83,9 @@ void GameScene::initialize()
 	windowSoundSystem->start();
 
 	river = std::make_unique<RiverSoundSystem>();
+
+	atmospher = std::make_unique<AtmosphereSound>();
+	atmospher->start();
 }
 
 // I—¹ˆ—
@@ -125,10 +128,14 @@ void GameScene::update(float elapsedTime)
 	//uiPostEffects->update(elapsedTime);
 
 	//•—‚Ì‰¹
+	windowSoundSystem->calcPan(*cameraCtrl->getCamera());
 	windowSoundSystem->update();
 
 	//ì‚Ì‰¹
 	river->update();
+
+	//‘å‹C‚Ì‰¹
+	atmospher->update();
 }
 
 

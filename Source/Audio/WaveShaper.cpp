@@ -187,6 +187,87 @@ std::vector<UINT8> WaveShaper::WindHiss(waveData& wave,
     return samples;
 }
 
+std::vector<UINT8> WaveShaper::HighPass(waveData& wave, float cutoff, float resonance)
+{
+    const float sr = static_cast<float>(SamplingRate);
+    const float wc = 2.0f * DirectX::XM_PI * cutoff;
+    const float dt = 1.0f / sr;
+    const float alpha = wc * dt;
+
+    // 1次 IIR ハイパス係数
+    // y[n] = a0*x[n] + a1*x[n-1] + b1*y[n-1]
+    float a0 = (1.0f + resonance) * 0.5f;
+    float a1 = -(1.0f + resonance) * 0.5f;
+    float b1 = 1.0f - alpha;
+
+    std::vector<int> buf(wave.samples.size());
+    float x1 = 0.0f;   // x[n-1]
+    float y1 = 0.0f;   // y[n-1]
+
+    for (size_t i = 0; i < wave.samples.size(); ++i)
+    {
+        float x = static_cast<float>(static_cast<int16_t>(wave.samples[i])) / 32768.0f;
+
+        float y = a0 * x + a1 * x1 + b1 * y1;
+
+        x1 = x;
+        y1 = y;
+
+        // クリップ
+        y = std::clamp(y, -1.0f, 1.0f);
+
+        buf[i] = static_cast<int>(y * 32767.0f);
+    }
+
+    return EncodePCM16LE(buf);
+}
+
+std::vector<UINT8> WaveShaper::HighPass2nd(waveData& wave, float cutoff)
+{
+    const float fs = static_cast<float>(SamplingRate);
+    const float omega = DirectX::XM_2PI * cutoff / fs;;
+    const float tanW = tanf(omega / 2.0f);
+
+    // バターワース正規化
+    const float norm = 1.0f / (1.0f + sqrtf(2.0f) * tanW + tanW * tanW);
+
+    // 2次バターワース HPF 係数
+    const float b0 = norm;
+    const float b1 = -2.0f * norm;
+    const float b2 = norm;
+
+    const float a1 = 2.0f * (tanW * tanW - 1.0f) * norm;
+    const float a2 = (1.0f - sqrtf(2.0f) * tanW + tanW * tanW) * norm;
+
+    std::vector<int> buf(wave.samples.size());
+
+    float x1 = 0.0f, x2 = 0.0f;
+    float y1 = 0.0f, y2 = 0.0f;
+
+    for (size_t i = 0; i < wave.samples.size(); ++i)
+    {
+        float x = static_cast<float>(static_cast<int16_t>(wave.samples[i])) / 32768.0f;
+
+        // IIR フィルタ
+        float y = b0 * x + b1 * x1 + b2 * x2
+            - a1 * y1 - a2 * y2;
+
+        // シフト
+        x2 = x1;
+        x1 = x;
+        y2 = y1;
+        y1 = y;
+
+        // クリップ
+        y = std::clamp(y, -1.0f, 1.0f);
+
+        buf[i] = static_cast<int>(y * 32767.0f);
+    }
+
+    return EncodePCM16LE(buf);
+}
+
+
 std::vector<UINT8> WaveShaper::WindHissSIMD(
     waveData& wave,
     float St,     // ストローハル数
@@ -335,4 +416,38 @@ std::vector<UINT8> WaveShaper::AmplitudeJitter(waveData& wave,
     }
 
     return samples;
+}
+
+void WaveShaper::fadeIn(std::vector<int16_t>& data, float ms)
+{
+    int fadeSamples = static_cast<int>((ms / 1000.0f) * SamplingRate);
+    fadeSamples = min(fadeSamples, (int)data.size());
+
+    for (int i = 0; i < fadeSamples; ++i)
+    {
+        float t = static_cast<float>(i) / fadeSamples; // 0 → 1
+        float v = static_cast<float>(data[i]) * t;
+        data[i] = static_cast<int16_t>(v);
+    }
+}
+
+void WaveShaper::fadeOut(std::vector<int16_t>& data, float ms)
+{
+    int fadeSamples = static_cast<int>((ms / 1000.0f) * SamplingRate);
+    fadeSamples = min(fadeSamples, (int)data.size());
+
+    int start = data.size() - fadeSamples;
+
+    for (int i = 0; i < fadeSamples; ++i)
+    {
+        float t = 1.0f - static_cast<float>(i) / fadeSamples; // 1 → 0
+        float v = static_cast<float>(data[start + i]) * t;
+        data[start + i] = static_cast<int16_t>(v);
+    }
+}
+
+void WaveShaper::crossFade(std::vector<int16_t>& data, float ms)
+{
+    fadeIn(data, ms);
+    fadeOut(data, ms);
 }

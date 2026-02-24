@@ -27,6 +27,8 @@ SignalProcesser::SignalProcesser()
     wfx.wBitsPerSample = 16;
     wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
     wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+
+    data = std::make_shared<std::vector<UINT8>>();
 }
 
 SignalProcesser::~SignalProcesser()
@@ -54,6 +56,8 @@ void SignalProcesser::addWave(const std::vector<uint8_t>& data, float frequency,
         wave.samples[i] = static_cast<int16_t>(u);
     }
 
+    float ms = 5.0f;
+    Shaper->crossFade(wave.samples,ms);
     waveArray.emplace_back(wave);
 }
 
@@ -75,6 +79,8 @@ void SignalProcesser::addWave(const std::vector<uint8_t>& data, float frequency,
         wave.samples[i] = static_cast<int16_t>(u);
     }
 
+    float ms = 5.0f;
+    Shaper->crossFade(wave.samples, ms);
     if (waveArray.size() <= index)waveArray.resize(index + 1);
     waveArray[index] = wave;
 }
@@ -132,7 +138,7 @@ void SignalProcesser::trySingleWave(int num)
 
     // サンプル数がゼロなら何もしない
     if (wave.samples.empty()) {
-        data.clear();
+        data.get()->clear();
         return;
     }
 
@@ -140,11 +146,11 @@ void SignalProcesser::trySingleWave(int num)
     const size_t numSamples = wave.samples.size();
     const size_t requiredBytes = numSamples * sizeof(int16_t);
 
-    data.resize(requiredBytes);
+    data.get()->resize(requiredBytes);
 
     // コピー（バイト単位）
     std::memcpy(
-        data.data(),
+        data.get()->data(),
         reinterpret_cast<const uint8_t*>(wave.samples.data()),
         requiredBytes
     );
@@ -152,28 +158,32 @@ void SignalProcesser::trySingleWave(int num)
 
 void SignalProcesser::Mix()
 {
-    data = Mixer->mix(waveArray);
+    auto tmp = Mixer->mix(waveArray);
+    data->swap(tmp);
 }
 
 void SignalProcesser::applyFM(int carriarIndex, int modIndex,float modulationDepth, float gain)
 {
     //配列外チェック
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
-    data = Mixer->frequencyModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    auto tmp = Mixer->frequencyModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    data->swap(tmp);
 }
 
 void SignalProcesser::applyAM(int carriarIndex, int modIndex, float modulationDepth, float gain)
 {
     //配列外チェック
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
-    data = Mixer->amplitudeModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    auto temp = Mixer->amplitudeModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    data->swap(temp);
 }
 
 void SignalProcesser::applyRM(int carriarIndex, int modIndex, float modulationDepth, float gain)
 {
     //配列外チェック
     if (!checkIndexes(carriarIndex, modIndex, waveArray.size()))return;
-    data = Mixer->ringModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    auto tmp = Mixer->ringModulation(waveArray.at(carriarIndex), waveArray.at(modIndex), modulationDepth, gain);
+    data->swap(tmp);
 }
 
 void SignalProcesser::decayWave(int index, float decay)

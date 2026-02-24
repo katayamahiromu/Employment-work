@@ -92,7 +92,6 @@ private:
 	std::shared_ptr<CameraInfo>cameraInfo;
 	std::shared_ptr<Movement>movement;
 	std::shared_ptr<Animation>animation;
-	std::shared_ptr<TimeLapse>timeLapse;
 	std::shared_ptr<PlayerController>playerController;
 	std::shared_ptr<Audio3DListener>lister;
 	std::shared_ptr<CollisionComponent>collision;

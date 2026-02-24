@@ -84,7 +84,7 @@ void ProceduralAudioCallback::OnVoiceProcessingPassStart(UINT32 SamplesRequired)
 
 void ProceduralAudioCallback::OnBufferEnd(void* pBufferContext)noexcept
 {
-	static_cast<AudioData*>(pBufferContext)->playing = false;
+	//static_cast<AudioData*>(pBufferContext)->playing = false;
 }
 
 void ProceduralAudioCallback::OnBufferStart(void* pBufferContext)noexcept

@@ -249,6 +249,7 @@
     <ClCompile Include="Source\system\Messenger.cpp" />
     <ClCompile Include="Source\system\PostprocessingRenderer.cpp" />
     <ClCompile Include="Source\system\ProceduralAudio.cpp" />
+    <ClCompile Include="Source\system\AtmosphereSoundSysytem.cpp" />
     <ClCompile Include="Source\system\RiverSoundSystem.cpp" />
     <ClCompile Include="Source\system\StateMachine.cpp" />
     <ClCompile Include="Source\system\TimeLapseManager.cpp" />
@@ -363,6 +364,7 @@
     <ClInclude Include="Source\system\Messenger.h" />
     <ClInclude Include="Source\system\PostprocessingRenderer.h" />
     <ClInclude Include="Source\system\ProceduralAudio.h" />
+    <ClInclude Include="Source\system\AtmosphereSoundSysytem.h" />
     <ClInclude Include="Source\system\RiverSoundSystem.h" />
     <ClInclude Include="Source\system\State.h" />
     <ClInclude Include="Source\system\StateMachine.h" />

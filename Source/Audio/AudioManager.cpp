@@ -90,6 +90,13 @@ std::unique_ptr<Audio> AudioManager::loadAudioSource(const char* filename)
 	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);
 	return std::make_unique<Audio>(xaudio, resource,false);
 }
+
+std::unique_ptr<Audio> AudioManager::loadAudioSource(SignalProcesser& signal)
+{
+	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(signal);
+	return std::make_unique<Audio>(xaudio, resource, false);
+}
+
 std::unique_ptr<Audio> AudioManager::loadAudioSourceEffect(const char* filename)
 {
 	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);

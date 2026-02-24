@@ -1,6 +1,7 @@
 #pragma once
 #include<DirectXMath.h>
 #include<functional>
+#include<memory>
 #include"WaveData.h"
 
 enum class WaveTypeInfo
@@ -26,11 +27,14 @@ public:
 	waveData createData(const std::vector<uint8_t>& data, float frequency, float phase);
 
 	void resize(int count) { waveArray.resize(count); }
+
 	// データ取得
-	UINT8* getAudioData() { return data.data(); }
+	UINT8* getAudioData() { return data.get()->data(); }
 
 	// データサイズ取得
-	UINT32 getAudioBytes() const { return static_cast<UINT32>(data.size()); }
+	UINT32 getAudioBytes() const { return static_cast<UINT32>(data.get()->size()); }
+
+	std::shared_ptr<std::vector<UINT8>> allData() {return data; }
 
 	// WAVEフォーマット取得
 	const WAVEFORMATEX& getWaveFormat() const { return wfx; }
@@ -58,7 +62,7 @@ public:
 	waveData &getWData(int index) { return waveArray.at(index); }
 private:
 	WAVEFORMATEX wfx;
+	std::shared_ptr<std::vector<UINT8>> data;
 	std::vector<waveData>waveArray;
-	std::vector<UINT8> data;
 	int samplingRate;
 };

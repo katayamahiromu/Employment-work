@@ -50,7 +50,6 @@ void Player::prepare()
 {
     movement = getObject()->GetComponent<Movement>();
     animation = getObject()->GetComponent<Animation>();
-    timeLapse = getObject()->GetComponent<TimeLapse>();
     playerController = getObject()->GetComponent<PlayerController>();
     lister = getObject()->GetComponent<Audio3DListener>();
     collision = getObject()->GetComponent<CollisionComponent>();

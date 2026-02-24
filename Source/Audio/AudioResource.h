@@ -3,22 +3,24 @@
 #include <vector>
 #include <Windows.h>
 #include <string>
+#include"SignalProcessor.h"
 
 // オーディオリソース
 class AudioResource
 {
 public:
 	AudioResource(const char* filename);
+	AudioResource(SignalProcesser& signal);
 	~AudioResource();
 
 	//データを逆にして逆再生に対応させる
 	void reversData();
 
 	// データ取得
-	UINT8* getAudioData() { return data.data(); }
+	UINT8* getAudioData() { return data.get()->data(); }
 
 	// データサイズ取得
-	UINT32 getAudioBytes() const { return static_cast<UINT32>(data.size()); }
+	UINT32 getAudioBytes() const { return static_cast<UINT32>(data.get()->size()); }
 
 	// WAVEフォーマット取得
 	const WAVEFORMATEX& getWaveFormat() const { return wfx; }
@@ -29,7 +31,7 @@ public:
 
 	float getDuration()const;
 
-	std::vector<UINT8> allData() { return data; }
+	std::vector<UINT8> allData();
 private:
 	void loadWave(const char* filename);
 private:
@@ -61,7 +63,7 @@ private:
 
 	Riff					riff;
 	Fmt						fmt;
-	std::vector<UINT8>		data;
+	std::shared_ptr<std::vector<UINT8>>	data;
 	WAVEFORMATEX			wfx;
 	std::string				name;
 

@@ -7,34 +7,26 @@ ProceduralAudio::ProceduralAudio(int maxSourceCount) : maxSourceCount(maxSourceC
 {
 	signal = std::make_unique<SignalProcesser>();
 	signal->resize(maxSourceCount);
-	audioData.resize(1);
-	for (auto& data : audioData)
-	{
-		data.create(AudioManager::instance()->getIXAudio2(), *signal.get());
-	}
+	source = AudioManager::instance()->loadAudioSource(*signal);
 }
 
 ProceduralAudio::~ProceduralAudio()
 {
-	for (auto& data : audioData)
-	{
-		data.destroy();
-	}
+	
 }
 
 void ProceduralAudio::play(int index, bool tryS)
 {
-	if (audioData.at(0).isPlay())return;
+	if (source->isPlay())return;
 
 	if(tryS) signal->trySingleWave(index);
 
-	//Ä¶‚³‚¹‚½‚ç‚·‚®‚É”²‚¯‚é
-	audioData.at(0).play(*signal.get());
+	source->play(false);
 }
 
-void ProceduralAudio::stop(int index)
+void ProceduralAudio::stop()
 {
-	audioData.at(0).stop();
+	source->stop();
 }
 
 void ProceduralAudio::erase(int index)
@@ -42,16 +34,36 @@ void ProceduralAudio::erase(int index)
 	signal->erase(index);
 }
 
-bool ProceduralAudio::isPlay(int index)
+bool ProceduralAudio::isPlay()
 {
-	return audioData.at(0).isPlay();
+	return source->isPlay();
 }
 
 void ProceduralAudio::pan(float pan, float frontBack)
 {
-	for (auto& data : audioData)
+	source->setPan(pan, frontBack);
+}
+
+void ProceduralAudio::initCreate(float frequency, float gain)
+{
+	create(frequency, gain,playIndex);
+	AudioManager::instance()->CreateWaveData([&]() {create(frequency, gain,genIndex);});
+}
+
+void ProceduralAudio::update(float frequency, float gain,bool tryS)
+{
+	if (!isPlay())
 	{
-		data.Pan(pan,frontBack);
+		std::swap(playIndex, genIndex);
+		play(playIndex);
+
+		//Ä¶Œã¶¬–½—ß‚ð”­M
+		AudioManager::instance()->CreateWaveData(
+			[this, frequency, gain, index = genIndex]()
+			{
+				create(frequency, gain, index);
+			}
+		);
 	}
 }
 
@@ -69,7 +81,13 @@ void ProceduralAudio::loadModalData(const char* filename ,float durationSeconds,
 	createModalWave(modals.data(), modals.size(), durationSeconds, masterGain);
 }
 
-void ProceduralAudio::registerWaveData(function f,int index)
+void ProceduralAudio::create(float frequency, float gain, int index)
 {
-	signal->addWave(f(),SamplingRate,1.0f,index);
+	std::lock_guard<std::mutex> lock(mutex);
+	CreateFunc func = createFunc;
+
+	if (func)
+	{
+		signal->addWave(createFunc(), frequency, gain, index);
+	}
 }

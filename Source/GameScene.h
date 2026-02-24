@@ -19,6 +19,7 @@
 
 #include"system/windowSoundSystem.h"
 #include"system/RiverSoundSystem.h"
+#include"system/AtmosphereSoundSysytem.h"
 
 
 // ゲームシーン
@@ -60,10 +61,9 @@ private:
 
 	//音
 	std::unique_ptr<WindowSoundSystem>windowSoundSystem;
+	std::unique_ptr<AtmosphereSound>atmospher;
 	std::unique_ptr<RiverSoundSystem>river;
 
+	//ポストエフェクト用
 	std::unique_ptr<Sprite>scene;
-	std::unique_ptr<Sprite>uiScene;
-
-	float posX = 0, posY = 0;
 };

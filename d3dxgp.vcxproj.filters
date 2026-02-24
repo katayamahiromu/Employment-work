@@ -384,6 +384,9 @@
     <ClCompile Include="Source\Graphics\RainLine.cpp">
       <Filter>Source\Graphics\Post Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Source\system\AtmosphereSoundSysytem.cpp">
+      <Filter>Source\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Framework.h">
@@ -748,6 +751,9 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\RainLine.h">
       <Filter>Source\Graphics\Post Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\system\AtmosphereSoundSysytem.h">
+      <Filter>Source\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

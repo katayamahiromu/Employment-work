@@ -8,6 +8,8 @@
 // コンストラクタ
 AudioResource::AudioResource(const char* filename):name(filename)
 {
+	data = std::make_shared<std::vector<UINT8>>();
+
 	// WAVファイル読み込み
 	{
 		loadWave(filename);
@@ -24,7 +26,13 @@ AudioResource::AudioResource(const char* filename):name(filename)
 		wfx.cbSize = sizeof(WAVEFORMATEX);
 	}
 
-	maxPlaySec = static_cast<float>(data.size() / wfx.nAvgBytesPerSec);
+	maxPlaySec = static_cast<float>(data.get()->size() / wfx.nAvgBytesPerSec);
+}
+
+AudioResource::AudioResource(SignalProcesser& signal)
+{
+	data = signal.allData();
+	wfx = signal.getWaveFormat();
 }
 
 // デストラクタ
@@ -56,6 +64,7 @@ void AudioResource::loadWave(const char* filename)
 	// "WAVE" との一致を確認
 	_ASSERT_EXPR(riff.type == MAKE_WAVE_TAG_VALUE('W', 'A', 'V', 'E'), "not in WAVE format");
 
+	std::vector<UINT8> src;
 	while (size > readBytes)
 	{
 		Chunk chunk;
@@ -87,8 +96,8 @@ void AudioResource::loadWave(const char* filename)
 		// 'data'
 		else if (chunk.tag == MAKE_WAVE_TAG_VALUE('d', 'a', 't', 'a'))
 		{
-			data.resize(chunk.size);
-			fread(data.data(), chunk.size, 1, fp);
+			src.resize(chunk.size);
+			fread(src.data(), chunk.size, 1, fp);
 			readBytes += chunk.size;
 
 			// 8-bit wav ファイルの場合は unsigned -> signed の変換が必要
@@ -96,7 +105,7 @@ void AudioResource::loadWave(const char* filename)
 			{
 				for (UINT32 i = 0; i < chunk.size; ++i)
 				{
-					data[i] -= 128;
+					src[i] -= 128;
 				}
 			}
 		}
@@ -111,28 +120,36 @@ void AudioResource::loadWave(const char* filename)
 		}
 	}
 
+	data->swap(src);
 	fclose(fp);
 }
 
 void AudioResource::reversData()
 {
-	const size_t sampleCount = data.size() / fmt.blockSize;
+	const size_t sampleCount = data.get()->size() / fmt.blockSize;
 
+	std::vector<UINT8>src = allData();
 	//サンプル単位で入れ替え
 	for (size_t i = 0;i < sampleCount / 2;++i)
 	{
 		for (int b = 0;b < fmt.blockSize;++b)
 		{
 			std::swap(
-				data[i * fmt.blockSize + b],
-				data[(sampleCount - 1 - i) * fmt.blockSize + b]
+				src[i * fmt.blockSize + b],
+				src[(sampleCount - 1 - i) * fmt.blockSize + b]
 			);
 		}
 	}
+
+	data->swap(src);
 }
 
 float AudioResource::getDuration()const
 {
-	return static_cast<float>(data.size()) /
-		static_cast<float>(fmt.transRate);
+	return static_cast<float>(data.get()->size()) /static_cast<float>(fmt.transRate);
+}
+std::vector<UINT8>AudioResource::allData()
+{
+	if (!data) return {};
+	return *data;
 }

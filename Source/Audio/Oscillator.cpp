@@ -423,7 +423,7 @@ std::vector<uint8_t> Oscillator::impactModes(const ModalMode* modes, size_t mode
 
             // ローパス (1次IIR近似)
             if (m.lowpassCutoff > 0.0f) {
-                double rc = 1.0 / (2.0 * DirectX::XM_PI * m.lowpassCutoff);
+                double rc = 1.0 / (DirectX::XM_2PI * m.lowpassCutoff);
                 double dt = 1.0 / SamplingRate;
                 double alpha = dt / (rc + dt);
                 filtered = prevSample + alpha * (acc - prevSample);
@@ -431,7 +431,7 @@ std::vector<uint8_t> Oscillator::impactModes(const ModalMode* modes, size_t mode
 
             // ハイパス (1次IIR近似)
             if (m.highpassCutoff > 0.0f) {
-                double rc = 1.0 / (2.0 * DirectX::XM_PI * m.highpassCutoff);
+                double rc = 1.0 / (DirectX::XM_2PI * m.highpassCutoff);
                 double dt = 1.0 / SamplingRate;
                 double alpha = rc / (rc + dt);
                 filtered = alpha * (prevSample + acc - prevSample);
@@ -595,17 +595,18 @@ std::vector<uint8_t> Oscillator::turbulenceNoiseSIMD(
 std::vector<uint8_t> Oscillator::brownNoise(float durationSeconds, int sampleRate, float gain)
 {
     int numSamples = static_cast<int>(durationSeconds * sampleRate);
-    std::vector<uint8_t> samples(numSamples * 2);
+    std::vector<uint8_t> samples;
+    samples.reserve(numSamples * 2);
 
     std::random_device rd;
     std::default_random_engine gen(rd());
     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
-    float brown = 0.0f;
+    float brown = dist(gen) * 0.5f; // 初期値をランダムに
 
     for (int i = 0; i < numSamples; ++i)
     {
-        brown += dist(gen) * 0.02f;     // 積分
+        brown += dist(gen) * 0.05f; // 積分係数を少し大きく
         brown = std::clamp(brown, -1.0f, 1.0f);
 
         int16_t s = static_cast<int16_t>(brown * gain);
@@ -613,42 +614,49 @@ std::vector<uint8_t> Oscillator::brownNoise(float durationSeconds, int sampleRat
     }
 
     return samples;
+
 }
 
 std::vector<uint8_t> Oscillator::pinkNoise(float durationSeconds, int sampleRate, float gain)
 {
-    int numSamples = static_cast<int>(durationSeconds * sampleRate);
-    std::vector<uint8_t> samples(numSamples * 2);
+    std::vector<uint8_t> white = whiteNoiseSIMD(durationSeconds, sampleRate);
+    const int numSamples = static_cast<int>(white.size() / 2);
 
-    const int numRows = 16;
-    int rows[numRows] = { 0 };
-    int counter = 0;
+    std::vector<uint8_t> pink(numSamples * 2);
 
-    std::random_device rd;
-    std::default_random_engine gen(rd());
-    std::uniform_int_distribution<int> dist(-30000, 30000);
+    float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
 
     for (int i = 0; i < numSamples; ++i)
     {
-        int lastCounter = counter;
-        counter++;
+        int16_t w = static_cast<int16_t>(white[i * 2] |(white[i * 2 + 1] << 8));
 
-        int sum = 0;
+        float whiteSample = w / 32768.0f;
 
-        for (int r = 0; r < numRows; ++r)
-        {
-            if ((counter & (1 << r)) != (lastCounter & (1 << r)))
-            {
-                rows[r] = dist(gen);
-            }
-            sum += rows[r];
-        }
+        b0 = 0.99886f * b0 + whiteSample * 0.0555179f;
+        b1 = 0.99332f * b1 + whiteSample * 0.0750759f;
+        b2 = 0.96900f * b2 + whiteSample * 0.1538520f;
+        b3 = 0.86650f * b3 + whiteSample * 0.3104856f;
+        b4 = 0.55000f * b4 + whiteSample * 0.5329522f;
+        b5 = -0.7616f * b5 - whiteSample * 0.0168980f;
 
-        int16_t s = static_cast<int16_t>((sum / numRows) * gain / 30000.0f);
-        pushInt16LE(samples, s);
+        float pinkSample =
+            b0 + b1 + b2 + b3 + b4 + b5 + b6
+            + whiteSample * 0.5362f;
+
+        b6 = whiteSample * 0.115926f;
+
+        pinkSample *= 0.11f;
+        pinkSample *= gain;
+        pinkSample = std::clamp(pinkSample, -1.0f, 1.0f);
+
+        int16_t s =
+            static_cast<int16_t>(pinkSample * 32767.0f);
+
+        pink[i * 2] = s & 0xFF;
+        pink[i * 2 + 1] = (s >> 8) & 0xFF;
     }
 
-    return samples;
+    return pink;
 }
 
 std::vector<uint8_t> Oscillator::bandpassNoise(
@@ -667,7 +675,7 @@ std::vector<uint8_t> Oscillator::bandpassNoise(
     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
     // BPF 設計
-    float w0 = 2.0f * 3.14159265f * centerFreq / sampleRate;
+    float w0 = DirectX::XM_2PI * centerFreq / sampleRate;
     float alpha = sinf(w0) / (2.0f * Q);
 
     float b0 = alpha;

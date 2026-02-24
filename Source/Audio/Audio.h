@@ -7,7 +7,6 @@
 #include "AudioResource.h"
 #include "SubMixVoice.h"
 #include "AudioCallback.h"
-#include "SignalProcessor.h"
 
 enum Fliter_Type
 {
@@ -39,7 +38,6 @@ public:
 	/// </summary>
 	/// <param name="loop">true...ループ</param>
 	void play(bool loop);
-	void play(SignalProcesser*signal);
 
 	/// <summary>
 	/// オーディオの停止
@@ -82,6 +80,7 @@ public:
 	/// </summary>
 	void setPan(float pan);
 
+	void setPan(float pan, float frontBack);
 	/// <summary>
 	/// ピッチのリセット
 	/// </summary>
@@ -170,4 +169,7 @@ protected:
 	bool isFadeIn = false;
 	bool isFadeOut = false;
 	float fadeTime = 0.0f;
+
+	float pan = 0.0f;
+	float frontBack = 0.0f;
 };

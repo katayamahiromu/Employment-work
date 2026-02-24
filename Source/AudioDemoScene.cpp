@@ -13,6 +13,7 @@
 #include"LoadingScene.h"
 #include"GameScene.h"
 #include"instrumentScene.h"
+#include"Audio/SignalMixer.h"
 
 extern "C" {
 #include"../Utils/libtinyfiledialogs-master/tinyfiledialogs.h"
@@ -35,44 +36,13 @@ void AudioDemoScene::initialize()
 	audio->CreateSourceVoice(&source, &signalProcess->getWaveFormat());
 	loadPreset("preset1.json");
 	loadPreset("preset2.json");
-	//loadPreset("preset3.json");
 	modals = modalPresets.at(0).modals;
 
-	Oscillator* osc = Oscillator::instance();
-	/*auto [samples, elapsedMs] = MeasureExecutionTimeWithResult([&]() {
-		return Oscillator::instance()->triangleWave(440, 1.0f);
-		});
-	exitTimes[0] = static_cast<float>(elapsedMs);
-	signalProcess->addWave(samples, 1.0f, 44100);
-
-	auto [samplesSIMD, elapsedMsSIMD] = MeasureExecutionTimeWithResult([&]() {
-		return Oscillator::instance()->triangleWaveSIMD(440, 1.0f);
-		});
-	exitTimes[1] = static_cast<float>(elapsedMsSIMD);
-	signalProcess->addWave(samplesSIMD, 1.0f, 44100);*/
-
-	//signalProcess->addWave(Oscillator::instance()->whiteNoise(1.0f));
-
-	//signalProcess->addWave(Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f));
-
-	auto samples = Oscillator::instance()->turbulenceNoiseSIMD(1.0f, 44100, 0.5f, 0.6f, 1.0f);
-	waveData data = signalProcess->createData(samples);
-	samples = WaveShaper::instance()->WindHissSIMD(data, 0.2f, 0.005f, 25.0f, 0.985f, 30.0f);
-	waveData data1 = signalProcess->createData(samples);
-	auto s2 = WaveShaper::instance()->AmplitudeJitter(data1, 0.1f);
-	signalProcess->addWave(s2, 44100.0f, 1.0f, 0);
-
-	auto baseFlow = osc->pinkNoise(1.0f, SamplingRate, 12000);
-	auto heavyFlow = osc->brownNoise(1.0f, SamplingRate, 8000);
-	auto sparkle = osc->bandpassNoise(1.0f, SamplingRate, 3000, 2.0f, 5000);
-	auto bubbles = osc->bubbleNoise(1.0f,SamplingRate, 20, 0.4f);
-	auto resonance = osc->resonanceNoise(1.0f,SamplingRate,{ 250, 400, 650 }, 1.5f, 6000);
-
-	signalProcess->addWave(baseFlow, 0.0f, 1.0f);
-	signalProcess->addWave(heavyFlow, 0.0f, 1.0f);
-	signalProcess->addWave(sparkle, 0.0f, 1.0f);
-	signalProcess->addWave(bubbles, 0.0f, 1.0f);
-	signalProcess->addWave(resonance, 0.0f, 1.0f);
+	//auto data = signalProcess->createData(SignalMixer::instance()->granularize(whiteNoise, 100.0f, 40.0f, 1.5f, 10.0f, 0.01f));
+	waveData whiteNoise = signalProcess->createData(Oscillator::instance()->pinkNoise(1.0f,44100,0.1f),440.0f,0.0f);
+	waveData lpf = signalProcess->createData(WaveShaper::instance()->BandPass(whiteNoise, 1000.0f, 1500.0f));
+	auto data = signalProcess->createData(SignalMixer::instance()->vibratoLFO(lpf, 0.12f, 0.6f,0.01f));
+	signalProcess->addWave(SignalMixer::instance()->amplitudeModulation(data,0.1f,400.0f,0.01f), 440.0f, 0.1f);
 }
 
 void AudioDemoScene::finalize()
@@ -133,7 +103,6 @@ void AudioDemoScene::ProceduralAudioGui()
 		{
 		case WaveType::Sine:
 			data = Oscillator::instance()->sinWaveSIMD(frequency, durationSeconds, phase);
-			//signalProcess->setWaveTypeData(WaveTypeInfo::Sin, frequency, durationSeconds);
 			break;
 		case WaveType::Saw:
 			data = Oscillator::instance()->sawtoothWaveSIMD(frequency, durationSeconds);
@@ -295,11 +264,8 @@ void AudioDemoScene::importData()
 		std::string extension = ".json";
 		std::string file = modalPresets.at(modalCurrent).name + extension;
 
-		if (!std::filesystem::exists(file))
-		{
-			std::ofstream ofs(file);
-			ofs << root.dump(4);
-		}
+		std::ofstream ofs(file);
+		ofs << root.dump(4);
 	}
 
 	

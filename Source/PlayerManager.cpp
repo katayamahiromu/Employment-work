@@ -28,7 +28,6 @@ void PlayerManager::playerCreate(Camera* camera)
 	player->AddComponent<PlayerController>();
 	player->AddComponent<Movement>();
 	player->AddComponent<Animation>();
-	player->AddComponent<TimeLapse>();
 	player->AddComponent<Audio3DListener>(static_cast<int>(Lisner::PLAYER));
 	player->AddComponent<CollisionComponent>(CollisionType::Mesh);
 	player->AddComponent<CameraInfo>(camera);

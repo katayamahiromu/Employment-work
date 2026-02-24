@@ -23,10 +23,8 @@ void EnemyManager::enemyCreate(Object*o)
 
 	obj->AddComponent<Movement>();
 	obj->AddComponent<Animation>();
-	obj->AddComponent<TimeLapse>();
 	obj->AddComponent<Audio3DEmitter>(3.0f, 10.0f);
 	obj->AddComponent<CollisionComponent>(CollisionType::Mesh);
-	obj->AddComponent<MeshTexChange>("Face07");
 	obj->AddComponent<Enemy>(*o);
 
 	enemyArray.emplace_back(obj);

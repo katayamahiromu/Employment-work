@@ -26,14 +26,11 @@ void Enemy::prepare()
 	movement->setMoveSpeed(3.0f);
 
 	animation = getObject()->GetComponent<Animation>();
-	timeLaps = getObject()->GetComponent<TimeLapse>();
 	emitter = getObject()->GetComponent<Audio3DEmitter>();
 	emitter->loadFile("Resources\\Audio\\グレート.wav");
 
 	collision = getObject()->GetComponent<CollisionComponent>();
 	collision->setMeshName("Box");
-
-	meshTexChange = getObject()->GetComponent<MeshTexChange>();
 	
 	//待機
 	stateMachine->registerState(CAST_INT(Action::Idle),

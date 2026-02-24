@@ -58,7 +58,9 @@ inline void toModalJson(nlohmann::json& j, const ModalMode& m)
         {"Harmonic Mask", m.harmonicMask},
         {"Random Phase", m.randomPhase},
         {"Random Decay", m.randomDecay},
-        {"Clip Amount", m.clipAmount}
+        {"Clip Amount", m.clipAmount},
+        {"lowpassCutoff",m.lowpassCutoff},
+        {"highpassCutoff",m.highpassCutoff}
     };
 }
 
@@ -111,22 +113,3 @@ inline static std::vector<ModalMode> loadModalDataJson(const char* filePath)
     }
     return modals;
 }
-
-//inline std::vector<int16_t>convertData8to16(const std::vector<uint8_t>& data)
-//{
-//    //í[êîêÿéÃÇƒ
-//    size_t byteCount = data.size() & ~static_cast<size_t>(1);
-//    size_t samplesCount = byteCount / 2;
-//
-//    std::vector<int16_t> samples;
-//    samples.resize(samplesCount);
-//
-//    for (size_t i = 0; i < samplesCount; ++i)
-//    {
-//        uint16_t lo = static_cast<uint8_t>(data[i * 2]);
-//        uint16_t hi = static_cast<uint8_t>(data[i * 2 + 1]);
-//        uint16_t u = static_cast<uint16_t>(lo | (hi << 8));
-//        samples[i] = static_cast<int16_t>(u);
-//    }
-//    return samples;
-//}
