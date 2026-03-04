@@ -10,9 +10,6 @@
 #include"Graphics/Sprite.h"
 #include"Scene.h"
 
-#include<iostream>
-
-
 class Component;
 class Object : public std::enable_shared_from_this<Object>
 {
@@ -38,6 +35,8 @@ public:
 
 	//位置取得
 	const DirectX::XMFLOAT3* getPosition() const { return &position; }
+	//位置のポインター取得
+	DirectX::XMFLOAT3* getPPosition() { return &position; }
 	//位置設定
 	void setPosition(const DirectX::XMFLOAT3& p) { this->position = p; }
 

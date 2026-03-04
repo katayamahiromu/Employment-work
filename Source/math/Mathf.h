@@ -16,17 +16,20 @@ public:
 	static DirectX::XMFLOAT3 Leap(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, float t);
 
 	//割合
-	static float Proportion(float a, float b);
-
+	static inline float Proportion(float a, float b);
+	static inline float relativeRate(float base, float observer, float source);
 	//指定範囲のランダム値を計算
 	static float RandomRange(float min, float max);
 
 	//前方向の取得
 	static DirectX::XMFLOAT3 GetForwardDirection(float angleY);
 
+	//正規化した方向ベクトルの取得
+	static DirectX::XMVECTOR calcDir(const DirectX::XMFLOAT3 a, const DirectX::XMFLOAT3 b);
+
 	//Xyzでの距離の二乗を計算
 	static float calcDistanceSqXYZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b);
-
+	static float calcDistanceXYZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b);
 	//Xyzでの距離の二乗を計算
 	static float calcDistanceSqXZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b);
 
@@ -57,4 +60,38 @@ public:
 		const DirectX::XMFLOAT3& p3,
 		float t);
 
+
+	//２点が作る方向と任意ベクトルの角度を求める
+	static float calcAngle(
+		const DirectX::XMFLOAT3& a,
+		const DirectX::XMFLOAT3& b,
+		const DirectX::XMFLOAT3& vec);
+
+	//スカラー射影　ある方向にどれだけ進んでいるか求める
+	static inline float scalarProjection(
+		DirectX::XMFLOAT3 v, 
+		DirectX::XMFLOAT3 unitDir);
+
+	static inline float scalarProjection(
+		DirectX::XMFLOAT3 v, 
+		DirectX::XMVECTOR unitDir);
+
+	static inline float scalarProjection(
+		DirectX::XMVECTOR  v,
+		DirectX::XMVECTOR unitDir);
+
+	//相対的な速度を求める
+	static float directionalSpeedRatio(
+		const DirectX::XMFLOAT3& observerPos,
+		const DirectX::XMFLOAT3& observerVel,
+		const DirectX::XMFLOAT3& sourcePos,
+		const DirectX::XMFLOAT3& sourceVel,
+		float baseSpeed);
+
+	//符号付きの角度を返す
+	static float signedAngle(
+		const DirectX::XMFLOAT3& observerPos,
+		const DirectX::XMFLOAT3& observerForward,
+		const DirectX::XMFLOAT3& observerRight,
+		const DirectX::XMFLOAT3& sourcePos);
 };

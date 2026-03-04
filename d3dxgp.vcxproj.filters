@@ -70,14 +70,17 @@
     <Filter Include="Source\Component">
       <UniqueIdentifier>{02840870-3ffd-483e-b8a3-eafaa977cd4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Audio\PBSS">
-      <UniqueIdentifier>{31ad4d5a-f9d9-4241-9d17-eb949e92ae2f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Scene">
       <UniqueIdentifier>{2e6d931f-1f6c-4878-a9bd-8363c1132607}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils\tinyfiledialogs">
       <UniqueIdentifier>{8e8d8aa5-36f9-4441-a654-7abd2febdd51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio\3DAudio">
+      <UniqueIdentifier>{cf682ebe-f670-42ac-bf1c-43bace138926}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio\ModalePrame">
+      <UniqueIdentifier>{31ad4d5a-f9d9-4241-9d17-eb949e92ae2f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\MusicData">
       <UniqueIdentifier>{9688609e-9fa9-450c-a59a-67f3c5268b8d}</UniqueIdentifier>
@@ -229,9 +232,6 @@
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\Audio\SubMixVoice.cpp">
-      <Filter>Source\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Audio\Audio3DSystem.cpp">
       <Filter>Source\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Source\particle\ParticleManager.cpp">
@@ -386,6 +386,18 @@
     </ClCompile>
     <ClCompile Include="Source\system\AtmosphereSoundSysytem.cpp">
       <Filter>Source\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\PointEmitter.cpp">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\BaseEmitter.cpp">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\PoliLineEmitter.cpp">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\Audio3DSystem.cpp">
+      <Filter>Source\Audio\3DAudio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -569,9 +581,6 @@
     <ClInclude Include="Source\Audio\SubMixVoice.h">
       <Filter>Source\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Audio\Audio3DSystem.h">
-      <Filter>Source\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Source\particle\ParticleManager.h">
       <Filter>Source\Particle</Filter>
     </ClInclude>
@@ -711,7 +720,7 @@
       <Filter>Source\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Audio\ModalMode.h">
-      <Filter>Source\Audio\PBSS</Filter>
+      <Filter>Source\Audio\ModalePrame</Filter>
     </ClInclude>
     <ClInclude Include="Source\AudioDemoScene.h">
       <Filter>Source\Scene</Filter>
@@ -754,6 +763,21 @@
     </ClInclude>
     <ClInclude Include="Source\system\AtmosphereSoundSysytem.h">
       <Filter>Source\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\StereophonicParameter.h">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\BaseEmitter.h">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\PointEmitter.h">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\PoliLineEmitter.h">
+      <Filter>Source\Audio\3DAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\Audio3DSystem.h">
+      <Filter>Source\Audio\3DAudio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

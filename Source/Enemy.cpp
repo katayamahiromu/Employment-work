@@ -61,6 +61,8 @@ void Enemy::prepare()
 		meshTexChange->loadTexture(texName.c_str());
 		count++;
 	}*/
+
+	emitter->setListenerType(static_cast<int>(Lisner::PLAYER));
 }
 
 void Enemy::update(float elapsedTime)
@@ -71,7 +73,6 @@ void Enemy::update(float elapsedTime)
 
 	//エミターの更新
 	emitter->play(static_cast<int>(Lisner::PLAYER));
-	emitter->setVelocity(movement->getVelocity());
 
 	//当たり判定用にプレイヤーに情報を送信
 	drawDebugPrimitive();

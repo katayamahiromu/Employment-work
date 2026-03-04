@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include"AudioWorker.h"
 #include"../Utils/RingBuffer.h"
+#include"BaseEmitter.h"
 
 // オーディオ管理
 class AudioManager
@@ -41,7 +42,9 @@ public:
 	/// <param name="filename">読み込むファイル名</param>
 	/// <param name="emitter">エミターの情報</param>
 	/// <returns></returns>
-	std::unique_ptr<Audio3D>loadAudioSource3D(const char* filename, SoundEmitter* emitter);
+	//emitterはnullptrでも機能する
+	std::unique_ptr<Audio3D>loadAudioSource3D(const char* filename, std::shared_ptr<BaseEmitter>emitterType,SoundEmitter* emitter);
+	std::unique_ptr<Audio3D>loadAudioSource3D(SignalProcesser& siganl, std::shared_ptr<BaseEmitter>emitterType,SoundEmitter* emitter);
 
 	/// <summary>
 	/// オーディオを纏めれるサブミックスボイスの生成

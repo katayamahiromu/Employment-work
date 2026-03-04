@@ -103,10 +103,16 @@ std::unique_ptr<Audio> AudioManager::loadAudioSourceEffect(const char* filename)
 	return std::make_unique<Audio>(xaudio, resource, true);
 }
 
-std::unique_ptr<Audio3D> AudioManager::loadAudioSource3D(const char* filename, SoundEmitter* emitter)
+std::unique_ptr<Audio3D> AudioManager::loadAudioSource3D(const char* filename, std::shared_ptr<BaseEmitter>emitterType,SoundEmitter* emitter)
 {
 	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(filename);
-	return std::make_unique<Audio3D>(xaudio, resource, emitter);
+	return std::make_unique<Audio3D>(xaudio, resource,emitterType ,emitter);
+}
+
+std::unique_ptr<Audio3D>AudioManager::loadAudioSource3D(SignalProcesser& siganl, std::shared_ptr<BaseEmitter>emitterType,SoundEmitter* emitter)
+{
+	std::shared_ptr<AudioResource> resource = std::make_shared<AudioResource>(siganl);
+	return std::make_unique<Audio3D>(xaudio, resource, emitterType, emitter);
 }
 
 std::unique_ptr<SubMixVoice>AudioManager::createSubMixVoice()

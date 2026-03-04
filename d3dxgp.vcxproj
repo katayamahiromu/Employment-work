@@ -172,6 +172,9 @@
     <ClCompile Include="Source\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Audio\AudioResource.cpp" />
     <ClCompile Include="Source\Audio\AudioWorker.cpp" />
+    <ClCompile Include="Source\Audio\BaseEmitter.cpp" />
+    <ClCompile Include="Source\Audio\PointEmitter.cpp" />
+    <ClCompile Include="Source\Audio\PoliLineEmitter.cpp" />
     <ClCompile Include="Source\Audio\SignalMixer.cpp" />
     <ClCompile Include="Source\Audio\SignalProcesser.cpp" />
     <ClCompile Include="Source\Audio\SoundEffect.cpp" />
@@ -275,10 +278,14 @@
     <ClInclude Include="Source\Audio\AudioResource.h" />
     <ClInclude Include="Source\Audio\AudioCallback.h" />
     <ClInclude Include="Source\Audio\AudioWorker.h" />
+    <ClInclude Include="Source\Audio\BaseEmitter.h" />
     <ClInclude Include="Source\Audio\ModalMode.h" />
+    <ClInclude Include="Source\Audio\PointEmitter.h" />
+    <ClInclude Include="Source\Audio\PoliLineEmitter.h" />
     <ClInclude Include="Source\Audio\SignalProcessor.h" />
     <ClInclude Include="Source\Audio\Oscillator.h" />
     <ClInclude Include="Source\Audio\SoundHealper.h" />
+    <ClInclude Include="Source\Audio\StereophonicParameter.h" />
     <ClInclude Include="Source\Audio\SubMixVoice.h" />
     <ClInclude Include="Source\Audio\SoundEffect.h" />
     <ClInclude Include="Source\Audio\SubMixVoiceManager.h" />

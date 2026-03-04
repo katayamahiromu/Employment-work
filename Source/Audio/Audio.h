@@ -22,7 +22,7 @@ enum Fliter_Type
 class Audio
 {
 public:
-	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool effect);
+	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, bool effect);
 	Audio(IXAudio2* xaudio, WAVEFORMATEX wfx);
 	~Audio();
 
@@ -156,6 +156,7 @@ public:
 
 	void setFade(Fade type, float fadeTime);
 
+	IXAudio2SourceVoice* getSource() { return sourceVoice; }
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;

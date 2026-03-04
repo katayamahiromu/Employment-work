@@ -52,7 +52,6 @@ void GameScene::initialize()
 	//ポストエフェクト
 	//PostprocessingRenderer* PostEffects = PostprocessingRenderer::instance();
 	PostEffects = std::make_unique<PostprocessingRenderer>();
-	PostEffects->addPostProcess(new RainLine);
 	PostEffects->addPostProcess(new LuminanceExtract);
 	PostEffects->addPostProcess(new GaussianFilter);
 	PostEffects->addPostProcess(new ColorGrading);
@@ -83,6 +82,7 @@ void GameScene::initialize()
 	windowSoundSystem->start();
 
 	river = std::make_unique<RiverSoundSystem>();
+	river->start();
 
 	atmospher = std::make_unique<AtmosphereSound>();
 	atmospher->start();
@@ -209,6 +209,7 @@ void GameScene::sceneRender()
 	ImGui::End();
 
 	windowSoundSystem->gui();
+	river->gui();
 }
 
 void GameScene::UIRender()

@@ -4,169 +4,170 @@
 #include"../imgui/imgui.h"
 #include<algorithm>
 
+#include"PointEmitter.h"
 
-Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, SoundEmitter* emitter):Audio(xaudio,resource,false)
+Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, std::shared_ptr<BaseEmitter>emitterType, SoundEmitter* emitter):Audio(xaudio,resource,false)
 {
 	if (emitter != nullptr)
 	{
 		this->emitter = emitter; // 値のみ代入
 
 		dspSetting.srcChannelCount = resource->getWaveFormat().nChannels;
-		dspSetting.dstChannelCount = 2;
+
+		IXAudio2MasteringVoice* masteringVoice = AudioManager::instance()->getMasteringVoice();
+
+		XAUDIO2_VOICE_DETAILS details;
+		masteringVoice->GetVoiceDetails(&details);
+
+		dspSetting.dstChannelCount = details.InputChannels;
 		dspSetting.outputMatrix = new float[dspSetting.srcChannelCount * dspSetting.dstChannelCount];
 	}
+
+    this->emitterType = emitterType;
 }
 
-Audio3D::Audio3D(IXAudio2* xaudio, WAVEFORMATEX wfx, SoundEmitter* emitter):Audio(xaudio,wfx)
-{
-	if(emitter != nullptr)
-	{
-		this->emitter = emitter; // 値のみ代入
-
-		dspSetting.srcChannelCount = wfx.nChannels;
-		dspSetting.dstChannelCount = 2;
-		dspSetting.outputMatrix = new float[dspSetting.srcChannelCount * dspSetting.dstChannelCount];
-	}
-}
 Audio3D::~Audio3D()
 {
-	//if (emitter)delete emitter;
 	if (dspSetting.outputMatrix) delete[] dspSetting.outputMatrix;
 }
 
-void Audio3D::update(float volume)
+void Audio3D::update(SoundListner& listner)
 {
-	XAUDIO2_VOICE_STATE state;
-	sourceVoice->GetState(&state, XAUDIO2_VOICE_NOSAMPLESPLAYED);
+    //エミターの位置と速度
+    emitterType->calcEmitterSetting(*emitter);
 
-	setVolume(volume);
-	if (emitter != nullptr)
-	{
-		setPan();
-		filter(LowPassOnePoleFilter);
+    //DSPに用いる値計算
+	DSPResult result = emitterType->calcDSP(*emitter, listner);
 
-		//ドップラー効果の適用
-		if (dspSetting.dopplerScale)
-		{
-			sourceVoice->SetFrequencyRatio(dspSetting.dopplerScale);
-		}
-	}
+    //DSPの値を用いた各種効果の適応
+    calcPan(result);
+	filter(LowPassOnePoleFilter, result.filterParam, 1.0f);
+	sourceVoice->SetFrequencyRatio(result.dopplerScale);
 }
 
-void Audio3D::setPan()
-{
-	XAUDIO2_VOICE_DETAILS voiceDetails;
-	sourceVoice->GetVoiceDetails(&voiceDetails);
-
-	XAUDIO2_VOICE_DETAILS masterDetails;
-	IXAudio2MasteringVoice* masteringVoice = AudioManager::instance()->getMasteringVoice();
-	masteringVoice->GetVoiceDetails(&masterDetails);
-
-	//リスナーと音源の位置関係から出力先配列を適用
-	sourceVoice->SetOutputMatrix(masteringVoice, voiceDetails.InputChannels, 2, dspSetting.outputMatrix);
-}
-
-void Audio3D::filter(XAUDIO2_FILTER_TYPE type, FLOAT32 overq)
+void Audio3D::filter(XAUDIO2_FILTER_TYPE type, float filterParam, FLOAT32 overq)
 {
 	XAUDIO2_FILTER_PARAMETERS filter;
 	filter.Type = type;	//使うフィルターの種類
-	filter.Frequency = 2.0f * sinf(X3DAUDIO_PI / 6.0f * (1.0f - dspSetting.filterParam));// リスナーと音源の位置関係からとったフィルター係数を適用
+    filter.Frequency = emitterType->calcFrequencyLPF(filterParam);// リスナーと音源の位置関係からとったフィルター係数を適用
 	filter.OneOverQ = overq; //実際にどのくらいの音量がカットされているか
 
 	sourceVoice->SetFilterParameters(&filter);
 }
 
-
-float Audio3D::calcAngle(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b, DirectX::XMFLOAT3 vec)
+void Audio3D::calcPan(DSPResult& result)
 {
-	DirectX::XMVECTOR Dir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&a), DirectX::XMLoadFloat3(&b)));
-	DirectX::XMVECTOR Vec = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&vec));
+    const int srcCh = dspSetting.srcChannelCount;
+    const int dstCh = dspSetting.dstChannelCount;
 
-	float dot = DirectX::XMVectorGetX(DirectX::XMVector3Dot(Dir, Vec));
-	dot = std::clamp(dot, -1.0f, 1.0f);
+    const auto& layout = SpeakerLayout[dstCh];
+    float* out = dspSetting.outputMatrix;
 
-	return acosf(dot);//ラジアン角
-}
+    // 出力クリア
+    std::fill(out, out + srcCh * dstCh, 0.0f);
 
-void Audio3D::setDSPSetting(SoundListner& listner)
-{
-	//距離
-	DirectX::XMVECTOR Lp = DirectX::XMLoadFloat3(&listner.position);
-	DirectX::XMVECTOR Ep = DirectX::XMLoadFloat3(&emitter->position);
+    // 角度（0～2π前提）
+    float angle = result.radian;
+    if (angle < 0.0f) angle += DirectX::XM_2PI;
 
-	dspSetting.distanceListerEmitter = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(Lp,Ep)));
+    // スピーカー探索（LFEスキップ）
+    int idxA = -1;
+    int idxB = -1;
+    float angA = 0.0f;
+    float angB = 0.0f;
 
-	//ドップラー効果
-	DirectX::XMVECTOR emitterToListener = DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&listner.position), DirectX::XMLoadFloat3(&emitter->position));
-	emitterToListener = DirectX::XMVector3Normalize(emitterToListener);
-	float listenerSpeed = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat3(&listner.velocity), emitterToListener));
-	float emitterSpeed = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat3(&emitter->velocity), emitterToListener));
+    const int LFE_INDEX = (dstCh >= 6) ? 3 : -1;
 
-	float soundSpeed = 340.0f;
-	dspSetting.dopplerScale = (soundSpeed - listenerSpeed) / (soundSpeed - emitterSpeed);
+    for (int i = 0; i < dstCh; i++)
+    {
+        if (i == LFE_INDEX) continue;
 
-	//角度
-	float angle = calcAngle(emitter->position, listner.position, listner.rightVec);
-	dspSetting.radianListerEmitter = angle < M_PI * 0.5f ?
-		calcAngle(emitter->position, listner.position, listner.frontVec) :
-		-calcAngle(emitter->position, listner.position, listner.frontVec);
+        int next = (i + 1) % dstCh;
+        if (next == LFE_INDEX) next = (next + 1) % dstCh;
 
-	//音の減衰率
-	float scaler = max(0.0f, min(1.0f, 1.0f - dspSetting.distanceListerEmitter / emitter->maxDistance));
-	this->scale = scaler;
-	switch (dspSetting.srcChannelCount * dspSetting.dstChannelCount)
-	{
-	case 1:
-		dspSetting.outputMatrix[0] = scaler;
-		break;
-	case 4:
-		float ang = angle < M_PI * 0.5f ?
-			dspSetting.radianListerEmitter : -calcAngle(emitter->position, listner.position, listner.frontVec);
-		ang = (dspSetting.radianListerEmitter + 90) * 0.5f;
-		float L = cosf(ang);
-		float R = sinf(ang);
-		if (dspSetting.distanceListerEmitter > emitter->minDistance)
-		{
-			//音量を触ると重いためパンに減衰率を掛けて最適化
-			L *= scaler;
-			R *= scaler;
-		}
-		dspSetting.outputMatrix[0] = dspSetting.outputMatrix[1] = L;
-		dspSetting.outputMatrix[2] = dspSetting.outputMatrix[3] = R;
+        float a0 = layout[i].azimuth;
+        float a1 = layout[next].azimuth;
 
-		left = L;
-		right = R;
-		break;
-	}
+        // wrap対応
+        if (a1 < a0) a1 += DirectX::XM_2PI;
 
-	//リスナーと音源の角度からローパスに適用する値を計算
+        float a = angle;
+        if (a < a0) a += DirectX::XM_2PI;
 
-	//正面からはずれているか
-	float a = std::abs(dspSetting.radianListerEmitter);
-	if (a > listner.innerRadius)
-	{
-		//角度に応じてスケール
-		float t = (a - listner.innerRadius) / (listner.outerRadius - listner.innerRadius);
+        if (a >= a0 && a <= a1)
+        {
+            idxA = i;
+            idxB = next;
+            angA = a0;
+            angB = a1;
+            angle = a;
+            break;
+        }
+    }
 
-		//１を上限とする（外れ過ぎても最大値止まり）
-		t = min(1.0f, t);
+    if (idxA < 0) return;
 
-		//スケールに応じてフィルターパラメーターを調整
-		dspSetting.filterParam = listner.filterParam * t;
-	}
-	else
-	{
-		//正面ではフィルター無し
-		dspSetting.filterParam = 0.0f;
-	}
+    // パン（VBAP近似）
+    float t = (angle - angA) / (angB - angA);
+    t = std::clamp(t, 0.0f, 1.0f);
+
+    //パン強調
+    t = powf(t, panPower);
+    float gainA = powf(1.0f - t, panPower);
+    float gainB = powf(t, panPower);
+
+    // 疑似等電力
+    gainA *= gainA;
+    gainB *= gainB;
+
+    // 前後補正
+    float front = cosf(angle);
+    front = std::clamp(front, 0.0f, 1.0f);
+
+    float frontBoost = 0.6f + 0.4f * front;
+
+    gainA *= frontBoost;
+    gainB *= frontBoost;
+
+    // 距離減衰
+    gainA *= result.scale;
+    gainB *= result.scale;
+
+    // 出力
+    for (int s = 0; s < srcCh; s++)
+    {
+        out[s * dstCh + idxA] = gainA;
+        out[s * dstCh + idxB] = gainB;
+
+        // LFE（少し送る）
+        if (LFE_INDEX >= 0)
+        {
+            out[s * dstCh + LFE_INDEX] = result.scale * 0.25f;
+        }
+    }
+
+    // 適用
+    sourceVoice->SetOutputMatrix(
+        AudioManager::instance()->getMasteringVoice(),
+        srcCh,
+        dstCh,
+        out
+    );
 }
 
 void Audio3D::gui()
 {
 	//ImGui::Begin("debug Sound");
-	ImGui::InputFloat("distance", &dspSetting.distanceListerEmitter);
+	/*ImGui::InputFloat("distance", &dspSetting.distanceListerEmitter);
 	ImGui::InputFloat("Scale", &scale);
 	ImGui::InputFloat("Left Pan", &left);
-	ImGui::InputFloat("Right Pan", &right);
+	ImGui::InputFloat("Right Pan", &right);*/
+    for (int i = 0; i < dspSetting.dstChannelCount; i++)
+    {
+        float gain = dspSetting.outputMatrix[i];
+        ImGui::Text("Ch %d : %.3f", i, gain);
+    }
+    //左右の大きさを強調
+    ImGui::SliderFloat("PanPower", &panPower, 1.0, 4.0f);
 	//ImGui::End();
 }

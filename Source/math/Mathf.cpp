@@ -19,6 +19,10 @@ float Mathf::Proportion(float a, float b)
     return a / (a + b);
 }
 
+float Mathf::relativeRate(float base, float observer, float source)
+{
+    return (base - observer) / (base - source);
+}
 
 //指定範囲のランダム値を計算する
 float Mathf::RandomRange(float min, float max)
@@ -36,12 +40,27 @@ DirectX::XMFLOAT3 Mathf::GetForwardDirection(float angleY)
     return { sinf(angleY),0.0f, cosf(angleY) };
 }
 
+DirectX::XMVECTOR Mathf::calcDir(const DirectX::XMFLOAT3 a, const DirectX::XMFLOAT3 b)
+{
+    return DirectX::XMVector3Normalize(
+        DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&b), DirectX::XMLoadFloat3(&a))
+    );
+}
 float Mathf::calcDistanceSqXYZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b)
 {
     DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(
         DirectX::XMLoadFloat3(&a), DirectX::XMLoadFloat3(&b));
     DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(vec);
     return DirectX::XMVectorGetX(lengthSq);
+}
+
+float Mathf::calcDistanceXYZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b)
+{
+    return DirectX::XMVectorGetX(DirectX::XMVector3Length(
+        DirectX::XMVectorSubtract(
+            DirectX::XMLoadFloat3(&a), DirectX::XMLoadFloat3(&b)
+        )
+    ));
 }
 
 float Mathf::calcDistanceSqXZ(DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b)
@@ -138,4 +157,72 @@ DirectX::XMFLOAT3 Mathf::CatmullRom(
     DirectX::XMFLOAT3 out;
     XMStoreFloat3(&out, result);
     return out;
+}
+
+float Mathf::calcAngle(
+    const DirectX::XMFLOAT3& a, 
+    const DirectX::XMFLOAT3& b, 
+    const DirectX::XMFLOAT3& vec)
+{
+    DirectX::XMVECTOR Dir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&a), DirectX::XMLoadFloat3(&b)));
+    DirectX::XMVECTOR Vec = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&vec));
+
+    float dot = DirectX::XMVectorGetX(DirectX::XMVector3Dot(Dir, Vec));
+    dot = std::clamp(dot, -1.0f, 1.0f);
+
+    return acosf(dot);//ラジアン角
+}
+
+float Mathf::scalarProjection(DirectX::XMFLOAT3 v,DirectX::XMFLOAT3 unitDir)
+{
+    //Dirは正規化前提
+    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(
+        DirectX::XMLoadFloat3(&v), DirectX::XMLoadFloat3(&unitDir)
+    ));
+}
+
+float Mathf::scalarProjection(DirectX::XMFLOAT3 v, DirectX::XMVECTOR unitDir)
+{
+    //Dirは正規化前提
+    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(
+        DirectX::XMLoadFloat3(&v), unitDir
+    ));
+}
+
+float Mathf::scalarProjection(DirectX::XMVECTOR v, DirectX::XMVECTOR unitDir)
+{
+    //Dirは正規化前提
+    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(v,unitDir));
+}
+
+float Mathf::directionalSpeedRatio(
+    const DirectX::XMFLOAT3& observerPos,
+    const DirectX::XMFLOAT3& observerVel,
+    const DirectX::XMFLOAT3& sourcePos,
+    const DirectX::XMFLOAT3& sourceVel,
+    float baseSpeed)
+{
+    DirectX::XMVECTOR dir = calcDir(observerPos, sourcePos);
+
+    float observerProj = scalarProjection(observerVel, dir);
+
+    float sourceProj = scalarProjection(sourceVel, dir);
+
+    return relativeRate(baseSpeed, observerProj, sourceProj);
+}
+
+float Mathf::signedAngle(
+    const DirectX::XMFLOAT3& observerPos,
+    const DirectX::XMFLOAT3& observerForward,
+    const DirectX::XMFLOAT3& observerRight,
+    const DirectX::XMFLOAT3& sourcePos)
+{
+    DirectX::XMVECTOR dir = calcDir(observerPos, sourcePos);
+
+    DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&observerForward));
+    DirectX::XMVECTOR right = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&observerRight));
+
+    float x = scalarProjection(dir, forward);
+    float y = scalarProjection(dir, right);
+    return atan2f(x, y);
 }

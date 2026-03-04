@@ -47,7 +47,7 @@ void ProceduralAudio::pan(float pan, float frontBack)
 void ProceduralAudio::initCreate(float frequency, float gain)
 {
 	create(frequency, gain,playIndex);
-	AudioManager::instance()->CreateWaveData([&]() {create(frequency, gain,genIndex);});
+	AudioManager::instance()->CreateWaveData([=]() {create(frequency, gain,genIndex);});
 }
 
 void ProceduralAudio::update(float frequency, float gain,bool tryS)
@@ -84,9 +84,7 @@ void ProceduralAudio::loadModalData(const char* filename ,float durationSeconds,
 void ProceduralAudio::create(float frequency, float gain, int index)
 {
 	std::lock_guard<std::mutex> lock(mutex);
-	CreateFunc func = createFunc;
-
-	if (func)
+	if (createFunc)
 	{
 		signal->addWave(createFunc(), frequency, gain, index);
 	}

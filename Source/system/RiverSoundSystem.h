@@ -1,5 +1,6 @@
 #pragma once
 #include"Audio/Audio3DSystem.h"
+#include"ProceduralAudio.h"
 
 class RiverSoundSystem
 {
@@ -13,8 +14,9 @@ public:
 
 	void gui();
 
+    void start();
 private:
-	void CalcPos(DirectX::XMFLOAT3 linerPos);
+    std::vector<uint8_t> createWave();
 private:
     // 制御点（川の中心ライン）
     std::vector<DirectX::XMFLOAT3> pts =
@@ -27,7 +29,9 @@ private:
         { 20, 1,80 }
     };
 
-    const int SUBDIV = 20; // 分割数
-
 	DirectX::XMFLOAT3 SoundPos = {0.0f,0.0f,0.0f};
+
+    std::unique_ptr<ProceduralAudio>noise;
+    SoundEmitter emitter;
+    std::unique_ptr<Audio3D>source;
 };
