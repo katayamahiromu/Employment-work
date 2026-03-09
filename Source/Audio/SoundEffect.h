@@ -5,12 +5,14 @@
 #include<xapofx.h>
 #include <xaudio2fx.h>
 #include <DirectXMath.h>
+#include<xapo.h>
 
 enum SoundEffectType
 {
 	REVERB,
 	ECHO,
 	EQUALIZER,
+	HRTF,
 };
 
 class SoundEffect
@@ -109,4 +111,21 @@ private:
 	DirectX::XMFLOAT4 frequencyCenter = { 120.0f,800.0f,2500.0f,10000.0f };
 	DirectX::XMFLOAT4 bandwidth = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT4 gain = { 4.0f,0.0f,2.0f,3.0f };
+};
+
+class Hrtf : public SoundEffect
+{
+public:
+	Hrtf(int slot);
+	~Hrtf();
+
+	void update(IXAudio2SubmixVoice* sv)override;
+	SoundEffectType getType()const override { return SoundEffectType::HRTF; }
+
+	void Gui()override;
+
+	void setDistance(DirectX::XMFLOAT3 dis) { distance = dis; }
+private:
+	IXAPO* hrtfXapo;
+	DirectX::XMFLOAT3 distance{ 0.0f,0.0f,0.0f };
 };

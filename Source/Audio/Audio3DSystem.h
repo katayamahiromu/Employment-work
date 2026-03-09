@@ -20,11 +20,14 @@ private:
 	void filter(XAUDIO2_FILTER_TYPE type, float filterParam, FLOAT32 overq = 1.0f);
 	void updateReverb(DSPResult& result);
 	void updateEcho(DSPResult& result);
+	void updateHrtf(DSPResult& result);
 private:
 	SoundEmitter*emitter;
 	SoundDSPSetting dspSetting;
 	std::shared_ptr<BaseEmitter>emitterType;
+
 	std::shared_ptr<SubMixVoice>effect;
+	std::vector<std::shared_ptr<SubMixVoice>>hrtfArray;
 
 	float angle = 0.0f;
 	float panPower = 1.0f;

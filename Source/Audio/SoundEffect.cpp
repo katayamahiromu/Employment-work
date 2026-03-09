@@ -1,5 +1,6 @@
 #include"SoundEffect.h"
 #include"../imgui/imgui.h"
+#include<hrtfapoapi.h>
 
 SoundEffect::~SoundEffect()
 {
@@ -26,6 +27,8 @@ Reverb::~Reverb()
 
 void Reverb::update(IXAudio2SubmixVoice* sv)
 {
+	HrtfApoInit hrtfInit = {};
+
 	//通常のプリセットを使用
 	XAUDIO2FX_REVERB_I3DL2_PARAMETERS i3dl2 = XAUDIO2FX_I3DL2_PRESET_GENERIC;
 	XAUDIO2FX_REVERB_PARAMETERS reverbParam;
@@ -133,4 +136,33 @@ void Equalizer::Gui()
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
+}
+
+Hrtf::Hrtf(int slot) :SoundEffect(slot)
+{
+	HrtfApoInit hrtfInit = {};
+	hrtfInit.directivity = nullptr;
+	hrtfInit.distanceDecay = nullptr;
+
+	CreateHrtfApo(&hrtfInit, &hrtfXapo);
+}
+
+Hrtf::~Hrtf()
+{
+
+}
+
+void Hrtf::update(IXAudio2SubmixVoice* sv)
+{
+	HrtfPosition pos{};
+	pos.x = distance.x;
+	pos.y = distance.y;
+	pos.z = distance.z;
+
+	auto params = reinterpret_cast<IXAPOParameters*>(hrtfXapo);
+	params->SetParameters(&pos, sizeof(pos));
+}
+
+void Hrtf::Gui()
+{
 }

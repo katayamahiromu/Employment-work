@@ -29,6 +29,15 @@ Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, std
     effect->addEffect(std::make_unique<Reverb>(0));
     effect->addEffect(std::make_unique<Echo>(1));
     effect->applyEffect();
+
+    //hrtfの設定
+    for (int i = 0;i < dspSetting.dstChannelCount;++i)
+    {
+        auto hrtf = AudioManager::instance()->createSubMixVoice();
+        hrtf->addEffect(std::make_unique<Hrtf>(0));
+        hrtf->applyEffect();
+        hrtfArray.push_back(hrtf);
+    }
 }
 
 Audio3D::~Audio3D()
@@ -49,7 +58,10 @@ void Audio3D::update3D(SoundListner& listener)
 	filter(LowPassOnePoleFilter, result.filterParam, 1.0f);
 	sourceVoice->SetFrequencyRatio(result.dopplerScale);
 
-    //リバーブの値更新
+    //hrtfの更新
+    updateHrtf(result);
+
+    //各種エフェクトの値更新
     updateReverb(result);
     updateEcho(result);
     effect->update();
@@ -214,6 +226,36 @@ void Audio3D::updateEcho(DSPResult& result)
     float delaySamples = delayMs * 0.001f * sampleRate;
 
     echo->setDelay(delaySamples);
+}
+
+void Audio3D::updateHrtf(DSPResult& result)
+{
+    const int dstCh = dspSetting.dstChannelCount;
+    const auto& layout = SpeakerLayout[dstCh];
+
+    float distance = result.distance;
+
+    for (int ch = 0; ch < dstCh; ++ch)
+    {
+        // LFE は方向性がないので HRTF に通さない
+        const int LFE_INDEX = (dstCh >= 6) ? 3 : -1;
+        if (ch == LFE_INDEX)
+            continue;
+
+        // スピーカー方向（角度）を取得
+        float az = layout[ch].azimuth;
+
+        // 角度 → HRTFPosition 変換
+        DirectX::XMFLOAT3 pos;
+        pos.x = cosf(az) * distance* result.scale;
+        pos.y = 0.0f;
+        pos.z = sinf(az) * distance * result.scale;
+
+        // HRTF に位置を設定
+        auto& hrtf = hrtfArray[ch];
+        dynamic_cast<Hrtf*>(hrtf->getEffect(HRTF))->setDistance(pos);
+        hrtf->update();
+    }
 }
 
 void Audio3D::gui()
