@@ -17,8 +17,7 @@ void SoundEffect::release()
 
 Reverb::Reverb(int slot):SoundEffect(slot)
 {
-	//XAudio2CreateReverb(&pXAPO);
-	CreateFX(__uuidof(FXReverb), &pXAPO);
+	XAudio2CreateReverb(&pXAPO);
 }
 
 Reverb::~Reverb()
@@ -27,31 +26,27 @@ Reverb::~Reverb()
 
 void Reverb::update(IXAudio2SubmixVoice* sv)
 {
-	//値が変更されてないなら即リターン
-	//if (!isAlter)return;
+	//通常のプリセットを使用
+	XAUDIO2FX_REVERB_I3DL2_PARAMETERS i3dl2 = XAUDIO2FX_I3DL2_PRESET_GENERIC;
+	XAUDIO2FX_REVERB_PARAMETERS reverbParam;
+	ReverbConvertI3DL2ToNative(&i3dl2, &reverbParam);
 
-	/*XAUDIO2FX_REVERB_I3DL2_PARAMETERS preset = XAUDIO2FX_I3DL2_PRESET_GENERIC;
-	preset.WetDryMix = wetLevel;
-	preset.DecayTime = decayTime;
-	XAUDIO2FX_REVERB_PARAMETERS Effectinfo;
-	ReverbConvertI3DL2ToNative(&preset, &Effectinfo);
+	reverbParam.WetDryMix = wetDryMix;
+	reverbParam.DecayTime = decayTime;
+	reverbParam.ReverbGain = reverbGain;
+	reverbParam.RoomFilterHF = roomFilterHF;
 
-	HRESULT hr = sv->SetEffectParameters(slot, &Effectinfo, sizeof(Effectinfo));*/
-
-	FXREVERB_PARAMETERS param;
-	param.Diffusion = diffusion;
-	param.RoomSize = roomSize;
-	HRESULT hr = sv->SetEffectParameters(slot, &param, sizeof(param));
-	//isAlter = false;
+	HRESULT hr = sv->SetEffectParameters(slot, &reverbParam, sizeof(reverbParam));
 }
 
 void Reverb::Gui()
 {
 	if (ImGui::TreeNode("Reverb"))
 	{
-		ImGui::SliderFloat("diffusion", &diffusion, 0.0f, 1.0f);
-		ImGui::SliderFloat("roomSize", &roomSize, 0.0001f, 1.0f);
-
+		ImGui::InputFloat("wetDryMix", &wetDryMix);
+		ImGui::InputFloat("decayTime", &decayTime);
+		ImGui::InputFloat("reverbGain", &reverbGain);
+		ImGui::InputFloat("roomFilterHF", &roomFilterHF);
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
@@ -71,12 +66,11 @@ void Echo::update(IXAudio2SubmixVoice* sv)
 	//値が変更されてないなら即リターン
 	//if (!isAlter || !sv)return;
 
-	FXECHO_PARAMETERS param;
+	FXECHO_PARAMETERS param = {};
 
 	param.Delay = delay;
 	param.Feedback = feedback;
 	param.WetDryMix = wetDryMix;
-
 	HRESULT hr = sv->SetEffectParameters(slot, &param, sizeof(param));
 	//isAlter = false;
 }
@@ -85,9 +79,9 @@ void Echo::Gui()
 {
 	if (ImGui::TreeNode("Echo"))
 	{
-		ImGui::SliderFloat("WetDryMix", &wetDryMix, 0.0f, 1.0f);
-		ImGui::SliderFloat("feedback", &feedback, 0.0f, 1.0f);
-		ImGui::SliderFloat("delay", &delay, 1.0f, 2000.0f);
+		ImGui::InputFloat("WetDryMix", &wetDryMix);
+		ImGui::InputFloat("feedback", &feedback);
+		ImGui::InputFloat("delay", &delay);
 
 		ImGui::TreePop();
 	}
@@ -97,7 +91,6 @@ void Echo::Gui()
 Equalizer::Equalizer(int slot) :SoundEffect(slot)
 {
 	CreateFX(__uuidof(FXEQ), &pXAPO);
-
 }
 
 Equalizer::~Equalizer()

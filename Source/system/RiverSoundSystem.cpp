@@ -13,18 +13,16 @@
 
 RiverSoundSystem::RiverSoundSystem()
 {
-
 	//ƒ|ƒŠƒ‰ƒCƒ“‰¹Œ¹‚Ìİ’è
 	std::shared_ptr<PoliLine>poliLine = std::make_shared<PoliLine>(pts);
 	emitter.minDistance = 3.0f;
 	emitter.maxDistance = 10.0f;
-	source = AudioManager::instance()->loadAudioSource3D(*noise->getSignalProcesser(), poliLine, &emitter);
-	source->setVolume(0.0f);
 
 	//‰¹Œ¹‚Ìİ’è
-	noise = std::make_unique<ProceduralAudio>(1);
+	noise = std::make_unique<ProceduralAudio>(1,poliLine,&emitter);
 	noise->setCreateFunc([this]() {return this->createWave();});
 	noise->initCreate(0.0f, 1.0f);
+	noise->getAudio()->setVolume(0.5f);
 }
 
 RiverSoundSystem::~RiverSoundSystem()
@@ -35,8 +33,8 @@ RiverSoundSystem::~RiverSoundSystem()
 void RiverSoundSystem::update()
 {
 	SoundListner lister = *AudioManager::instance()->findAudio(static_cast<int>(Lisner::PLAYER));
-	source->update(lister);
-	//noise->update(0.0f, 1.0f);
+	noise->getAudio()->update3D(lister);
+	noise->update(0.0f, 1.0f);
 }
 
 std::vector<uint8_t> RiverSoundSystem::createWave()
@@ -49,7 +47,7 @@ std::vector<uint8_t> RiverSoundSystem::createWave()
 
 void RiverSoundSystem::start()
 {
-	//noise->play(0);
+	noise->play(0);
 }
 
 void RiverSoundSystem::debugRender()
@@ -76,12 +74,12 @@ void RiverSoundSystem::debugRender()
 	}
 
 	//‹…‘Ì
-	graphics->getDebugRenderer()->drawSphere(source->getEmitterPos(), 0.5f, {1.0f,0.0f,0.0f,1.0f});
+	graphics->getDebugRenderer()->drawSphere(dynamic_cast<Audio3D*>(noise->getAudio())->getEmitterPos(), 0.5f, {1.0f,0.0f,0.0f,1.0f});
 }
 
 void RiverSoundSystem::gui()
 {
 	ImGui::Begin("Rever sound");
-	source->gui();
+	dynamic_cast<Audio3D*>(noise->getAudio())->gui();
 	ImGui::End();
 }

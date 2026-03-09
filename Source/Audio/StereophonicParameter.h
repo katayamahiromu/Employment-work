@@ -39,11 +39,20 @@ struct SoundDSPSetting
 
 struct DSPResult
 {
+    //距離
 	float distance = 0.0f;
+
+    //ドップラー率
 	float dopplerScale = 1.0f;
+
+    //指向性
 	float radian = 0.0f;
+
+    // 減衰率
+	float scale = 1.0f;
+
+    //LPの周波数
 	float filterParam = 0.0f;
-	float scale = 1.0f; // 減衰率
 };
 
 struct SpeakerDir {

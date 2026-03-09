@@ -22,7 +22,7 @@ SignalProcesser::SignalProcesser()
 {
     samplingRate = 44100;
     wfx.wFormatTag = WAVE_FORMAT_PCM;
-    wfx.nChannels = 2;
+    wfx.nChannels = 1;
     wfx.nSamplesPerSec = samplingRate;
     wfx.wBitsPerSample = 16;
     wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;

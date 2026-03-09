@@ -4,10 +4,9 @@
 #include"../imgui/imgui.h"
 #include<algorithm>
 
-#include"PointEmitter.h"
-
 Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, std::shared_ptr<BaseEmitter>emitterType, SoundEmitter* emitter):Audio(xaudio,resource,false)
 {
+    //各種Emiiterの設定
 	if (emitter != nullptr)
 	{
 		this->emitter = emitter; // 値のみ代入
@@ -24,6 +23,12 @@ Audio3D::Audio3D(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, std
 	}
 
     this->emitterType = emitterType;
+
+    //エフェクトの設定
+    effect = AudioManager::instance()->createSubMixVoice();
+    effect->addEffect(std::make_unique<Reverb>(0));
+    effect->addEffect(std::make_unique<Echo>(1));
+    effect->applyEffect();
 }
 
 Audio3D::~Audio3D()
@@ -31,18 +36,23 @@ Audio3D::~Audio3D()
 	if (dspSetting.outputMatrix) delete[] dspSetting.outputMatrix;
 }
 
-void Audio3D::update(SoundListner& listner)
+void Audio3D::update3D(SoundListner& listener)
 {
     //エミターの位置と速度
     emitterType->calcEmitterSetting(*emitter);
 
     //DSPに用いる値計算
-	DSPResult result = emitterType->calcDSP(*emitter, listner);
+	DSPResult result = emitterType->calcDSP(*emitter, listener);
 
     //DSPの値を用いた各種効果の適応
     calcPan(result);
 	filter(LowPassOnePoleFilter, result.filterParam, 1.0f);
 	sourceVoice->SetFrequencyRatio(result.dopplerScale);
+
+    //リバーブの値更新
+    updateReverb(result);
+    updateEcho(result);
+    effect->update();
 }
 
 void Audio3D::filter(XAUDIO2_FILTER_TYPE type, float filterParam, FLOAT32 overq)
@@ -155,6 +165,57 @@ void Audio3D::calcPan(DSPResult& result)
     );
 }
 
+void Audio3D::updateReverb(DSPResult& result)
+{
+    Reverb* reverb = dynamic_cast<Reverb*>(effect->getEffect(REVERB));
+
+    //距離が伸びるほどリバーブを強く
+    float normalizeDistance = std::clamp((result.distance - emitter->minDistance) / (emitter->maxDistance - emitter->minDistance), 0.0f, 1.0f);
+    const float minWetDryMix = 25.0f;
+    const float maxWetDryMix = 80.0f;
+    reverb->setWetDryMix(Mathf::Leap(minWetDryMix, maxWetDryMix, normalizeDistance));
+
+    //距離減衰を反映
+    float baseGain = Mathf::Leap(-6.0f, -2.0f, normalizeDistance);
+    float scaleGain = 10.0f * log10(result.scale);
+    reverb->setReverbGain(baseGain + scaleGain);
+
+    //残響時間の変動
+    const float minDecayTime = 1.0f;
+    const float maxDecayTime = 1.5f;
+    reverb->setDecayTime(Mathf::Leap(minDecayTime, maxDecayTime, normalizeDistance));
+
+    float t = std::clamp((result.filterParam - 2000.0f) / (8000.0f - 2000.0f), 0.0f, 1.0f);
+    reverb->setRoomFilterHF(Mathf::Leap(-12.0f, -2.0f, t));
+}
+
+void Audio3D::updateEcho(DSPResult& result)
+{
+    Echo* echo = dynamic_cast<Echo*>(effect->getEffect(ECHO));
+    float normalizeDistance = std::clamp((result.distance - emitter->minDistance) / (emitter->maxDistance - emitter->minDistance), 0.0f, 1.0f);
+
+    //遠いほど反射音が目立つ
+    const float minWetDry = 0.05f;
+    const float maxWetDry = 0.80f;
+    echo->setWetDryMix(Mathf::Leap(minWetDry, maxWetDry, normalizeDistance));
+
+    //遠い程反射が少し残る
+    const float minFeedback = 0.05f;
+    const float maxFeedback = 0.30f;
+    echo->setFeedback(Mathf::Leap(minFeedback, maxFeedback, normalizeDistance));
+
+    //遠い程反射が遅れる
+    const float minDelayMs = 30.0f;
+    const float maxDelayMs = 120.0f;
+    float delayMs = Mathf::Leap(minDelayMs, maxDelayMs, normalizeDistance);
+
+    // サンプル数に変換
+    float sampleRate = 44000.0f;
+    float delaySamples = delayMs * 0.001f * sampleRate;
+
+    echo->setDelay(delaySamples);
+}
+
 void Audio3D::gui()
 {
 	//ImGui::Begin("debug Sound");
@@ -169,5 +230,6 @@ void Audio3D::gui()
     }
     //左右の大きさを強調
     ImGui::SliderFloat("PanPower", &panPower, 1.0, 4.0f);
+    effect->Gui();
 	//ImGui::End();
 }

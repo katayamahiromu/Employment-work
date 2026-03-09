@@ -7,6 +7,7 @@
 #include "AudioResource.h"
 #include "SubMixVoice.h"
 #include "AudioCallback.h"
+#include"StereophonicParameter.h"
 
 enum Fliter_Type
 {
@@ -24,7 +25,7 @@ class Audio
 public:
 	Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource, bool effect);
 	Audio(IXAudio2* xaudio, WAVEFORMATEX wfx);
-	~Audio();
+	virtual ~Audio();
 
 	std::string getName() { return resource->getName(); }
 
@@ -32,6 +33,7 @@ public:
 	void createReversWav() { resource->reversData(); }
 
 	void update(float elapsedTime);
+	virtual void update3D(SoundListner& listener) {}
 
 	/// <summary>
 	/// オーディオの再生
@@ -146,7 +148,6 @@ public:
 
 	bool getPlayFlag() { return isEnd; }
 
-
 	enum class Fade
 	{
 		None = -1,
@@ -160,7 +161,7 @@ public:
 protected:
 	IXAudio2SourceVoice* sourceVoice = nullptr;
 	std::shared_ptr<AudioResource>	resource;
-	std::unique_ptr<AudioCallback>callback;
+	std::unique_ptr<AudioCallback> callback;
 	float volume = 1.0f;
 	int loopCount = 0;
 	

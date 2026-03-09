@@ -13,6 +13,7 @@ public:
 	using function = std::function<std::vector<UINT8>()>;
 
 	ProceduralAudio(int maxSourceCount);
+    ProceduralAudio(int maxSourceCount, std::shared_ptr<BaseEmitter>emitterType, SoundEmitter* emitter);
 	~ProceduralAudio();
 
 	void play(int index,bool tryS = true);
@@ -35,6 +36,7 @@ public:
 	void loadModalData(const char* filename, float durationSeconds, float masterGain);
 
 	SignalProcesser* getSignalProcesser(){ return signal.get(); }
+    Audio* getAudio() { return source.get(); }
 private:
 	std::unique_ptr<SignalProcesser> signal;
     std::unique_ptr<Audio>source;

@@ -50,7 +50,7 @@ public:
 	/// オーディオを纏めれるサブミックスボイスの生成
 	/// エフェクトを加えたりも出来る
 	/// </summary>
-	std::unique_ptr<SubMixVoice>createSubMixVoice();
+	std::shared_ptr<SubMixVoice>createSubMixVoice();
 
 	IXAudio2MasteringVoice* getMasteringVoice() { return masteringVoice; }
 
@@ -59,7 +59,7 @@ public:
 
 	IXAudio2* getIXAudio2() { return xaudio; }
 
-	SubMixVoiceManager* getSmv() { return smv; }
+	SubMixVoiceManager* getSmvManager() { return smvManager.get(); }
 
 	void RegisterAudioArray(Audio* audio) { audioSources.emplace_back(audio); }
 
@@ -74,15 +74,15 @@ private:
 	IXAudio2MasteringVoice* masteringVoice = nullptr;
 
 	//エフェクトの設定を纏めたやつ
-	SubMixVoiceManager*smv = nullptr;
+	std::unique_ptr<SubMixVoiceManager> smvManager;
 
 	//登録
 	std::unordered_map<int, SoundListner*>listenerArray;
-
 	std::vector<Audio*>audioSources;
 
 	//破棄リスト
 	std::vector<Audio*>removeSources;
 
+	//波形生成用に使用するスレッド
 	std::unique_ptr<AudioWorker>worker;
 };

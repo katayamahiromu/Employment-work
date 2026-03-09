@@ -33,5 +33,4 @@ private:
 
     std::unique_ptr<ProceduralAudio>noise;
     SoundEmitter emitter;
-    std::unique_ptr<Audio3D>source;
 };

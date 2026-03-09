@@ -9,10 +9,10 @@ public:
 	~SubMixVoiceManager();
 
 	void update();
-	void createSubMixVoice();
+	void registerSubMixVoice(std::shared_ptr<SubMixVoice> subMixVoice);
 	SubMixVoice* getSubMixVoice(int num) { return subMixVoiceArray.at(num).get(); }
 
 	void Gui();
 private:
-	std::vector<std::unique_ptr<SubMixVoice>>subMixVoiceArray;
+	std::vector<std::shared_ptr<SubMixVoice>>subMixVoiceArray;
 };

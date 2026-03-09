@@ -22,14 +22,7 @@ void SubMixVoiceManager::Gui()
 	for (auto& sv : subMixVoiceArray)sv->Gui();
 }
 
-void SubMixVoiceManager::createSubMixVoice()
+void SubMixVoiceManager::registerSubMixVoice(std::shared_ptr<SubMixVoice> subMixVoice)
 {
-	std::unique_ptr<SubMixVoice> sm = AudioManager::instance()->createSubMixVoice();
-	sm->addEffect(std::make_unique<Equalizer>(0));
-	sm->addEffect(std::make_unique<Reverb>(1));
-	sm->addEffect(std::make_unique<Echo>(2));
-
-	sm->applyEffect();
-
-	subMixVoiceArray.emplace_back(std::move(sm));
+	subMixVoiceArray.emplace_back(subMixVoice);
 }

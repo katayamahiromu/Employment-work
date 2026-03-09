@@ -46,7 +46,7 @@ protected:
 	int slot;
 };
 
-//簡易リバーブ
+//リバーブ
 class Reverb : public SoundEffect
 {
 public:
@@ -57,22 +57,17 @@ public:
 
 	SoundEffectType getType()const override { return SoundEffectType::REVERB; }
 
-	/*void setWetLevel(float value) { setParameter(wetLevel, value); }
-	void setDecayTime(float value) { setParameter(decayTime, value); }*/
+	void setWetDryMix(float value) { setParameter(wetDryMix, value); }
+	void setDecayTime(float value) { setParameter(decayTime, value); }
+	void setReverbGain(float value) { setParameter(reverbGain, value); }
+	void setRoomFilterHF(float value) { setParameter(roomFilterHF, value); }
 
 	void Gui()override;
 private:
-	////残響と実音の混ざり具合
-	//float wetLevel = 50.0f; //0~100;
-
-	////残響時間
-	//float decayTime = 1.5f; 
-
-	//壁の硬さ
-	float diffusion = 0.9f;
-
-	//部屋の大きさ
-	float roomSize = 0.6f;
+	float wetDryMix = 25.0f;	//%
+	float decayTime = 1.0f;		//seconds
+	float reverbGain = -8.0f;	//db
+	float roomFilterHF = -3.0f; //db
 };
 
 class Echo : public SoundEffect
@@ -91,13 +86,13 @@ public:
 	void Gui()override;
 private:
 	//エフェクトの強さ
-	float wetDryMix = 0.5f; // 0.0f ～ 1.0f
+	float wetDryMix = 0.5f;
 
 	//残響を残すか
-	float feedback = 0.8f;//0.0f ~ 1.0f
+	float feedback = 0.8f;
 
 	//何秒遅らせるか
-	float delay = 1000.0f; // 1ms ～ 2000ms
+	float delay = 1000.0f;
 };
 
 class Equalizer : public SoundEffect

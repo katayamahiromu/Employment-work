@@ -5,8 +5,6 @@
 // デストラクタ
 AudioManager::~AudioManager()
 {
-	delete smv;
-
 	// マスタリングボイス破棄
 	if (masteringVoice != nullptr)
 	{
@@ -47,9 +45,7 @@ AudioManager* AudioManager::initialize()
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 
 
-	smv = new SubMixVoiceManager;
-	smv->createSubMixVoice();
-
+	smvManager = std::make_unique<SubMixVoiceManager>();
 	worker = std::make_unique<AudioWorker>();
 	return this;
 }
@@ -57,7 +53,7 @@ AudioManager* AudioManager::initialize()
 void AudioManager::update(float elapsedTime)
 {
 	//サブミックスボイスの更新
-	smv->update();
+	smvManager->update();
 
 	for (auto& audioSource : audioSources)
 	{
@@ -115,14 +111,14 @@ std::unique_ptr<Audio3D>AudioManager::loadAudioSource3D(SignalProcesser& siganl,
 	return std::make_unique<Audio3D>(xaudio, resource, emitterType, emitter);
 }
 
-std::unique_ptr<SubMixVoice>AudioManager::createSubMixVoice()
+std::shared_ptr<SubMixVoice>AudioManager::createSubMixVoice()
 {
-	return std::make_unique<SubMixVoice>(xaudio);
+	return std::make_shared<SubMixVoice>(xaudio);
 }
 
 void AudioManager::Gui()
 {
 	ImGui::Begin("Audio Preview");
-	smv->Gui();
+	smvManager->Gui();
 	ImGui::End();
 }

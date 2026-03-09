@@ -10,6 +10,13 @@ ProceduralAudio::ProceduralAudio(int maxSourceCount) : maxSourceCount(maxSourceC
 	source = AudioManager::instance()->loadAudioSource(*signal);
 }
 
+ProceduralAudio::ProceduralAudio(int maxSourceCount, std::shared_ptr<BaseEmitter>emitterType, SoundEmitter* emitter) : maxSourceCount(maxSourceCount)
+{
+	signal = std::make_unique<SignalProcesser>();
+	signal->resize(maxSourceCount);
+	source = AudioManager::instance()->loadAudioSource3D(*signal, emitterType, emitter);
+}
+
 ProceduralAudio::~ProceduralAudio()
 {
 	

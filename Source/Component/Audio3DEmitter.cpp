@@ -22,7 +22,7 @@ void Audio3DEmitter::update(float elapsedTime)
 {
 	//DSP‚ÌXV
 	if (listener == nullptr)return;
-	source->update(*listener);
+	source->update3D(*listener);
 }
 
 void Audio3DEmitter::OnGUI()

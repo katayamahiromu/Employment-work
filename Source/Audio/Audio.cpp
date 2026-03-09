@@ -20,10 +20,6 @@ Audio::Audio(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource,bool eff
 		callback.get());
 	_ASSERT_EXPR(SUCCEEDED(hr), hrTrace(hr));
 
-	if (effect)
-	{
-		setSubmixVoice(AudioManager::instance()->getSmv()->getSubMixVoice(0));
-	}
 }
 
 Audio::Audio(IXAudio2* xaudio, WAVEFORMATEX wfx)
